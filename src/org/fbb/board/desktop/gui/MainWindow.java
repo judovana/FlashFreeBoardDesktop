@@ -1,6 +1,7 @@
 package org.fbb.board.desktop.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.GraphicsDevice;
 import java.awt.GridLayout;
@@ -107,7 +108,11 @@ public class MainWindow {
     }
 
     private static void createWindow(BufferedImage bis, String name) {
-        createWindowIpl(bis, Files.sanitizeFileName(name + " " + new Date().toString()), null);
+        //get rid of transaprency
+        BufferedImage newBufferedImage = new BufferedImage(bis.getWidth(),
+                bis.getHeight(), BufferedImage.TYPE_INT_RGB);
+        newBufferedImage.createGraphics().drawImage(bis, 0, 0, Color.WHITE, null);
+        createWindowIpl(newBufferedImage, Files.sanitizeFileName(name + " " + new Date().toString()), null);
     }
 
     private static void createWindow(ZipInputStream zis, String name) throws IOException {

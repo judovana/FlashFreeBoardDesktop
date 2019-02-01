@@ -259,14 +259,14 @@ public class Grid {
                 g.drawString("" + i, get.xpoints[3], get.ypoints[3]);
             }
         }
-        byte[] bb = getArrayT2BthenL2R();
-        System.out.println(Arrays.toString(bb));
-        bb = getArrayB2TthenL2R();
-        System.out.println(Arrays.toString(bb));
-        bb = getArrayL2RthenB2T();
-        System.out.println(Arrays.toString(bb));
-        bb = getArrayL2RthenT2B();
-        System.out.println(Arrays.toString(bb));
+//        byte[] bb = getArrayT2BthenL2R();
+//        System.out.println(Arrays.toString(bb));
+//        bb = getArrayB2TthenL2R();
+//        System.out.println(Arrays.toString(bb));
+//        bb = getArrayL2RthenB2T();
+//        System.out.println(Arrays.toString(bb));
+//        bb = getArrayL2RthenT2B();
+//        System.out.println(Arrays.toString(bb));
 
     }
 
