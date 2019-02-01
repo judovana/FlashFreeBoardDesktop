@@ -10,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.geom.Rectangle2D;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,11 +62,32 @@ public class Grid {
     private static final int E_BOTH = 6;
     private static final int RECT = 7;
 
-    public Grid(Meassurable parent) {
+    public Grid(Meassurable parent, byte[] load) {
         ul = new RelativePoint(0, 0, parent, new Rectangle2D.Double(0, 0, 0.5, 0.5));
         ur = new RelativePoint(1, 0, parent, new Rectangle2D.Double(0.5, 0, 0.5, 0.5));
         bl = new RelativePoint(0, 1, parent, new Rectangle2D.Double(0, 0.5, 0.5, 0.5));
         br = new RelativePoint(1, 1, parent, new Rectangle2D.Double(0.5, 0.5, 0.5, 0.5));
+        createLines();
+        if (load != null) {
+            try {
+                Properties p = new Properties();
+                p.load(new ByteArrayInputStream(load));
+                String v = p.getProperty("rows");
+                if (v != null) {
+                    setVertLines(Integer.valueOf(v) + 1);
+                }
+                v = p.getProperty("columns");
+                if (v != null) {
+                    setHorLines(Integer.valueOf(v) + 1);
+                }
+                readCoord(ul, "ul", p);
+                readCoord(ur, "ur", p);
+                readCoord(bl, "bl", p);
+                readCoord(br, "br", p);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        }
         createLines();
     }
 
@@ -620,5 +642,16 @@ public class Grid {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         p.store(bos, null);
         return bos.toByteArray();
+    }
+
+    private void readCoord(RelativePoint coord, String id, Properties p) {
+        String v = p.getProperty(id + ".x");
+        if (v != null) {
+            coord.setX(Double.valueOf(v));
+        }
+        v = p.getProperty(id + ".y");
+        if (v != null) {
+            coord.setY(Double.valueOf(v));
+        }
     }
 }

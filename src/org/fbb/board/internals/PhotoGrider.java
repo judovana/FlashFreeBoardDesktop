@@ -37,7 +37,7 @@ public class PhotoGrider {
                     ex.printStackTrace();
                     img = new BufferedImage(800, 600, BufferedImage.TYPE_3BYTE_BGR);
                 }
-                f.add(new GridPane(img));
+                f.add(new GridPane(img, null));
                 f.setVisible(true);
             }
         });
