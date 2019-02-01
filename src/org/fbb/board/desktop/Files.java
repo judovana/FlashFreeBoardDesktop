@@ -7,6 +7,7 @@ package org.fbb.board.desktop;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,6 +23,33 @@ public class Files {
     public static final File bouldersDir = new File(configDir + "/boulders");
     private static final File lastBoard = new File(configDir + "/lastBoard");
     private static final File lastBoulder = new File(configDir + "/lastBoulder");
+    
+    public static final List<Character> INVALID_PATH = Arrays.asList(new Character[]{':', '*', '?', '"', '<', '>', '|', '[', ']', '\'', ';', '=', ','});
+    public static final List<Character> INVALID_NAME = new ArrayList<>(INVALID_PATH);
+
+    static {
+        INVALID_NAME.add(0, '\\');
+        INVALID_NAME.add(0, '/');
+        INVALID_NAME.add(0, ' ');
+        INVALID_NAME.add(0, '\t');
+        INVALID_NAME.add(0, '\n');
+    }
+    private static final char SANITIZED_CHAR = '_';
+     public static String sanitizeFileName(String filename) {
+        return sanitizeFileName(filename, SANITIZED_CHAR);
+    }
+
+    public static String sanitizeFileName(String filename, char substitute) {
+
+        for (int i = 0; i < INVALID_NAME.size(); i++) {
+            if (-1 != filename.indexOf(INVALID_NAME.get(i))) {
+                filename = filename.replace(INVALID_NAME.get(i), substitute);
+            }
+        }
+
+        return filename;
+    }
+
 
     public static void setLastBoard(String content) throws IOException {
         lastBoard.getParentFile().mkdirs();

@@ -29,6 +29,12 @@ public class GridPane extends JPanel implements Meassurable {
         return true;
     }
 
+    public Grid getGrid() {
+        return grid;
+    }
+    
+    
+
     public GridPane(BufferedImage img) {
         this.grabFocus();
         this.img = img;
