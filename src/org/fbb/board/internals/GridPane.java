@@ -13,6 +13,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 /**
@@ -32,8 +39,6 @@ public class GridPane extends JPanel implements Meassurable {
     public Grid getGrid() {
         return grid;
     }
-    
-    
 
     public GridPane(BufferedImage img) {
         this.grabFocus();
@@ -108,7 +113,7 @@ public class GridPane extends JPanel implements Meassurable {
                     grid.setHorLines(grid.getHorLines() - 1);
                     GridPane.this.repaint();
                 }
-                  if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     grid.randomBoulder();
                     GridPane.this.repaint();
                 }
@@ -121,6 +126,21 @@ public class GridPane extends JPanel implements Meassurable {
     public void paintComponent(Graphics g) {
         g.drawImage(img, 0, 0, this.getWidth(), this.getHeight(), null);
         grid.draw((g));
+    }
+
+    public void save(File f) throws IOException {
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(f))) {
+            ZipEntry imgEntry = new ZipEntry("img.jpeg");
+            zos.putNextEntry(imgEntry);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ImageIO.write(this.img, "jpg", bos);
+            zos.write(bos.toByteArray());
+            ZipEntry coords = new ZipEntry("coords.prop");
+            zos.putNextEntry(coords);
+            zos.write(grid.getCoordsSave());
+            zos.flush();
+            zos.finish();
+        }
     }
 
 }

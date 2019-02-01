@@ -21,6 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -166,9 +167,36 @@ public class MainWindow {
             tools.add(tools2);
             tools.add(tools3);
             tools.add(done);
+            done.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    name.setText(Files.sanitizeFileName(name.getText()));
+                    String n = name.getText();
+                    if (!n.endsWith(".wall")) {
+                        n = n + ".wall";
+                    }
+                    File f = new File(Files.wallsDir, n);
+                    if (f.exists()) {
+                        int result = JOptionPane.showConfirmDialog(
+                                createWallWindow,
+                                Translator.R("Fexs", n), Translator.R("Fexs"), JOptionPane.YES_NO_OPTION);
+                        if (result != JOptionPane.YES_OPTION) {
+                            return;
+                        }
+                    }
+                    f.getParentFile().mkdirs();
+                    try {
+                        gp.save(f);
+                        createWallWindow.dispose();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null, ex);
+                    }
+                }
+
+            });
             createWallWindow.pack();
             createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
-
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
