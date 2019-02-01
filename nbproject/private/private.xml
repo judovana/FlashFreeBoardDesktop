@@ -6,7 +6,6 @@
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/</file>
         </group>
         <group name="tools">
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/Translator.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/desktop/gui/MainWindow.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/Grid.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/locales/bundles/Messages_cs.properties</file>

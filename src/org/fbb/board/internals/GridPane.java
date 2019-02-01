@@ -19,7 +19,7 @@ import javax.swing.JPanel;
  *
  * @author jvanek
  */
-class GridPane extends JPanel implements Meassurable {
+public class GridPane extends JPanel implements Meassurable {
 
     private BufferedImage img;
     private Grid grid;
