@@ -60,9 +60,10 @@ public class MainWindow {
                 //both null, sugest to create board
                 createSelectOrImportWall();
             }
-        } catch (IOException ex) {
-            //do better
+        } catch (Exception ex) {
+            //do better?
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex);
         }
     }
 
@@ -230,6 +231,7 @@ public class MainWindow {
                     gp.save(f);
                     Files.setLastBoard(n);
                     createWallWindow.dispose();
+                    loadWallWithRandomBoulder(n);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, ex);
@@ -269,10 +271,24 @@ public class MainWindow {
         double nh = ratio * (double) bi.getHeight();
         gp.getGrid().randomBoulder();
         gp.getGrid().setShowGrid(false);
+        JPanel tools = new JPanel(new BorderLayout());
+        JPanel tools2 = new JPanel(new GridLayout(1, 4));
         JLabel name = new JLabel(Translator.R("RandomBoulder", lastBoard + " " + new Date()));
-        createWallWindow.add(name,BorderLayout.NORTH);
+        JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
+        tools.add(settings, BorderLayout.WEST);
+        tools.add(name);
+        tools.add(tools2, BorderLayout.EAST);
+        JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
+        JButton nextRandomGenerated = new JButton("?");
+        JButton nextRandom = new JButton("?>");
+        JButton nextInList = new JButton(">");
+        tools2.add(previous);
+        tools2.add(nextRandomGenerated);
+        tools2.add(nextRandom);
+        tools2.add(nextInList);
+        createWallWindow.add(tools,BorderLayout.NORTH);
         createWallWindow.pack();
-        createWallWindow.setSize((int) nw, (int) nh + name.getHeight());
+        createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
