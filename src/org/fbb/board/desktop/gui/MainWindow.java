@@ -12,6 +12,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -23,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -49,9 +52,10 @@ public class MainWindow {
                 //if so, show last boulder on last wall
                 //if not warn, load boulder on its board if  its board exists || load wall only
             } else if (Files.getLastBoulder() != null && Files.getLastBoard() == null) {
-                //warn, but load last boulder on its wall, if wall does noto exists, empty
+                //warn, but load last boulder on its wall, if wall does noto exists, empty(?)
             } else if (Files.getLastBoard() != null && Files.getLastBoulder() == null) {
-                //load last wall, sugest to create boulder or generate random one
+                //load last wall, generate random bouoder
+                loadWallWithRandomBoulder(Files.getLastBoard());
             } else {
                 //both null, sugest to create board
                 createSelectOrImportWall();
@@ -127,11 +131,7 @@ public class MainWindow {
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bis, props);
         createWallWindow.add(gp);
-        Rectangle size = ScreenFinder.getCurrentScreenSizeWithoutBounds();
-        double dw = (double) size.width / (double) bis.getWidth();
-        double dh = (double) size.height / (double) bis.getHeight();
-        double ratio = Math.min(dw, dh);
-        ratio = ratio * 0.8;//do not cover all screen
+        double ratio = getIdealWindowSizw(bis);
         double nw = ratio * (double) bis.getWidth();
         double nh = ratio * (double) bis.getHeight();
         JTextField name = new JTextField(fname);
@@ -228,6 +228,7 @@ public class MainWindow {
                 f.getParentFile().mkdirs();
                 try {
                     gp.save(f);
+                    Files.setLastBoard(n);
                     createWallWindow.dispose();
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -238,6 +239,40 @@ public class MainWindow {
         });
         createWallWindow.pack();
         createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                createWallWindow.setVisible(true);
+            }
+        });
+    }
+
+    private static double getIdealWindowSizw(BufferedImage bis) {
+        Rectangle size = ScreenFinder.getCurrentScreenSizeWithoutBounds();
+        double dw = (double) size.width / (double) bis.getWidth();
+        double dh = (double) size.height / (double) bis.getHeight();
+        double ratio = Math.min(dw, dh);
+        ratio = ratio * 0.8;//do not cover all screen
+        return ratio;
+    }
+
+    private static void loadWallWithRandomBoulder(String lastBoard) throws IOException {
+        File f = new File(Files.wallsDir, lastBoard);
+        GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)));
+        BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
+        final JFrame createWallWindow = new JFrame();
+        createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        GridPane gp = new GridPane(bi, preloaded.props);
+        createWallWindow.add(gp);
+        double ratio = getIdealWindowSizw(bi);
+        double nw = ratio * (double) bi.getWidth();
+        double nh = ratio * (double) bi.getHeight();
+        gp.getGrid().randomBoulder();
+        gp.getGrid().setShowGrid(false);
+        JLabel name = new JLabel(Translator.R("RandomBoulder", lastBoard + " " + new Date()));
+        createWallWindow.add(name,BorderLayout.NORTH);
+        createWallWindow.pack();
+        createWallWindow.setSize((int) nw, (int) nh + name.getHeight());
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
