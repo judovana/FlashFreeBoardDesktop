@@ -44,7 +44,7 @@ import org.fbb.board.internals.GridPane;
  * @author jvanek
  */
 public class MainWindow {
-
+    
     public static void main(String... s) {
         try {
             if (Files.getLastBoard() != null && Files.getLastBoulder() != null) {
@@ -66,7 +66,7 @@ public class MainWindow {
             JOptionPane.showMessageDialog(null, ex);
         }
     }
-
+    
     private static void createSelectOrImportWall() throws IOException {
         JDialog f = new JDialog((JFrame) null, Translator.R("MainWindowSetWall"), true);
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -109,9 +109,9 @@ public class MainWindow {
                 JOptionPane.showMessageDialog(null, exx);
             }
         }
-
+        
     }
-
+    
     private static void createWindow(BufferedImage bis, String name) {
         //get rid of transaprency
         BufferedImage newBufferedImage = new BufferedImage(bis.getWidth(),
@@ -119,14 +119,14 @@ public class MainWindow {
         newBufferedImage.createGraphics().drawImage(bis, 0, 0, Color.WHITE, null);
         createWindowIpl(newBufferedImage, Files.sanitizeFileName(name + " " + new Date().toString()), null);
     }
-
+    
     private static void createWindow(ZipInputStream zis, String name) throws IOException {
         GridPane.Preload preloaded = GridPane.preload(zis);
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         createWindowIpl(bi, name, preloaded.props);
-
+        
     }
-
+    
     private static void createWindowIpl(BufferedImage bis, String fname, byte[] props) {
         final JFrame createWallWindow = new JFrame();
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -196,7 +196,7 @@ public class MainWindow {
                 gp.repaint();
             }
         });
-
+        
         grid.setSelected(true);
         createWallWindow.add(tools, BorderLayout.SOUTH);
         tools.add(name);
@@ -237,7 +237,7 @@ public class MainWindow {
                     JOptionPane.showMessageDialog(null, ex);
                 }
             }
-
+            
         });
         createWallWindow.pack();
         createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
@@ -248,7 +248,7 @@ public class MainWindow {
             }
         });
     }
-
+    
     private static double getIdealWindowSizw(BufferedImage bis) {
         Rectangle size = ScreenFinder.getCurrentScreenSizeWithoutBounds();
         double dw = (double) size.width / (double) bis.getWidth();
@@ -257,7 +257,7 @@ public class MainWindow {
         ratio = ratio * 0.8;//do not cover all screen
         return ratio;
     }
-
+    
     private static void loadWallWithRandomBoulder(String lastBoard) throws IOException {
         File f = new File(Files.wallsDir, lastBoard);
         GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)));
@@ -266,6 +266,7 @@ public class MainWindow {
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bi, preloaded.props);
         createWallWindow.add(gp);
+        gp.disableClicking();
         double ratio = getIdealWindowSizw(bi);
         double nw = ratio * (double) bi.getWidth();
         double nh = ratio * (double) bi.getHeight();
@@ -280,13 +281,20 @@ public class MainWindow {
         tools.add(tools2, BorderLayout.EAST);
         JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
         JButton nextRandomGenerated = new JButton("?");
+        nextRandomGenerated.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gp.getGrid().randomBoulder();
+                gp.repaint();
+            }
+        });
         JButton nextRandom = new JButton("?>");
         JButton nextInList = new JButton(">");
         tools2.add(previous);
         tools2.add(nextRandomGenerated);
         tools2.add(nextRandom);
         tools2.add(nextInList);
-        createWallWindow.add(tools,BorderLayout.NORTH);
+        createWallWindow.add(tools, BorderLayout.NORTH);
         createWallWindow.pack();
         createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
         SwingUtilities.invokeLater(new Runnable() {
@@ -296,5 +304,5 @@ public class MainWindow {
             }
         });
     }
-
+    
 }

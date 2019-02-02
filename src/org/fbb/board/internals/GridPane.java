@@ -8,8 +8,11 @@ package org.fbb.board.internals;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
@@ -43,86 +46,23 @@ public class GridPane extends JPanel implements Meassurable {
         return grid;
     }
 
+    private final MouseWheelListener wheel;
+    private final MouseListener clicks;
+    private final MouseMotionListener drag;
+    private final KeyListener keys;
+
     public GridPane(BufferedImage img, byte[] properties) {
         this.grabFocus();
         this.img = img;
         grid = new Grid(this, properties);
-        this.addMouseWheelListener(new MouseWheelListener() {
-
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                String message;
-                int notches = e.getWheelRotation();
-                grid.setHoldStyle(notches);
-                repaint();
-            }
-        });
-        this.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) {
-                    double relX = (double) e.getX() / (double) getWidth();
-                    double relY = (double) e.getY() / (double) getHeight();
-                    grid.select(relX, relY);
-                }
-                if (e.getButton() == MouseEvent.BUTTON3) {
-                    grid.setPs(e.getX(), e.getY());
-                    repaint();
-                }
-                if (e.getButton() == MouseEvent.BUTTON2) {
-                    grid.setShowGrid(!grid.isShowGrid());
-                    repaint();
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                grid.unselect();
-            }
-
-        });
-        this.addMouseMotionListener(new MouseAdapter() {
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                double relX = (double) e.getX() / (double) getWidth();
-                double relY = (double) e.getY() / (double) getHeight();
-                if (grid.moveSelected(relX, relY)) {
-                    repaint();
-                }
-
-            }
-
-        });
-        this.addKeyListener(new KeyAdapter() {
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    grid.setVertLines(grid.getVertLines() + 1);
-                    GridPane.this.repaint();
-                }
-                if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    grid.setVertLines(grid.getVertLines() - 1);
-                    GridPane.this.repaint();
-                }
-
-                if (e.getKeyCode() == KeyEvent.VK_UP) {
-                    grid.setHorLines(grid.getHorLines() + 1);
-                    GridPane.this.repaint();
-                }
-                if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    grid.setHorLines(grid.getHorLines() - 1);
-                    GridPane.this.repaint();
-                }
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    grid.randomBoulder();
-                    GridPane.this.repaint();
-                }
-            }
-
-        });
+        wheel = new MouseWheelListenerRotateHoldStyles();
+        clicks = new MouseClicks();
+        drag = new MouseDragImpl();
+        keys = new KyeHandler();
+        this.addMouseWheelListener(wheel);
+        this.addMouseListener(clicks);
+        this.addMouseMotionListener(drag);
+        this.addKeyListener(keys);
     }
 
     @Override
@@ -144,6 +84,14 @@ public class GridPane extends JPanel implements Meassurable {
             zos.flush();
             zos.finish();
         }
+    }
+
+    public void disableClicking() {
+        //this.removeMouseWheelListener(wheel);
+        this.removeMouseListener(clicks);
+        this.removeMouseMotionListener(drag);
+        this.removeKeyListener(keys);
+
     }
 
     public static class Preload {
@@ -182,6 +130,95 @@ public class GridPane extends JPanel implements Meassurable {
             }
         }
         return new Preload(img.toByteArray(), props.toByteArray());
+    }
+
+    private class MouseWheelListenerRotateHoldStyles implements MouseWheelListener {
+
+        public MouseWheelListenerRotateHoldStyles() {
+        }
+
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            String message;
+            int notches = e.getWheelRotation();
+            grid.setHoldStyle(notches);
+            repaint();
+        }
+    }
+
+    private class MouseClicks extends MouseAdapter {
+
+        public MouseClicks() {
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (e.getButton() == MouseEvent.BUTTON1) {
+                double relX = (double) e.getX() / (double) getWidth();
+                double relY = (double) e.getY() / (double) getHeight();
+                grid.select(relX, relY);
+            }
+            if (e.getButton() == MouseEvent.BUTTON3) {
+                grid.setPs(e.getX(), e.getY());
+                repaint();
+            }
+            if (e.getButton() == MouseEvent.BUTTON2) {
+                grid.setShowGrid(!grid.isShowGrid());
+                repaint();
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            grid.unselect();
+        }
+    }
+
+    private class MouseDragImpl extends MouseAdapter {
+
+        public MouseDragImpl() {
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            double relX = (double) e.getX() / (double) getWidth();
+            double relY = (double) e.getY() / (double) getHeight();
+            if (grid.moveSelected(relX, relY)) {
+                repaint();
+            }
+
+        }
+    }
+
+    private class KyeHandler extends KeyAdapter {
+
+        public KyeHandler() {
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                grid.setVertLines(grid.getVertLines() + 1);
+                GridPane.this.repaint();
+            }
+            if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                grid.setVertLines(grid.getVertLines() - 1);
+                GridPane.this.repaint();
+            }
+
+            if (e.getKeyCode() == KeyEvent.VK_UP) {
+                grid.setHorLines(grid.getHorLines() + 1);
+                GridPane.this.repaint();
+            }
+            if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                grid.setHorLines(grid.getHorLines() - 1);
+                GridPane.this.repaint();
+            }
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                grid.randomBoulder();
+                GridPane.this.repaint();
+            }
+        }
     }
 
 }
