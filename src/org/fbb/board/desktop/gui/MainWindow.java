@@ -26,8 +26,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -44,7 +46,7 @@ import org.fbb.board.internals.GridPane;
  * @author jvanek
  */
 public class MainWindow {
-    
+
     public static void main(String... s) {
         try {
             if (Files.getLastBoard() != null && Files.getLastBoulder() != null) {
@@ -66,7 +68,7 @@ public class MainWindow {
             JOptionPane.showMessageDialog(null, ex);
         }
     }
-    
+
     private static void createSelectOrImportWall() throws IOException {
         JDialog f = new JDialog((JFrame) null, Translator.R("MainWindowSetWall"), true);
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -109,9 +111,9 @@ public class MainWindow {
                 JOptionPane.showMessageDialog(null, exx);
             }
         }
-        
+
     }
-    
+
     private static void createWindow(BufferedImage bis, String name) {
         //get rid of transaprency
         BufferedImage newBufferedImage = new BufferedImage(bis.getWidth(),
@@ -119,14 +121,14 @@ public class MainWindow {
         newBufferedImage.createGraphics().drawImage(bis, 0, 0, Color.WHITE, null);
         createWindowIpl(newBufferedImage, Files.sanitizeFileName(name + " " + new Date().toString()), null);
     }
-    
+
     private static void createWindow(ZipInputStream zis, String name) throws IOException {
         GridPane.Preload preloaded = GridPane.preload(zis);
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         createWindowIpl(bi, name, preloaded.props);
-        
+
     }
-    
+
     private static void createWindowIpl(BufferedImage bis, String fname, byte[] props) {
         final JFrame createWallWindow = new JFrame();
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -196,7 +198,7 @@ public class MainWindow {
                 gp.repaint();
             }
         });
-        
+
         grid.setSelected(true);
         createWallWindow.add(tools, BorderLayout.SOUTH);
         tools.add(name);
@@ -237,7 +239,7 @@ public class MainWindow {
                     JOptionPane.showMessageDialog(null, ex);
                 }
             }
-            
+
         });
         createWallWindow.pack();
         createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
@@ -248,7 +250,7 @@ public class MainWindow {
             }
         });
     }
-    
+
     private static double getIdealWindowSizw(BufferedImage bis) {
         Rectangle size = ScreenFinder.getCurrentScreenSizeWithoutBounds();
         double dw = (double) size.width / (double) bis.getWidth();
@@ -257,7 +259,7 @@ public class MainWindow {
         ratio = ratio * 0.8;//do not cover all screen
         return ratio;
     }
-    
+
     private static void loadWallWithRandomBoulder(String lastBoard) throws IOException {
         File f = new File(Files.wallsDir, lastBoard);
         GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)));
@@ -276,10 +278,25 @@ public class MainWindow {
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
         JLabel name = new JLabel(Translator.R("RandomBoulder", lastBoard + " " + new Date()));
         JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
+        JPopupMenu jp = new JPopupMenu();
+        settings.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jp.show((JButton) e.getSource(), 0, 0);
+            }
+        });
+        jp.add(new JMenuItem("new boulder"));
+        jp.add(new JMenuItem("edit this boulder"));
+        jp.add(new JMenuItem("save current bolder as"));
+        jp.add(new JMenuItem("new/edit wall"));
+        jp.add(new JMenuItem("start timered-training"));
         tools.add(settings, BorderLayout.WEST);
         tools.add(name);
         tools.add(tools2, BorderLayout.EAST);
         JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
+        JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
+        previous.setEnabled(false);
+        next.setEnabled(false);
         JButton nextRandomGenerated = new JButton("?");
         nextRandomGenerated.addActionListener(new ActionListener() {
             @Override
@@ -291,9 +308,16 @@ public class MainWindow {
         JButton nextRandom = new JButton("?>");
         JButton nextInList = new JButton(">");
         tools2.add(previous);
+        tools2.add(next);
         tools2.add(nextRandomGenerated);
         tools2.add(nextRandom);
         tools2.add(nextInList);
+        nextRandomGenerated.setToolTipText(Translator.R("NextRandomGenerated"));
+        nextRandom.setToolTipText(Translator.R("NextRandomlySelected"));
+        nextInList.setToolTipText(Translator.R("NextInRow"));
+        previous.setToolTipText(Translator.R("PreviousBoulder"));
+        settings.setToolTipText(Translator.R("Settings"));
+        next.setToolTipText(Translator.R("FwdBoulder"));
         createWallWindow.add(tools, BorderLayout.NORTH);
         createWallWindow.pack();
         createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
@@ -304,5 +328,5 @@ public class MainWindow {
             }
         });
     }
-    
+
 }
