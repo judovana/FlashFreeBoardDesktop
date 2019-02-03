@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.zip.ZipInputStream;
@@ -60,7 +61,7 @@ public class MainWindow {
                 loadWallWithRandomBoulder(Files.getLastBoard());
             } else {
                 //both null, sugest to create board
-                createSelectOrImportWall();
+                createSelectOrImportWall(LoadBackgroundOrImportOrLoadWall.getDefaultUrl());
             }
         } catch (Exception ex) {
             //do better?
@@ -69,10 +70,10 @@ public class MainWindow {
         }
     }
 
-    private static void createSelectOrImportWall() throws IOException {
+    private static void createSelectOrImportWall(String urlorFile, final JFrame... redundants) throws IOException {
         JDialog f = new JDialog((JFrame) null, Translator.R("MainWindowSetWall"), true);
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        LoadBackgroundOrImportOrLoadWall panel = new LoadBackgroundOrImportOrLoadWall();
+        LoadBackgroundOrImportOrLoadWall panel = new LoadBackgroundOrImportOrLoadWall(urlorFile);
         f.add(panel);
         panel.setOkAction(new ActionListener() {
             @Override
@@ -97,12 +98,12 @@ public class MainWindow {
             if (bis == null) {
                 throw new NullPointerException("Not a valid image");
             }
-            createWindow(bis, new File(r.getPath()).getName());
+            createWindow(bis, new File(r.getPath()).getName(), redundants);
         } catch (Exception ex) {
             //not image, wall?
             try {
                 ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(buffer.toByteArray()));
-                createWindow(zis, new File(r.getPath()).getName());
+                createWindow(zis, new File(r.getPath()).getName(), redundants);
                 zis.close();
             } catch (Exception exx) {
                 ex.printStackTrace();
@@ -114,22 +115,22 @@ public class MainWindow {
 
     }
 
-    private static void createWindow(BufferedImage bis, String name) {
+    private static void createWindow(BufferedImage bis, String name, JFrame... redundants) {
         //get rid of transaprency
         BufferedImage newBufferedImage = new BufferedImage(bis.getWidth(),
                 bis.getHeight(), BufferedImage.TYPE_INT_RGB);
         newBufferedImage.createGraphics().drawImage(bis, 0, 0, Color.WHITE, null);
-        createWindowIpl(newBufferedImage, Files.sanitizeFileName(name + " " + new Date().toString()), null);
+        createWindowIpl(newBufferedImage, Files.sanitizeFileName(name + " " + new Date().toString()), null, redundants);
     }
 
-    private static void createWindow(ZipInputStream zis, String name) throws IOException {
+    private static void createWindow(ZipInputStream zis, String name, JFrame... redundants) throws IOException {
         GridPane.Preload preloaded = GridPane.preload(zis);
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
-        createWindowIpl(bi, name, preloaded.props);
+        createWindowIpl(bi, name, preloaded.props, redundants);
 
     }
 
-    private static void createWindowIpl(BufferedImage bis, String fname, byte[] props) {
+    private static void createWindowIpl(BufferedImage bis, String fname, byte[] props, JFrame... redundants) {
         final JFrame createWallWindow = new JFrame();
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bis, props);
@@ -234,6 +235,12 @@ public class MainWindow {
                     Files.setLastBoard(n);
                     createWallWindow.dispose();
                     loadWallWithRandomBoulder(n);
+                    if (redundants != null) {
+                        for (int i = 0; i < redundants.length; i++) {
+                            redundants[i].dispose();
+
+                        }
+                    }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, ex);
@@ -288,7 +295,19 @@ public class MainWindow {
         jp.add(new JMenuItem("new boulder"));
         jp.add(new JMenuItem("edit this boulder"));
         jp.add(new JMenuItem("save current bolder as"));
-        jp.add(new JMenuItem("new/edit wall"));
+        JMenuItem newEditWall = new JMenuItem("new/edit wall");
+        newEditWall.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    createSelectOrImportWall(f.toURI().toURL().toExternalForm(), createWallWindow);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, ex);
+                }
+            }
+        });
+        jp.add(newEditWall);
         jp.add(new JMenuItem("start timered-training"));
         tools.add(settings, BorderLayout.WEST);
         tools.add(name);

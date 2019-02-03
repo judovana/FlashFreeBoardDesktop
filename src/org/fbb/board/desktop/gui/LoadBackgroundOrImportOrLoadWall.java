@@ -34,12 +34,8 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
     private JButton select;
     private JButton ok;
 
-    public LoadBackgroundOrImportOrLoadWall() {
-        this(getDefaultUrl());
-
-    }
-
-    private static String getDefaultUrl() {
+  
+    public static String getDefaultUrl() {
         try {
             return Files.wallsDir.toURI().toURL().toString();
         } catch (MalformedURLException ex) {
@@ -48,10 +44,6 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
         }
     }
 
-    LoadBackgroundOrImportOrLoadWall(URL u) {
-        this(u.toExternalForm());
-
-    }
 
     public void setOkAction(ActionListener l) {
         ok.addActionListener(l);
