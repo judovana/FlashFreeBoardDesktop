@@ -12,12 +12,15 @@ import java.awt.Polygon;
 import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import org.fbb.board.internals.grades.Grade;
 
 /**
  *
@@ -653,5 +656,33 @@ public class Grid {
         if (v != null) {
             coord.setY(Double.valueOf(v));
         }
+    }
+
+    public void saveCurrentBoulder(File file, String name, String wallId, Grade grade) throws IOException {
+        Properties p = new Properties();
+        p.setProperty("wall", wallId);
+        p.setProperty("name", name);
+        p.setProperty("start", getHolds(2));
+        p.setProperty("path", getHolds(1));
+        p.setProperty("top", getHolds(3));
+        p.setProperty("grade", grade.toString());
+        file.getParentFile().mkdirs();
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            p.store(fos, null);
+            fos.flush();
+        }
+    }
+
+    private String getHolds(int i) {
+        StringBuilder sb = new StringBuilder();
+        for (int y = 0; y < horLines.length - 1; y++) {
+            for (int x = 0; x < vertLines.length - 1; x++) {
+                int status = psStatus[x * (horLines.length - 1) + y];
+                if (status == i) {
+                    sb.append(x).append(",").append(y).append(";");
+                }
+            }
+        }
+        return sb.toString();
     }
 }

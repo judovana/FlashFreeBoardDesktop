@@ -41,6 +41,7 @@ import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.internals.GridPane;
+import org.fbb.board.internals.grades.RandomBoulder;
 
 /**
  *
@@ -294,8 +295,27 @@ public class MainWindow {
         });
         jp.add(new JMenuItem("new boulder"));
         jp.add(new JMenuItem("edit this boulder"));
-        jp.add(new JMenuItem("save current bolder as"));
-        JMenuItem newEditWall = new JMenuItem("new/edit wall");
+        JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
+        jp.add(saveBoulder);
+        saveBoulder.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String nameNice = f.getName() + " " + new Date().toString();
+                nameNice = JOptionPane.showInputDialog(null, Translator.R("MBoulderName"), nameNice);
+                String fn = Files.sanitizeFileName(nameNice);
+                if (!fn.endsWith(".bldr")){
+                    fn=fn+".bldr";
+                }
+                try {
+                    gp.getGrid().saveCurrentBoulder(new File(Files.bouldersDir, fn), nameNice, f.getName(), new RandomBoulder());
+                    name.setText(nameNice);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, ex);
+                }
+            }
+        });
+        JMenuItem newEditWall = new JMenuItem(Translator.R("MEditWall"));
         newEditWall.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
