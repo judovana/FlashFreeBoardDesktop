@@ -469,7 +469,10 @@ public class Grid {
             y = y + s2;
             if (y <= 0) {
                 y = 0;
-                psStatus[coordToIndex(x, y)] = 3;
+                //soometimes no top. just end on edge
+                if (r.nextInt(4) != 0) {
+                    psStatus[coordToIndex(x, y)] = 3;
+                }
                 break;
             } else {
                 if (y > horLines.length - 2) {
