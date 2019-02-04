@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -150,6 +149,7 @@ public class Grid {
         //        br.draw(g);
         createLines();//really?
         if (showGrid) {
+            g.setColor(Color.black);
             for (int i = 0; i < horLines.length; i++) {
                 Line horLine = horLines[i];
                 horLine.draw(g);
@@ -161,7 +161,12 @@ public class Grid {
 
             }
         }
-
+        if (getHolds(3).trim().isEmpty() && (getHolds(1).trim().length() > 0 || getHolds(2).trim().length() > 0)) {
+            g.setColor(Color.red);
+            horLines[0].draw(g);
+            horLines[0].draw(g, 0, 1);
+            horLines[0].draw(g, 0, -1);
+        }
         int style = Math.abs(holdStyle);
         int alpha = 100;
         System.out.println("" + style);
@@ -260,7 +265,7 @@ public class Grid {
                     g.fillPolygon(get);
                 }
                 //g.setColor(Color.black);
-                g.drawString("" + i, get.xpoints[3], get.ypoints[3]);
+                //g.drawString("" + i, get.xpoints[3], get.ypoints[3]);
             }
         }
 //        byte[] bb = getArrayT2BthenL2R();
@@ -643,7 +648,7 @@ public class Grid {
         p.setProperty("bl.y", "" + bl.getY());
         p.setProperty("br.x", "" + br.getX());
         p.setProperty("br.y", "" + br.getY());
-        p.setProperty("date", new Date().getTime()+"");
+        p.setProperty("date", new Date().getTime() + "");
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         p.store(bos, null);
         return bos.toByteArray();
@@ -668,7 +673,7 @@ public class Grid {
         p.setProperty("path", getHolds(1));
         p.setProperty("top", getHolds(3));
         p.setProperty("grade", grade.toString());
-        p.setProperty("date", new Date().getTime()+"");
+        p.setProperty("date", new Date().getTime() + "");
         file.getParentFile().mkdirs();
         try (FileOutputStream fos = new FileOutputStream(file)) {
             p.store(fos, null);

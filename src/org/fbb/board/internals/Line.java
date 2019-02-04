@@ -31,6 +31,10 @@ public class Line {
     void draw(Graphics g) {
         g.drawLine(from.x, from.y, to.x, to.y);
     }
+    
+    void draw(Graphics g, int xShift, int yShift) {
+        g.drawLine(from.x+xShift, from.y+yShift, to.x+xShift, to.y+yShift);
+    }
 
     Point cross(Line l) {
         //not playing with paralel or identicals - they cant be form nature of grid
