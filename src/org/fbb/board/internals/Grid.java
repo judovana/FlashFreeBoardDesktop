@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -642,6 +643,7 @@ public class Grid {
         p.setProperty("bl.y", "" + bl.getY());
         p.setProperty("br.x", "" + br.getX());
         p.setProperty("br.y", "" + br.getY());
+        p.setProperty("date", new Date().getTime()+"");
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         p.store(bos, null);
         return bos.toByteArray();
@@ -666,6 +668,7 @@ public class Grid {
         p.setProperty("path", getHolds(1));
         p.setProperty("top", getHolds(3));
         p.setProperty("grade", grade.toString());
+        p.setProperty("date", new Date().getTime()+"");
         file.getParentFile().mkdirs();
         try (FileOutputStream fos = new FileOutputStream(file)) {
             p.store(fos, null);

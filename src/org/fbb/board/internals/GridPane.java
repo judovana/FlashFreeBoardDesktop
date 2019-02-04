@@ -20,8 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -34,8 +32,8 @@ import javax.swing.JPanel;
  */
 public class GridPane extends JPanel implements Meassurable {
 
-    private BufferedImage img;
-    private Grid grid;
+    private final BufferedImage img;
+    private final Grid grid;
 
     @Override
     public boolean isFocusable() {

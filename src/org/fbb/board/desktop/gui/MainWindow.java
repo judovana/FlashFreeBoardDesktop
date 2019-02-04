@@ -2,8 +2,6 @@ package org.fbb.board.desktop.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.GraphicsDevice;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -13,15 +11,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -41,16 +36,18 @@ import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.internals.GridPane;
-import org.fbb.board.internals.grades.RandomBoulder;
+import org.fbb.board.internals.grades.Grade;
 
 /**
  *
  * @author jvanek
  */
+//filters - by grade, by date, by number of holds
 public class MainWindow {
 
     public static void main(String... s) {
         try {
+            Grade.loadConversiontable();
             if (Files.getLastBoard() != null && Files.getLastBoulder() != null) {
                 //check if boards mathces
                 //if so, show last boulder on last wall
@@ -284,7 +281,8 @@ public class MainWindow {
         gp.getGrid().setShowGrid(false);
         JPanel tools = new JPanel(new BorderLayout());
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
-        JLabel name = new JLabel(Translator.R("RandomBoulder", lastBoard + " " + new Date()));
+        JLabel name = new JLabel(Grade.RandomBoulder().toString() + ": " + lastBoard + " " + new Date());
+        name.setToolTipText("<html>" + Grade.RandomBoulder().toAllValues("<br>"));
         JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
         JPopupMenu jp = new JPopupMenu();
         settings.addActionListener(new ActionListener() {
@@ -303,12 +301,13 @@ public class MainWindow {
                 String nameNice = f.getName() + " " + new Date().toString();
                 nameNice = JOptionPane.showInputDialog(null, Translator.R("MBoulderName"), nameNice);
                 String fn = Files.sanitizeFileName(nameNice);
-                if (!fn.endsWith(".bldr")){
-                    fn=fn+".bldr";
+                if (!fn.endsWith(".bldr")) {
+                    fn = fn + ".bldr";
                 }
                 try {
-                    gp.getGrid().saveCurrentBoulder(new File(Files.bouldersDir, fn), nameNice, f.getName(), new RandomBoulder());
-                    name.setText(nameNice);
+                    gp.getGrid().saveCurrentBoulder(new File(Files.bouldersDir, fn), nameNice, f.getName(), Grade.RandomBoulder());
+                    name.setText(Grade.RandomBoulder() + ": " + nameNice);
+                    name.setToolTipText("<html>" + Grade.RandomBoulder().toAllValues("<br>"));
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, ex);
