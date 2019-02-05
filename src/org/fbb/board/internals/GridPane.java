@@ -213,7 +213,7 @@ public class GridPane extends JPanel implements Meassurable {
                 GridPane.this.repaint();
             }
             if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                grid.randomBoulder();
+                grid.randomBoulder(null);
                 GridPane.this.repaint();
             }
         }

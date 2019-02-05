@@ -142,11 +142,11 @@ public class Grid {
         }
     }
 
-    
-    private static final int MARK_NOT=0;
-    private static final int MARK_START=2;
-    private static final int MARK_PATH=1;
-    private static final int MARK_TOP=3;
+    static final byte MARK_NOT = 0;
+    static final byte  MARK_START = 2;
+    static final byte  MARK_PATH = 1;
+    static final byte  MARK_TOP = 3;
+
     void draw(Graphics g) {
         //        ul.draw(g);
         //        ur.draw(g);
@@ -427,10 +427,8 @@ public class Grid {
         this.holdStyle = holdStyle % 8;
     }
 
-    public void randomBoulder() {
-        for (int i = 0; i < psStatus.length; i++) {
-            psStatus[i] = 0;
-        }
+    public Boulder randomBoulder(String wallId) {
+        clean();
         Random r = new Random();
         int rv = r.nextInt(100);
         int starts = 3;
@@ -486,7 +484,11 @@ public class Grid {
                 psStatus[coordToIndex(x, y)] = MARK_PATH;
             }
         }
-
+        if (wallId == null || wallId.trim().isEmpty()){
+            wallId="???";
+        }
+        String name=wallId+" "+new Date().toString();
+        return createBoulderFromCurrent(null, name, wallId, Grade.RandomBoulder());
     }
 
     private int coordToIndex(int x, int y) {
@@ -658,7 +660,7 @@ public class Grid {
         p.setProperty("br.y", "" + br.getY());
         p.setProperty("date", new Date().getTime() + "");
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        p.store(bos, null);
+        p.store(bos, "UpperLeft,UpperRight,BottomLeft,BottomRight corners.. and spme width and height");
         return bos.toByteArray();
     }
 
@@ -673,20 +675,14 @@ public class Grid {
         }
     }
 
-    public void saveCurrentBoulder(File file, String name, String wallId, Grade grade) throws IOException {
-        Properties p = new Properties();
-        p.setProperty("wall", wallId);
-        p.setProperty("name", name);
-        p.setProperty("start", getHolds(MARK_START));
-        p.setProperty("path", getHolds(MARK_PATH));
-        p.setProperty("top", getHolds(MARK_TOP));
-        p.setProperty("grade", grade.toString());
-        p.setProperty("date", new Date().getTime() + "");
-        file.getParentFile().mkdirs();
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            p.store(fos, null);
-            fos.flush();
-        }
+    public void setBouler(Boulder b) {
+        clean();
+        b.apply(psStatus, horLines.length-1);
+
+    }
+
+    public Boulder createBoulderFromCurrent(File file, String name, String wallId, Grade grade) {
+        return Boulder.createBoulder(file, name, wallId, grade, getHolds(MARK_START), getHolds(MARK_PATH), getHolds(MARK_TOP));
     }
 
     private String getHolds(int i) {

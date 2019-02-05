@@ -67,6 +67,9 @@ public class Grade {
         return new Grade(RANDOM);
     }
 
+    public Grade(String artificialValue) {
+        this(Integer.valueOf(artificialValue));
+    }
     public Grade(int artificialValue) {
         this.artificialValue = artificialValue;
     }

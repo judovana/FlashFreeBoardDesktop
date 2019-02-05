@@ -14,7 +14,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -35,6 +37,7 @@ import javax.swing.event.ChangeListener;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
+import org.fbb.board.internals.Boulder;
 import org.fbb.board.internals.GridPane;
 import org.fbb.board.internals.grades.Grade;
 
@@ -186,7 +189,7 @@ public class MainWindow {
         test.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gp.getGrid().randomBoulder();
+                gp.getGrid().randomBoulder(null);
                 gp.repaint();
             }
         });
@@ -277,12 +280,14 @@ public class MainWindow {
         double ratio = getIdealWindowSizw(bi);
         double nw = ratio * (double) bi.getWidth();
         double nh = ratio * (double) bi.getHeight();
-        gp.getGrid().randomBoulder();
+        Boulder b = gp.getGrid().randomBoulder(f.getName());
+        clearHistory();
+        addToBoulderHistory(b);
         gp.getGrid().setShowGrid(false);
         JPanel tools = new JPanel(new BorderLayout());
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
-        JLabel name = new JLabel(Grade.RandomBoulder().toString() + ": " + lastBoard + " " + new Date());
-        name.setToolTipText("<html>" + Grade.RandomBoulder().toAllValues("<br>"));
+        JLabel name = new JLabel(b.getName());
+        name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
         JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
         JPopupMenu jp = new JPopupMenu();
         settings.addActionListener(new ActionListener() {
@@ -291,6 +296,7 @@ public class MainWindow {
                 jp.show((JButton) e.getSource(), 0, 0);
             }
         });
+        jp.add(new JMenuItem("select/list boulders"));
         jp.add(new JMenuItem("new boulder"));
         jp.add(new JMenuItem("edit this boulder"));
         JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
@@ -305,9 +311,11 @@ public class MainWindow {
                     fn = fn + ".bldr";
                 }
                 try {
-                    gp.getGrid().saveCurrentBoulder(new File(Files.bouldersDir, fn), nameNice, f.getName(), Grade.RandomBoulder());
-                    name.setText(Grade.RandomBoulder() + ": " + nameNice);
-                    name.setToolTipText("<html>" + Grade.RandomBoulder().toAllValues("<br>"));
+                    Boulder b = gp.getGrid().createBoulderFromCurrent(new File(Files.bouldersDir, fn), nameNice, f.getName(), Grade.RandomBoulder());
+                    b.save();
+                    addToBoulderHistory(b);
+                    name.setText(b.getGrade() + ": " + b.getName());
+                    name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, ex);
@@ -333,16 +341,53 @@ public class MainWindow {
         tools.add(tools2, BorderLayout.EAST);
         JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
         JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
+        previous.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (canBack()) {
+                    Boulder b = back();
+                    gp.getGrid().setBouler(b);
+                    name.setText(b.getName());
+                    name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
+                    gp.repaint();
+                }
+                next.setEnabled(canFwd());
+                previous.setEnabled(canBack());
+            }
+        });
+        next.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (canFwd()) {
+                    Boulder b = forward();
+                    gp.getGrid().setBouler(b);
+                    name.setText(b.getName());
+                    name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
+                    gp.repaint();
+                }
+                next.setEnabled(canFwd());
+                previous.setEnabled(canBack());
+            }
+        });
         previous.setEnabled(false);
         next.setEnabled(false);
         JButton nextRandomGenerated = new JButton("?");
         nextRandomGenerated.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gp.getGrid().randomBoulder();
+                Boulder b = gp.getGrid().randomBoulder(f.getName());
+                name.setText(b.getName());
+                name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
+                addToBoulderHistory(b);
                 gp.repaint();
+                next.setEnabled(canFwd());
+                previous.setEnabled(canBack());
             }
         });
+        //!!!
+        next.setEnabled(canFwd());
+        previous.setEnabled(canBack());
+        //^^^
         JButton nextRandom = new JButton("?>");
         JButton nextInList = new JButton(">");
         tools2.add(previous);
@@ -367,4 +412,58 @@ public class MainWindow {
         });
     }
 
+    private static final List<Boulder> history = new ArrayList<>();
+    private static int historyIndex = -1;
+
+    //returns whether we are at end or not;
+    //@return true, if index is NOT last (and thus forward button can be enabld)
+    private static void addToBoulderHistory(Boulder b) {
+        if (history.isEmpty()) {
+            history.add(b);
+            historyIndex = 0;
+            return;
+        }
+        if (historyIndex == history.size() - 1) {
+            historyIndex++;
+            history.add(b);
+            return;
+        }
+        historyIndex++;
+        history.add(historyIndex, b);
+        return;
+    }
+
+    private static boolean canBack() {
+        return historyIndex > 0;
+    }
+
+    private static Boulder forward() {
+        if (history.isEmpty()) {
+            return null;
+        }
+        if (canFwd()) {
+            historyIndex++;
+            return history.get(historyIndex);
+        }
+        return history.get(historyIndex);
+    }
+
+    private static Boulder back() {
+        if (history.isEmpty()) {
+            return null;
+        }
+        if (canBack()) {
+            historyIndex--;
+            return history.get(historyIndex);
+        }
+        return history.get(historyIndex);
+    }
+
+    private static boolean canFwd() {
+        return historyIndex < history.size() - 1;
+    }
+
+    private static void clearHistory() {
+        history.clear();
+    }
 }
