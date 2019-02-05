@@ -60,7 +60,7 @@ public class Grade {
     }
 
     private static final int RANDOM = -1;
-    public static String usedGrades = "UIAA";
+    public static String usedGrades = "fountainbleu";
     private final int artificialValue;
 
     public static Grade RandomBoulder() {
