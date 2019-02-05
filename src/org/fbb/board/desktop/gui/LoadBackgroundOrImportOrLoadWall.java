@@ -70,6 +70,7 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
 
         });
         validateUrl();
+        //password?
         info = new JLabel(Translator.R("MainWindowSetWallInfo"));
         ok = new JButton(Translator.R("Bfinish"));
         select = new JButton(Translator.R("Bselect"));

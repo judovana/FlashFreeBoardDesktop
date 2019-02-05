@@ -368,6 +368,9 @@ public class MainWindow {
         });
         jp.add(newEditWall);
         jp.add(new JMenuItem("start timered-training"));
+        //basic settings + ADMINISTRATOR tasks - delete boudlers, manage walls, deault grades, default higlight. new/edit wall management only too?
+        //new password?
+        jp.add(new JMenuItem("management"));
         tools.add(settings, BorderLayout.WEST);
         tools.add(name);
         tools.add(tools2, BorderLayout.EAST);
