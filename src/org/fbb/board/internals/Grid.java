@@ -142,6 +142,11 @@ public class Grid {
         }
     }
 
+    
+    private static final int MARK_NOT=0;
+    private static final int MARK_START=2;
+    private static final int MARK_PATH=1;
+    private static final int MARK_TOP=3;
     void draw(Graphics g) {
         //        ul.draw(g);
         //        ur.draw(g);
@@ -161,7 +166,7 @@ public class Grid {
 
             }
         }
-        if (getHolds(3).trim().isEmpty() && (getHolds(1).trim().length() > 0 || getHolds(2).trim().length() > 0)) {
+        if (getHolds(MARK_TOP).trim().isEmpty() && (getHolds(MARK_PATH).trim().length() > 0 || getHolds(MARK_START).trim().length() > 0)) {
             g.setColor(Color.red);
             horLines[0].draw(g);
             horLines[0].draw(g, 0, 1);
@@ -179,13 +184,13 @@ public class Grid {
                 Color c;
 
                 switch (psStatus[i]) {
-                    case 2://green start
+                    case MARK_START://green start
                         c = new Color(0, 200, 0, alpha);
                         break;
-                    case 1: //blue, climb
+                    case MARK_PATH: //blue, climb
                         c = new Color(0, 0, 200, alpha);
                         break;
-                    case 3: //top red
+                    case MARK_TOP: //top red
                         c = new Color(200, 0, 0, alpha);
                         break;
                     default:
@@ -401,8 +406,8 @@ public class Grid {
             if (get.contains(absX, absY)) {
                 int r = psStatus[i];
                 r = r + 1;
-                if (r > 3) {
-                    r = 0;
+                if (r > MARK_TOP) {
+                    r = MARK_NOT;
                 }
                 psStatus[i] = (byte) r;
             }
@@ -441,7 +446,7 @@ public class Grid {
         x = r.nextInt(vertLines.length - 1);
         y = horLines.length - 2;
 
-        psStatus[coordToIndex(x, y)] = 2;
+        psStatus[coordToIndex(x, y)] = MARK_START;
         for (int start = 1; start < starts; start++) {
             int s1 = getDirection(r) * getStep(r);
             x = x + s1;
@@ -453,7 +458,7 @@ public class Grid {
             if (y < 0 || y > horLines.length - 2) {
                 y = y - 2 * s2;
             }
-            psStatus[coordToIndex(x, y)] = 2;
+            psStatus[coordToIndex(x, y)] = MARK_START;
         }
         while (true) {
             int s1 = getDirection(r) * getStep(r);
@@ -471,14 +476,14 @@ public class Grid {
                 y = 0;
                 //soometimes no top. just end on edge
                 if (r.nextInt(4) != 0) {
-                    psStatus[coordToIndex(x, y)] = 3;
+                    psStatus[coordToIndex(x, y)] = MARK_TOP;
                 }
                 break;
             } else {
                 if (y > horLines.length - 2) {
                     y = y - 2 * s2;
                 }
-                psStatus[coordToIndex(x, y)] = 1;
+                psStatus[coordToIndex(x, y)] = MARK_PATH;
             }
         }
 
@@ -672,9 +677,9 @@ public class Grid {
         Properties p = new Properties();
         p.setProperty("wall", wallId);
         p.setProperty("name", name);
-        p.setProperty("start", getHolds(2));
-        p.setProperty("path", getHolds(1));
-        p.setProperty("top", getHolds(3));
+        p.setProperty("start", getHolds(MARK_START));
+        p.setProperty("path", getHolds(MARK_PATH));
+        p.setProperty("top", getHolds(MARK_TOP));
         p.setProperty("grade", grade.toString());
         p.setProperty("date", new Date().getTime() + "");
         file.getParentFile().mkdirs();
