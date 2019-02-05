@@ -283,6 +283,10 @@ public class MainWindow {
         Boulder b = gp.getGrid().randomBoulder(f.getName());
         clearHistory();
         addToBoulderHistory(b);
+        JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
+        JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
+        next.setEnabled(canFwd());
+        previous.setEnabled(canBack());
         gp.getGrid().setShowGrid(false);
         JPanel tools = new JPanel(new BorderLayout());
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
@@ -316,6 +320,8 @@ public class MainWindow {
                     addToBoulderHistory(b);
                     name.setText(b.getGradeAndName());
                     name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
+                    next.setEnabled(canFwd());
+                    previous.setEnabled(canBack());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, ex);
@@ -339,8 +345,6 @@ public class MainWindow {
         tools.add(settings, BorderLayout.WEST);
         tools.add(name);
         tools.add(tools2, BorderLayout.EAST);
-        JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
-        JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
         previous.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -384,10 +388,6 @@ public class MainWindow {
                 previous.setEnabled(canBack());
             }
         });
-        //!!!
-        next.setEnabled(canFwd());
-        previous.setEnabled(canBack());
-        //^^^
         JButton nextRandom = new JButton("?>");
         JButton nextInList = new JButton(">");
         tools2.add(previous);
