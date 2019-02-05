@@ -286,7 +286,7 @@ public class MainWindow {
         gp.getGrid().setShowGrid(false);
         JPanel tools = new JPanel(new BorderLayout());
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
-        JLabel name = new JLabel(b.getName());
+        JLabel name = new JLabel(b.getGradeAndName());
         name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
         JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
         JPopupMenu jp = new JPopupMenu();
@@ -314,7 +314,7 @@ public class MainWindow {
                     Boulder b = gp.getGrid().createBoulderFromCurrent(new File(Files.bouldersDir, fn), nameNice, f.getName(), Grade.RandomBoulder());
                     b.save();
                     addToBoulderHistory(b);
-                    name.setText(b.getGrade() + ": " + b.getName());
+                    name.setText(b.getGradeAndName());
                     name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -347,7 +347,7 @@ public class MainWindow {
                 if (canBack()) {
                     Boulder b = back();
                     gp.getGrid().setBouler(b);
-                    name.setText(b.getName());
+                    name.setText(b.getGradeAndName());
                     name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
                     gp.repaint();
                 }
@@ -361,7 +361,7 @@ public class MainWindow {
                 if (canFwd()) {
                     Boulder b = forward();
                     gp.getGrid().setBouler(b);
-                    name.setText(b.getName());
+                    name.setText(b.getGradeAndName());
                     name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
                     gp.repaint();
                 }
@@ -376,7 +376,7 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder b = gp.getGrid().randomBoulder(f.getName());
-                name.setText(b.getName());
+                name.setText(b.getGradeAndName());
                 name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
                 addToBoulderHistory(b);
                 gp.repaint();

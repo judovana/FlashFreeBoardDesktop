@@ -114,6 +114,7 @@ public class Boulder {
     public Grade getGrade() {
         return new Grade(map.getProperty(GRADE));
     }
+
     public String getName() {
         return map.getProperty(NAME);
     }
@@ -128,6 +129,10 @@ public class Boulder {
             }
         }
         return new Date(Long.valueOf(strDate.trim()));
+    }
+
+    public String getGradeAndName() {
+        return getGrade() + ": " + getName();
     }
 
 }
