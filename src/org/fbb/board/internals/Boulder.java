@@ -6,6 +6,7 @@
 package org.fbb.board.internals;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -39,6 +40,12 @@ public class Boulder {
     private static final String TOP = "top";
     private static final String GRADE = "grade";
     private static final String DATE = "date";
+
+    public static Boulder load(File boulderFile) throws IOException {
+        Properties p = new Properties();
+        p.load(new FileInputStream(boulderFile));
+        return new Boulder(p, boulderFile);
+    }
     private final Properties map;
     private File file;
 
@@ -133,6 +140,13 @@ public class Boulder {
 
     public String getGradeAndName() {
         return getGrade() + ": " + getName();
+    }
+
+    public File getFile() {
+        return file;
+    }
+    public String getWall() {
+        return map.getProperty(WALL);
     }
 
 }

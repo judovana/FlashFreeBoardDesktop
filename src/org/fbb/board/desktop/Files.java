@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.fbb.board.internals.Boulder;
 
 /**
  *
@@ -23,7 +24,7 @@ public class Files {
     public static final File bouldersDir = new File(configDir + "/boulders");
     private static final File lastBoard = new File(configDir + "/lastBoard");
     private static final File lastBoulder = new File(configDir + "/lastBoulder");
-    
+
     public static final List<Character> INVALID_PATH = Arrays.asList(new Character[]{':', '*', '?', '"', '<', '>', '|', '[', ']', '\'', ';', '=', ','});
     public static final List<Character> INVALID_NAME = new ArrayList<>(INVALID_PATH);
 
@@ -35,7 +36,8 @@ public class Files {
         INVALID_NAME.add(0, '\n');
     }
     private static final char SANITIZED_CHAR = '_';
-     public static String sanitizeFileName(String filename) {
+
+    public static String sanitizeFileName(String filename) {
         return sanitizeFileName(filename, SANITIZED_CHAR);
     }
 
@@ -50,13 +52,20 @@ public class Files {
         return filename;
     }
 
-
     public static void setLastBoard(String content) throws IOException {
+        if (content == null && lastBoard.exists()) {
+            lastBoard.delete();
+            return;
+        }
         lastBoard.getParentFile().mkdirs();
         java.nio.file.Files.write(lastBoard.toPath(), Arrays.asList(new String[]{content}));
     }
 
     public static void setLastBoulder(String content) throws IOException {
+        if (content == null && lastBoard.exists()) {
+            lastBoulder.delete();
+            return;
+        }
         lastBoulder.getParentFile().mkdirs();
         java.nio.file.Files.write(lastBoulder.toPath(), Arrays.asList(new String[]{content}));
     }
@@ -83,5 +92,30 @@ public class Files {
             }
         }
         return null;
+    }
+
+    public static void setLastBoulder(Boulder b) {
+        if (b == null && lastBoard.exists()) {
+            lastBoulder.delete();
+            return;
+        }
+        try {
+            if (b != null) {
+                if (b.getFile() != null) {
+                    setLastBoulder(b.getFile().getName());
+                }
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
+    }
+
+    public static File getWallFile(String n) {
+        return new File(Files.wallsDir, n);
+    }
+
+    public static File getBoulderFile(String n) {
+        return new File(Files.bouldersDir, n);
     }
 }

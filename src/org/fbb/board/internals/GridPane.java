@@ -96,15 +96,17 @@ public class GridPane extends JPanel implements Meassurable {
 
         public final byte[] img;
         public final byte[] props;
+        public final String givenId;
 
-        public Preload(byte[] img, byte[] props) {
+        public Preload(byte[] img, byte[] props, String id) {
             this.img = img;
             this.props = props;
+            this.givenId = id;
         }
 
     }
 
-    public static Preload preload(ZipInputStream zis) throws IOException {
+    public static Preload preload(ZipInputStream zis, String id) throws IOException {
         ZipEntry ze;
         ByteArrayOutputStream img = null;
         ByteArrayOutputStream props = null;
@@ -127,7 +129,7 @@ public class GridPane extends JPanel implements Meassurable {
                 System.err.println("Unknown entry: " + ze.getName());
             }
         }
-        return new Preload(img.toByteArray(), props.toByteArray());
+        return new Preload(img.toByteArray(), props.toByteArray(), id);
     }
 
     private class MouseWheelListenerRotateHoldStyles implements MouseWheelListener {

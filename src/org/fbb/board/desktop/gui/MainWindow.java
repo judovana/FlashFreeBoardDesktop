@@ -52,14 +52,30 @@ public class MainWindow {
         try {
             Grade.loadConversiontable();
             if (Files.getLastBoard() != null && Files.getLastBoulder() != null) {
+                Boulder b = Boulder.load(Files.getBoulderFile(Files.getLastBoulder()));
+                GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(Files.getWallFile(Files.getLastBoard()))), Files.getLastBoard());
                 //check if boards mathces
-                //if so, show last boulder on last wall
-                //if not warn, load boulder on its board if  its board exists || load wall only
+                if (!b.getWall().equals(preloaded.givenId)) {
+                    //if not warn, load boulder on its board if  its board exists. If not load wall only    
+                    JOptionPane.showMessageDialog(null, Translator.R("NotMatchingBoulderWall", b.getWall(), preloaded.givenId));
+                    File bWall = Files.getWallFile(b.getWall());
+                    if (bWall.exists()) {
+                        preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(bWall)), bWall.getName());
+                        Files.setLastBoard(bWall.getName());
+                        MainWindow.loadWallWithBoulder(preloaded, b);
+                    } else {
+                        Files.setLastBoulder((String)null);//delete alst boulder info
+                        MainWindow.loadWallWithBoulder(Files.getLastBoard());        
+                    }
+                } else {
+                    //if so, show last boulder on last wall
+                    MainWindow.loadWallWithBoulder(preloaded, b);
+                }
             } else if (Files.getLastBoulder() != null && Files.getLastBoard() == null) {
                 //warn, but load last boulder on its wall, if wall does noto exists, empty(?)
             } else if (Files.getLastBoard() != null && Files.getLastBoulder() == null) {
                 //load last wall, generate random bouoder
-                loadWallWithRandomBoulder(Files.getLastBoard());
+                MainWindow.loadWallWithBoulder(Files.getLastBoard());
             } else {
                 //both null, sugest to create board
                 createSelectOrImportWall(LoadBackgroundOrImportOrLoadWall.getDefaultUrl());
@@ -125,7 +141,7 @@ public class MainWindow {
     }
 
     private static void createWindow(ZipInputStream zis, String name, JFrame... redundants) throws IOException {
-        GridPane.Preload preloaded = GridPane.preload(zis);
+        GridPane.Preload preloaded = GridPane.preload(zis, name);
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         createWindowIpl(bi, name, preloaded.props, redundants);
 
@@ -221,7 +237,7 @@ public class MainWindow {
                 if (!n.endsWith(".wall")) {
                     n = n + ".wall";
                 }
-                File f = new File(Files.wallsDir, n);
+                File f = Files.getWallFile(n);
                 if (f.exists()) {
                     int result = JOptionPane.showConfirmDialog(
                             createWallWindow,
@@ -235,7 +251,7 @@ public class MainWindow {
                     gp.save(f);
                     Files.setLastBoard(n);
                     createWallWindow.dispose();
-                    loadWallWithRandomBoulder(n);
+                    loadWallWithBoulder(n);
                     if (redundants != null) {
                         for (int i = 0; i < redundants.length; i++) {
                             redundants[i].dispose();
@@ -268,9 +284,13 @@ public class MainWindow {
         return ratio;
     }
 
-    private static void loadWallWithRandomBoulder(String lastBoard) throws IOException {
-        File f = new File(Files.wallsDir, lastBoard);
-        GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)));
+    private static void loadWallWithBoulder(String lastBoard) throws IOException {
+        File f = Files.getWallFile(lastBoard);
+        GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)), f.getName());
+        loadWallWithBoulder(preloaded, null);
+    }
+
+    private static void loadWallWithBoulder(GridPane.Preload preloaded, Boulder b) throws IOException {
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         final JFrame createWallWindow = new JFrame();
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -280,7 +300,12 @@ public class MainWindow {
         double ratio = getIdealWindowSizw(bi);
         double nw = ratio * (double) bi.getWidth();
         double nh = ratio * (double) bi.getHeight();
-        Boulder b = gp.getGrid().randomBoulder(f.getName());
+        if (b == null) {
+            b = gp.getGrid().randomBoulder(preloaded.givenId);
+        } else {
+            gp.getGrid().clean();
+            gp.getGrid().setBouler(b);
+        }
         clearHistory();
         addToBoulderHistory(b);
         JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
@@ -308,20 +333,21 @@ public class MainWindow {
         saveBoulder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String nameNice = f.getName() + " " + new Date().toString();
+                String nameNice = preloaded.givenId + " " + new Date().toString();
                 nameNice = JOptionPane.showInputDialog(null, Translator.R("MBoulderName"), nameNice);
                 String fn = Files.sanitizeFileName(nameNice);
                 if (!fn.endsWith(".bldr")) {
                     fn = fn + ".bldr";
                 }
                 try {
-                    Boulder b = gp.getGrid().createBoulderFromCurrent(new File(Files.bouldersDir, fn), nameNice, f.getName(), Grade.RandomBoulder());
+                    Boulder b = gp.getGrid().createBoulderFromCurrent(Files.getBoulderFile(fn), nameNice, preloaded.givenId, Grade.RandomBoulder());
                     b.save();
                     addToBoulderHistory(b);
                     name.setText(b.getGradeAndName());
                     name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
                     next.setEnabled(canFwd());
                     previous.setEnabled(canBack());
+                    Files.setLastBoulder(b);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, ex);
@@ -333,7 +359,7 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    createSelectOrImportWall(f.toURI().toURL().toExternalForm(), createWallWindow);
+                    createSelectOrImportWall(Files.getWallFile(preloaded.givenId).toURI().toURL().toExternalForm(), createWallWindow);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, ex);
@@ -354,6 +380,7 @@ public class MainWindow {
                     name.setText(b.getGradeAndName());
                     name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
                     gp.repaint();
+                    Files.setLastBoulder(b);
                 }
                 next.setEnabled(canFwd());
                 previous.setEnabled(canBack());
@@ -368,6 +395,7 @@ public class MainWindow {
                     name.setText(b.getGradeAndName());
                     name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
                     gp.repaint();
+                    Files.setLastBoulder(b);
                 }
                 next.setEnabled(canFwd());
                 previous.setEnabled(canBack());
@@ -379,7 +407,7 @@ public class MainWindow {
         nextRandomGenerated.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Boulder b = gp.getGrid().randomBoulder(f.getName());
+                Boulder b = gp.getGrid().randomBoulder(preloaded.givenId);
                 name.setText(b.getGradeAndName());
                 name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
                 addToBoulderHistory(b);
