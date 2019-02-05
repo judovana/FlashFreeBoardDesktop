@@ -64,8 +64,8 @@ public class MainWindow {
                         Files.setLastBoard(bWall.getName());
                         MainWindow.loadWallWithBoulder(preloaded, b);
                     } else {
-                        Files.setLastBoulder((String)null);//delete alst boulder info
-                        MainWindow.loadWallWithBoulder(Files.getLastBoard());        
+                        Files.setLastBoulder((String) null);//delete alst boulder info
+                        MainWindow.loadWallWithBoulder(Files.getLastBoard());
                     }
                 } else {
                     //if so, show last boulder on last wall
@@ -316,7 +316,7 @@ public class MainWindow {
         JPanel tools = new JPanel(new BorderLayout());
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
         JLabel name = new JLabel(b.getGradeAndName());
-        name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
+        name.setToolTipText(getStandardTooltip(b));
         JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
         JPopupMenu jp = new JPopupMenu();
         settings.addActionListener(new ActionListener() {
@@ -344,7 +344,7 @@ public class MainWindow {
                     b.save();
                     addToBoulderHistory(b);
                     name.setText(b.getGradeAndName());
-                    name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
+                    name.setToolTipText(getStandardTooltip(b));
                     next.setEnabled(canFwd());
                     previous.setEnabled(canBack());
                     Files.setLastBoulder(b);
@@ -378,7 +378,7 @@ public class MainWindow {
                     Boulder b = back();
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
-                    name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
+                    name.setToolTipText(getStandardTooltip(b));
                     gp.repaint();
                     Files.setLastBoulder(b);
                 }
@@ -393,7 +393,7 @@ public class MainWindow {
                     Boulder b = forward();
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
-                    name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
+                    name.setToolTipText(getStandardTooltip(b));
                     gp.repaint();
                     Files.setLastBoulder(b);
                 }
@@ -409,7 +409,7 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 Boulder b = gp.getGrid().randomBoulder(preloaded.givenId);
                 name.setText(b.getGradeAndName());
-                name.setToolTipText("<html>" + b.getGrade().toAllValues("<br>"));
+                name.setToolTipText(getStandardTooltip(b));
                 addToBoulderHistory(b);
                 gp.repaint();
                 next.setEnabled(canFwd());
@@ -417,15 +417,18 @@ public class MainWindow {
             }
         });
         JButton nextRandom = new JButton("?>");
-        JButton nextInList = new JButton(">");
+        JButton nextInList = new JButton(">>");
+        JButton prevInList = new JButton("<<");
         tools2.add(previous);
         tools2.add(next);
         tools2.add(nextRandomGenerated);
         tools2.add(nextRandom);
+        tools2.add(prevInList);
         tools2.add(nextInList);
         nextRandomGenerated.setToolTipText(Translator.R("NextRandomGenerated"));
         nextRandom.setToolTipText(Translator.R("NextRandomlySelected"));
         nextInList.setToolTipText(Translator.R("NextInRow"));
+        prevInList.setToolTipText(Translator.R("PrewInRow"));
         previous.setToolTipText(Translator.R("PreviousBoulder"));
         settings.setToolTipText(Translator.R("Settings"));
         next.setToolTipText(Translator.R("FwdBoulder"));
@@ -493,5 +496,12 @@ public class MainWindow {
 
     private static void clearHistory() {
         history.clear();
+    }
+
+    private static String getStandardTooltip(Boulder b) {
+        return "<html>"
+                + b.getName() + " (" + b.getWall() + ")<br/>"
+                + "<b>" + b.getGrade().toAllValues("<br/>") + "</b>"
+                + b.getDate();
     }
 }

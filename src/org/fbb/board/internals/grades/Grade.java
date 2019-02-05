@@ -70,13 +70,14 @@ public class Grade {
     public Grade(String artificialValue) {
         this(Integer.valueOf(artificialValue));
     }
+
     public Grade(int artificialValue) {
         this.artificialValue = artificialValue;
     }
 
     public String toAllValues(String delimiter) {
         if (artificialValue <= RANDOM) {
-            return Translator.R("RandomUnknown");
+            return Translator.R("RandomUnknown") + delimiter;
         }
         StringBuilder sbs = new StringBuilder();
         for (int i = 0; i < columns.length; i++) {
