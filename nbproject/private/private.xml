@@ -13,6 +13,8 @@
         </group>
         <group>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/desktop/gui/MainWindow.java</file>
+            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/locales/bundles/Messages.properties</file>
+            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/GridPane.java</file>
         </group>
     </open-files>
 </project-private>
