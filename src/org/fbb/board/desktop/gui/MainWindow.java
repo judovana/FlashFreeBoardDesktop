@@ -342,9 +342,28 @@ public class MainWindow {
                 jp.show((JButton) e.getSource(), 0, 0);
             }
         });
-        jp.add(new JMenuItem("select/list boulders"));
-        jp.add(new JMenuItem("new boulder"));
-        jp.add(new JMenuItem("edit this boulder"));
+        jp.add(new JMenuItem("select/list boulders")); //aslo returnboudler form this call?
+        JMenuItem newBoulder = new JMenuItem(Translator.R("MNewBoulder"));
+        jp.add(newBoulder);
+        newBoulder.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editBoulder(preloaded, null);
+            }
+        });
+        JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
+        jp.add(editBoulder);
+        final Boulder[] bb = new Boulder[]{b};
+        editBoulder.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editBoulder(preloaded, bb[0]);
+            }
+
+        });
+        //with edit bolder in, maybe it is redundant ot save bouder as now?
         JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
         jp.add(saveBoulder);
         saveBoulder.addActionListener(new ActionListener() {
@@ -523,5 +542,40 @@ public class MainWindow {
                 + b.getName() + " (" + b.getWall() + ")<br/>"
                 + "<b>" + b.getGrade().toAllValues("<br/>") + "</b>"
                 + b.getDate();
+    }
+
+    private static Boulder editBoulder(GridPane.Preload p, Boulder b) {
+        try {
+            return editBoulderImpl(p, b);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showConfirmDialog(null, ex);
+            return null;
+        }
+    }
+
+    private static Boulder editBoulderImpl(GridPane.Preload p, Boulder b) throws IOException {
+        //checkbox save? 
+        //if not save, then what?
+        //return  new BoulderAlways? - on Ok?
+        BufferedImage bi = ImageIO.read(new ByteArrayInputStream(p.img));
+        final JFrame operateBoulder = new JFrame();
+        operateBoulder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        GridPane gp = new GridPane(bi, p.props);
+        operateBoulder.add(gp);
+        gp.enableBoulderModificationOnly();
+        double ratio = getIdealWindowSizw(bi);
+        double nw = ratio * (double) bi.getWidth();
+        double nh = ratio * (double) bi.getHeight();
+        if (b != null) {
+            gp.getGrid().clean();
+            gp.getGrid().setBouler(b);
+        } else {
+            gp.getGrid().clean();
+        }
+        operateBoulder.pack();
+        operateBoulder.setSize((int) nw, (int) nh/* + tools.getHeight()*/);
+        operateBoulder.setVisible(true);
+        return null;
     }
 }

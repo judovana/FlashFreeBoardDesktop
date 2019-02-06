@@ -92,6 +92,11 @@ public class GridPane extends JPanel implements Meassurable {
 
     }
 
+    public void enableBoulderModificationOnly() {
+        disableClicking();
+        this.addMouseListener(clicks);
+    }
+
     public static class Preload {
 
         public final byte[] img;
