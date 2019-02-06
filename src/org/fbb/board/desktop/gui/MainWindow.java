@@ -559,7 +559,7 @@ public class MainWindow {
         //if not save, then what?
         //return  new BoulderAlways? - on Ok?
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(p.img));
-        final JFrame operateBoulder = new JFrame();
+        final JDialog operateBoulder = new JDialog((JFrame)null, true);
         operateBoulder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bi, p.props);
         operateBoulder.add(gp);
