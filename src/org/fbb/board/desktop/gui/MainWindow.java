@@ -73,6 +73,16 @@ public class MainWindow {
                 }
             } else if (Files.getLastBoulder() != null && Files.getLastBoard() == null) {
                 //warn, but load last boulder on its wall, if wall does noto exists, empty(?)
+                System.err.println("Last boulder but not lat wall!");
+                Boulder b = Boulder.load(Files.getBoulderFile(Files.getLastBoulder()));
+                File bWall = Files.getWallFile(b.getWall());
+                if (bWall.exists()) {
+                    GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(bWall)), bWall.getName());
+                    Files.setLastBoard(bWall.getName());
+                    MainWindow.loadWallWithBoulder(preloaded, b);
+                } else {
+                    createSelectOrImportWall(LoadBackgroundOrImportOrLoadWall.getDefaultUrl());
+                }
             } else if (Files.getLastBoard() != null && Files.getLastBoulder() == null) {
                 //load last wall, generate random bouoder
                 MainWindow.loadWallWithBoulder(Files.getLastBoard());
