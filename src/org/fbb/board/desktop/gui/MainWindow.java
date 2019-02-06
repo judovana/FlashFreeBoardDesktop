@@ -21,6 +21,7 @@ import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -109,15 +110,20 @@ public class MainWindow {
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         LoadBackgroundOrImportOrLoadWall panel = new LoadBackgroundOrImportOrLoadWall(urlorFile);
         f.add(panel);
+        final boolean[] ok = new boolean[]{false};
         panel.setOkAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //validate first?
+                ok[0] = true;
                 f.setVisible(false);
             }
         });
         f.setSize(500, 200);
         f.setVisible(true);
+        if (!ok[0]) {
+            return;
+        }
         URL r = panel.getResult();
         f.dispose();
         InputStream is = r.openStream();
@@ -354,12 +360,11 @@ public class MainWindow {
         });
         JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
         jp.add(editBoulder);
-        final Boulder[] bb = new Boulder[]{b};
         editBoulder.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                editBoulder(preloaded, bb[0]);
+                editBoulder(preloaded, getCurrentInHistory());
             }
 
         });
@@ -487,6 +492,10 @@ public class MainWindow {
 
     //returns whether we are at end or not;
     //@return true, if index is NOT last (and thus forward button can be enabld)
+    private static Boulder getCurrentInHistory() {
+        return history.get(historyIndex);
+    }
+
     private static void addToBoulderHistory(Boulder b) {
         if (history.isEmpty()) {
             history.add(b);
@@ -559,7 +568,7 @@ public class MainWindow {
         //if not save, then what?
         //return  new BoulderAlways? - on Ok?
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(p.img));
-        final JDialog operateBoulder = new JDialog((JFrame)null, true);
+        final JDialog operateBoulder = new JDialog((JFrame) null, true);
         operateBoulder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bi, p.props);
         operateBoulder.add(gp);
@@ -573,8 +582,25 @@ public class MainWindow {
         } else {
             gp.getGrid().clean();
         }
+        JButton doneButton = new JButton(Translator.R("Bdone"));
+        JPanel tools = new JPanel(new BorderLayout());
+        JComboBox<String> grades = new JComboBox<>(Grade.currentGrades());
+        JTextField name = new JTextField();
+        if (b == null) {
+            name.setText(p.givenId + " " + new Date().toString());
+        } else {
+            name.setText(b.getName());
+            grades.setSelectedItem(b.getGrade().toString());
+        }
+        JCheckBox saveOnExit = new JCheckBox(Translator.R("SaveOnExit"));
+        saveOnExit.setSelected(true);
+        tools.add(grades, BorderLayout.WEST);
+        tools.add(name);
+        tools.add(saveOnExit, BorderLayout.EAST);
+        operateBoulder.add(tools, BorderLayout.NORTH);
+        operateBoulder.add(doneButton, BorderLayout.SOUTH);
         operateBoulder.pack();
-        operateBoulder.setSize((int) nw, (int) nh/* + tools.getHeight()*/);
+        operateBoulder.setSize((int) nw, (int) nh + tools.getHeight() + doneButton.getHeight());
         operateBoulder.setVisible(true);
         return null;
     }

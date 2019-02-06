@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Vector;
 import org.fbb.board.Translator;
 
 /**
@@ -24,6 +25,11 @@ public class Grade {
     private static String[] columns;
     private static final List<String[]> valuesPerGrade = new ArrayList<>(100);
     private static final Map<String, List<String>> valuesPerColumn = new HashMap<>();
+
+    //to be used by combobox
+    public static Vector<String> currentGrades() {
+        return new Vector<>(valuesPerColumn.get(usedGrades));
+    }
 
     public static void loadConversiontable() throws IOException {
         InputStream s = Grade.class.getResourceAsStream("tabulka");
