@@ -56,13 +56,20 @@ public class MainWindow {
                 GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(Files.getWallFile(Files.getLastBoard()))), Files.getLastBoard());
                 //check if boards mathces
                 if (!b.getWall().equals(preloaded.givenId)) {
-                    //if not warn, load boulder on its board if  its board exists. If not load wall only    
+                    //if not warn, and ask user ifhe wont to keep wall or boulder. If not load wall only    
                     JOptionPane.showMessageDialog(null, Translator.R("NotMatchingBoulderWall", b.getWall(), preloaded.givenId));
                     File bWall = Files.getWallFile(b.getWall());
                     if (bWall.exists()) {
-                        preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(bWall)), bWall.getName());
-                        Files.setLastBoard(bWall.getName());
-                        MainWindow.loadWallWithBoulder(preloaded, b);
+                        //it is likely that wall had been changed intntionally, and old wall was simply not deleted, and boulder was not updated
+                        int a = JOptionPane.showConfirmDialog(null, Translator.R("PossiblyIncorrectLastBoulder"));
+                        if (a == JOptionPane.YES_OPTION) {
+                            Files.setLastBoulder((String) null);//delete alst boulder info
+                            MainWindow.loadWallWithBoulder(Files.getLastBoard());
+                        } else {
+                            preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(bWall)), bWall.getName());
+                            Files.setLastBoard(bWall.getName());
+                            MainWindow.loadWallWithBoulder(preloaded, b);
+                        }
                     } else {
                         Files.setLastBoulder((String) null);//delete alst boulder info
                         MainWindow.loadWallWithBoulder(Files.getLastBoard());
