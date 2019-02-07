@@ -39,6 +39,7 @@ import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.internals.Boulder;
+import org.fbb.board.internals.Grid;
 import org.fbb.board.internals.GridPane;
 import org.fbb.board.internals.grades.Grade;
 
@@ -355,7 +356,17 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                editBoulder(preloaded, null);
+                Boulder r = editBoulder(preloaded, null);
+                if (r != null) {
+                    addToBoulderHistory(r);
+                    gp.getGrid().setBouler(r);
+                    name.setText(r.getGradeAndName());
+                    name.setToolTipText(getStandardTooltip(r));
+                    gp.repaint();
+                    Files.setLastBoulder(r);
+                    next.setEnabled(canFwd());
+                    previous.setEnabled(canBack());
+                }
             }
         });
         JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
@@ -364,7 +375,17 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                editBoulder(preloaded, getCurrentInHistory());
+                Boulder r = editBoulder(preloaded, getCurrentInHistory());
+                if (r != null) {
+                    addToBoulderHistory(r);
+                    gp.getGrid().setBouler(r);
+                    name.setText(r.getGradeAndName());
+                    name.setToolTipText(getStandardTooltip(r));
+                    gp.repaint();
+                    Files.setLastBoulder(r);
+                    next.setEnabled(canFwd());
+                    previous.setEnabled(canBack());
+                }
             }
 
         });
@@ -493,6 +514,9 @@ public class MainWindow {
     //returns whether we are at end or not;
     //@return true, if index is NOT last (and thus forward button can be enabld)
     private static Boulder getCurrentInHistory() {
+        if (history.isEmpty() || historyIndex < 0 || historyIndex > history.size()) {
+            return null;
+        }
         return history.get(historyIndex);
     }
 
@@ -558,12 +582,12 @@ public class MainWindow {
             return editBoulderImpl(p, b);
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showConfirmDialog(null, ex);
+            JOptionPane.showMessageDialog(null, ex);
             return null;
         }
     }
 
-    private static Boulder editBoulderImpl(GridPane.Preload p, Boulder b) throws IOException {
+    private static Boulder editBoulderImpl(GridPane.Preload p, Boulder orig) throws IOException, CloneNotSupportedException {
         //checkbox save? 
         //if not save, then what?
         //return  new BoulderAlways? - on Ok?
@@ -576,9 +600,9 @@ public class MainWindow {
         double ratio = getIdealWindowSizw(bi);
         double nw = ratio * (double) bi.getWidth();
         double nh = ratio * (double) bi.getHeight();
-        if (b != null) {
+        if (orig != null) {
             gp.getGrid().clean();
-            gp.getGrid().setBouler(b);
+            gp.getGrid().setBouler(orig);
         } else {
             gp.getGrid().clean();
         }
@@ -586,11 +610,11 @@ public class MainWindow {
         JPanel tools = new JPanel(new BorderLayout());
         JComboBox<String> grades = new JComboBox<>(Grade.currentGrades());
         JTextField name = new JTextField();
-        if (b == null) {
+        if (orig == null) {
             name.setText(p.givenId + " " + new Date().toString());
         } else {
-            name.setText(b.getName());
-            grades.setSelectedItem(b.getGrade().toString());
+            name.setText(orig.getName());
+            grades.setSelectedItem(orig.getGrade().toString());
         }
         JCheckBox saveOnExit = new JCheckBox(Translator.R("SaveOnExit"));
         saveOnExit.setSelected(true);
@@ -601,7 +625,90 @@ public class MainWindow {
         operateBoulder.add(doneButton, BorderLayout.SOUTH);
         operateBoulder.pack();
         operateBoulder.setSize((int) nw, (int) nh + tools.getHeight() + doneButton.getHeight());
+        DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit.isSelected(), operateBoulder, gp.getGrid(), name, grades, p.givenId);
+        doneButton.addActionListener(done);
         operateBoulder.setVisible(true);
-        return null;
+        return done.getResult();
+    }
+
+    private static class DoneEditingBoulderListener implements ActionListener {
+
+        private final String wallId;
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                actionPerformedImpl(e);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(parent, ex);
+            }
+        }
+
+        public Boulder getResult() {
+            return result;
+        }
+
+        private Boulder result;
+        private final Boulder orig;
+        private final boolean saveOnExit;
+        private final JDialog parent;
+        private final Grid grid;
+        private final JTextField nwNameProvider;
+        private final JComboBox<String> grades;
+
+        public DoneEditingBoulderListener(Boulder orig, boolean saveOnExit, JDialog parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId) {
+            this.orig = orig;
+            this.saveOnExit = saveOnExit;
+            this.nwNameProvider = nwNameProvider;
+            this.parent = parent;
+            this.grid = grid;
+            this.grades = grades;
+            this.wallId = wallId;
+        }
+
+        public void actionPerformedImpl(ActionEvent e) throws IOException {
+            Boulder possibleReturnCandidate;
+            if (orig != null) {
+                possibleReturnCandidate = grid.createBoulderFromCurrent(orig.getFile(), nwNameProvider.getText(), wallId, new Grade(grades.getSelectedIndex()));
+            } else {
+                possibleReturnCandidate = grid.createBoulderFromCurrent(null, nwNameProvider.getText(), wallId, new Grade(grades.getSelectedIndex()));
+            }
+            if (orig == null && possibleReturnCandidate.isEmpty()) {
+                return;
+            }
+            String possibleFileName = Files.sanitizeFileName(nwNameProvider.getText());
+            File possibleTargetFile = Files.getBoulderFile(possibleFileName + ".bldr");
+            if (orig != null && orig.getFile() != null) {
+                possibleReturnCandidate.setFile(possibleTargetFile);
+            }
+             if (orig != null ) {
+                possibleReturnCandidate.setDate(orig.getDate());
+            }
+            if (saveOnExit) {
+                possibleReturnCandidate.setFile(possibleTargetFile);
+                if (possibleReturnCandidate.getFile().exists()) {
+                    int a = JOptionPane.showConfirmDialog(null, Translator.R("RewriteBoulder", nwNameProvider.getText()));
+                    if (a == JOptionPane.YES_OPTION) {
+                        possibleReturnCandidate.save();
+                    } else {
+                        return;
+                    }
+                } else {
+                    possibleReturnCandidate.save();
+                }
+            }
+            if (orig == null) {
+                result = possibleReturnCandidate;
+            } else {
+                if (possibleReturnCandidate.equals(orig)) {
+                    result = null;
+                } else {
+                    result = possibleReturnCandidate;
+                }
+            }
+            parent.setVisible(false);
+            parent.dispose();
+        }
     }
 }

@@ -41,7 +41,7 @@ public class Files {
         return sanitizeFileName(filename, SANITIZED_CHAR);
     }
 
-    public static String sanitizeFileName(String filename, char substitute) {
+    private static String sanitizeFileName(String filename, char substitute) {
 
         for (int i = 0; i < INVALID_NAME.size(); i++) {
             if (-1 != filename.indexOf(INVALID_NAME.get(i))) {

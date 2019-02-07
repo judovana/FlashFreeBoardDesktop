@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Properties;
 import org.fbb.board.internals.grades.Grade;
 
@@ -20,7 +21,7 @@ import org.fbb.board.internals.grades.Grade;
  *
  * @author jvanek
  */
-public class Boulder {
+public class Boulder implements Cloneable {
 
     public static Boulder createBoulder(File file, String name, String wallId, Grade grade, String start, String path, String top) {
         Properties p = new Properties();
@@ -97,6 +98,12 @@ public class Boulder {
 
     }
 
+    public boolean isEmpty() {
+        return map.getProperty(START).trim().isEmpty()
+                && map.getProperty(TOP).trim().isEmpty()
+                && map.getProperty(PATH).trim().isEmpty();
+    }
+
     private void apply(byte[] values, String compressedValue, byte mark, int heigt) {
         if (compressedValue == null || compressedValue.trim().isEmpty()) {
             return;
@@ -145,8 +152,31 @@ public class Boulder {
     public File getFile() {
         return file;
     }
+
     public String getWall() {
         return map.getProperty(WALL);
+    }
+
+    @Override
+    public Boulder clone() throws CloneNotSupportedException {
+        return (Boulder) super.clone();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Boulder)) {
+            return false;
+        }
+        return map.equals(((Boulder) obj).map);
+    }
+
+    @Override
+    public int hashCode() {
+        return map.hashCode();
+    }
+
+    public void setDate(Date date) {
+        map.setProperty(DATE, date.getTime() + "");
     }
 
 }
