@@ -54,7 +54,7 @@ public class Grid {
      */
     private RelativePoint selected;
     private boolean showGrid = true;
-    private int holdStyle = 0;
+    private int holdStyle = 800;//nasty hack to avoid runnign around zero
     private static final int FILL = 0;
     private static final int C_BIG = 1;
     private static final int C_SMALL = 2;
@@ -171,7 +171,7 @@ public class Grid {
             horLines[0].draw(g, 0, 1);
             horLines[0].draw(g, 0, -1);
         }
-        int style = Math.abs(holdStyle);
+        int style = Math.abs(holdStyle%8);
         int alpha = 100;
         System.out.println("" + style);
         if (style != FILL) {
@@ -423,7 +423,6 @@ public class Grid {
 
     public void setHoldStyle(int change) {
         this.holdStyle = this.holdStyle + change;
-        this.holdStyle = holdStyle % 8;
     }
 
     public Boulder randomBoulder(String wallId) {
