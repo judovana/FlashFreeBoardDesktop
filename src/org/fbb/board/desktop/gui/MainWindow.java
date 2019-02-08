@@ -45,6 +45,7 @@ import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.internals.Boulder;
 import org.fbb.board.internals.Grid;
 import org.fbb.board.internals.GridPane;
+import org.fbb.board.internals.HistoryManager;
 import org.fbb.board.internals.grades.Grade;
 
 /**
@@ -53,6 +54,8 @@ import org.fbb.board.internals.grades.Grade;
  */
 //filters - by grade, by date, by number of holds
 public class MainWindow {
+
+    private static HistoryManager hm = new HistoryManager();
 
     public static void main(String... s) {
         try {
@@ -334,12 +337,12 @@ public class MainWindow {
             gp.getGrid().clean();
             gp.getGrid().setBouler(b);
         }
-        clearHistory();
-        addToBoulderHistory(b);
+        hm.clearHistory();
+        hm.addToBoulderHistory(b);
         JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
         JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
-        next.setEnabled(canFwd());
-        previous.setEnabled(canBack());
+        next.setEnabled(hm.canFwd());
+        previous.setEnabled(hm.canBack());
         gp.getGrid().setShowGrid(false);
         JPanel tools = new JPanel(new BorderLayout());
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
@@ -368,14 +371,14 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 Boulder r = selectListBouder(preloaded.givenId);
                 if (r != null) {
-                    addToBoulderHistory(r);
+                    hm.addToBoulderHistory(r);
                     gp.getGrid().setBouler(r);
                     name.setText(r.getGradeAndName());
                     name.setToolTipText(getStandardTooltip(r));
                     gp.repaint();
                     Files.setLastBoulder(r);
-                    next.setEnabled(canFwd());
-                    previous.setEnabled(canBack());
+                    next.setEnabled(hm.canFwd());
+                    previous.setEnabled(hm.canBack());
                 }
             }
 
@@ -389,7 +392,7 @@ public class MainWindow {
                 BoulderAndSaved bs = editBoulder(preloaded, null);
                 if (bs != null) {
                     Boulder r = bs.b;
-                    addToBoulderHistory(r);
+                    hm.addToBoulderHistory(r);
                     gp.getGrid().setBouler(r);
                     name.setText(r.getGradeAndName());
                     name.setToolTipText(getStandardTooltip(r));
@@ -397,8 +400,8 @@ public class MainWindow {
                     if (bs.saved) {
                         Files.setLastBoulder(r);
                     }
-                    next.setEnabled(canFwd());
-                    previous.setEnabled(canBack());
+                    next.setEnabled(hm.canFwd());
+                    previous.setEnabled(hm.canBack());
                 }
             }
         });
@@ -408,10 +411,10 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                BoulderAndSaved bs = editBoulder(preloaded, getCurrentInHistory());
+                BoulderAndSaved bs = editBoulder(preloaded, hm.getCurrentInHistory());
                 if (bs != null) {
                     Boulder r = bs.b;
-                    addToBoulderHistory(r);
+                    hm.addToBoulderHistory(r);
                     gp.getGrid().setBouler(r);
                     name.setText(r.getGradeAndName());
                     name.setToolTipText(getStandardTooltip(r));
@@ -419,8 +422,8 @@ public class MainWindow {
                     if (bs.saved) {
                         Files.setLastBoulder(r);
                     }
-                    next.setEnabled(canFwd());
-                    previous.setEnabled(canBack());
+                    next.setEnabled(hm.canFwd());
+                    previous.setEnabled(hm.canBack());
                 }
             }
 
@@ -440,11 +443,11 @@ public class MainWindow {
                 try {
                     Boulder b = gp.getGrid().createBoulderFromCurrent(Files.getBoulderFile(fn), nameNice, preloaded.givenId, Grade.RandomBoulder());
                     b.save();
-                    addToBoulderHistory(b);
+                    hm.addToBoulderHistory(b);
                     name.setText(b.getGradeAndName());
                     name.setToolTipText(getStandardTooltip(b));
-                    next.setEnabled(canFwd());
-                    previous.setEnabled(canBack());
+                    next.setEnabled(hm.canFwd());
+                    previous.setEnabled(hm.canBack());
                     Files.setLastBoulder(b);
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -475,31 +478,31 @@ public class MainWindow {
         previous.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (canBack()) {
-                    Boulder b = back();
+                if (hm.canBack()) {
+                    Boulder b = hm.back();
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
                     name.setToolTipText(getStandardTooltip(b));
                     gp.repaint();
                     Files.setLastBoulder(b);
                 }
-                next.setEnabled(canFwd());
-                previous.setEnabled(canBack());
+                next.setEnabled(hm.canFwd());
+                previous.setEnabled(hm.canBack());
             }
         });
         next.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (canFwd()) {
-                    Boulder b = forward();
+                if (hm.canFwd()) {
+                    Boulder b = hm.forward();
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
                     name.setToolTipText(getStandardTooltip(b));
                     gp.repaint();
                     Files.setLastBoulder(b);
                 }
-                next.setEnabled(canFwd());
-                previous.setEnabled(canBack());
+                next.setEnabled(hm.canFwd());
+                previous.setEnabled(hm.canBack());
             }
         });
         previous.setEnabled(false);
@@ -511,10 +514,10 @@ public class MainWindow {
                 Boulder b = gp.getGrid().randomBoulder(preloaded.givenId);
                 name.setText(b.getGradeAndName());
                 name.setToolTipText(getStandardTooltip(b));
-                addToBoulderHistory(b);
+                hm.addToBoulderHistory(b);
                 gp.repaint();
-                next.setEnabled(canFwd());
-                previous.setEnabled(canBack());
+                next.setEnabled(hm.canFwd());
+                previous.setEnabled(hm.canBack());
             }
         });
         JButton nextRandom = new JButton("?>");
@@ -542,68 +545,6 @@ public class MainWindow {
                 createWallWindow.setVisible(true);
             }
         });
-    }
-
-    private static final List<Boulder> history = new ArrayList<>();
-    private static int historyIndex = -1;
-
-    //returns whether we are at end or not;
-    //@return true, if index is NOT last (and thus forward button can be enabld)
-    private static Boulder getCurrentInHistory() {
-        if (history.isEmpty() || historyIndex < 0 || historyIndex > history.size()) {
-            return null;
-        }
-        return history.get(historyIndex);
-    }
-
-    private static void addToBoulderHistory(Boulder b) {
-        if (history.isEmpty()) {
-            history.add(b);
-            historyIndex = 0;
-            return;
-        }
-        if (historyIndex == history.size() - 1) {
-            historyIndex++;
-            history.add(b);
-            return;
-        }
-        historyIndex++;
-        history.add(historyIndex, b);
-        return;
-    }
-
-    private static boolean canBack() {
-        return historyIndex > 0;
-    }
-
-    private static Boulder forward() {
-        if (history.isEmpty()) {
-            return null;
-        }
-        if (canFwd()) {
-            historyIndex++;
-            return history.get(historyIndex);
-        }
-        return history.get(historyIndex);
-    }
-
-    private static Boulder back() {
-        if (history.isEmpty()) {
-            return null;
-        }
-        if (canBack()) {
-            historyIndex--;
-            return history.get(historyIndex);
-        }
-        return history.get(historyIndex);
-    }
-
-    private static boolean canFwd() {
-        return historyIndex < history.size() - 1;
-    }
-
-    private static void clearHistory() {
-        history.clear();
     }
 
     private static String getStandardTooltip(int i) {
