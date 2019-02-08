@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -356,7 +357,7 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Boulder r = selectListBouder();
+                Boulder r = selectListBouder(preloaded.givenId);
                 if (r != null) {
                     addToBoulderHistory(r);
                     gp.getGrid().setBouler(r);
@@ -763,9 +764,9 @@ public class MainWindow {
         }
     }
 
-    private static Boulder selectListBouder() {
+    private static Boulder selectListBouder(String wallId) {
         try {
-            return selectListBouderImpl();
+            return selectListBouderImpl(wallId);
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, ex);
@@ -773,16 +774,52 @@ public class MainWindow {
         }
     }
 
-    private static Boulder selectListBouderImpl() throws IOException {
+    private static final SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/YYYY HH:mm");
+
+    private static Boulder selectListBouderImpl(String wallID) throws IOException {
         JDialog d = new JDialog((JDialog) null, true);
         d.setSize(800, 600);
         d.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         JList<String> boulders = new JList(Files.bouldersDir.list());
         d.add(boulders);
+        JPanel tools0 = new JPanel(new BorderLayout());
+        JPanel tools1 = new JPanel(new GridLayout(1, 3));
+        JPanel tools2 = new JPanel(new GridLayout(1, 3));
+        JPanel tools3 = new JPanel(new BorderLayout());
+        JPanel tools4 = new JPanel(new GridLayout(1, 3));
+        tools0.add(new JLabel("Wall"));
+        JComboBox<String> walls = new JComboBox(Files.wallsDir.list());
+        walls.setSelectedItem(wallID);
+        tools0.add(walls);
+        tools1.add(new JLabel("Difficulty from/to"));
+        JComboBox<String> gradesFrom = new JComboBox(Grade.currentGrades());
+        gradesFrom.setSelectedIndex(0);
+        tools1.add(gradesFrom);
+        JComboBox<String> gradesTo = new JComboBox(Grade.currentGrades());
+        gradesTo.setSelectedIndex(Grade.currentGrades().size() - 1);
+        tools1.add(gradesTo);
+        tools2.add(new JLabel("Number of holds from/to"));
+        tools2.add(new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1)));
+        tools2.add(new JSpinner(new SpinnerNumberModel(100, 0, 1000, 1)));
+        tools3.add(new JLabel("Name filter"), BorderLayout.WEST);
+        tools3.add(new JTextField());
+        tools3.add(new JLabel("Name filter"), BorderLayout.WEST);
+        tools3.add(new JTextField());
+        tools4.add(new JLabel("Date [dd/MM/YYYY HH:mm] from/to"));
+        tools4.add(new JTextField(dtf.format(new Date(0))));
+        tools4.add(new JTextField(dtf.format(new Date())));
+        JPanel tools = new JPanel(new GridLayout(5, 1));
+        tools.add(tools0);
+        tools.add(tools1);
+        tools.add(tools2);
+        tools.add(tools3);
+        tools.add(tools4);
+        d.add(tools, BorderLayout.NORTH);
         d.setVisible(true);
         if (boulders.getSelectedValue() == null) {
             return null;
         }
         return Boulder.load(Files.getBoulderFile(boulders.getSelectedValue()));
     }
+
 }
