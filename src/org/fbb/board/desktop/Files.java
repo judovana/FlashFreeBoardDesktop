@@ -75,7 +75,12 @@ public class Files {
             List<String> s = java.nio.file.Files.readAllLines(lastBoard.toPath());
             for (String item : s) {
                 if (!item.trim().isEmpty()) {
-                    return item;
+                    if (Files.getWallFile(item).exists()) {
+                        return item;
+                    } else {
+                        lastBoard.delete();
+                        return null;
+                    }
                 }
             }
         }
@@ -87,7 +92,12 @@ public class Files {
             List<String> s = java.nio.file.Files.readAllLines(lastBoulder.toPath());
             for (String item : s) {
                 if (!item.trim().isEmpty()) {
-                    return item;
+                    if (Files.getBoulderFile(item).exists()) {
+                        return item;
+                    } else {
+                        lastBoulder.delete();
+                        return null;
+                    }
                 }
             }
         }
