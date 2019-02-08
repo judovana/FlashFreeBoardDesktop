@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -343,6 +345,13 @@ public class MainWindow {
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
         JLabel name = new JLabel(b.getGradeAndName());
         name.setToolTipText(getStandardTooltip(b));
+        name.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JOptionPane.showMessageDialog(createWallWindow, name.getToolTipText());
+            }
+
+        });
         JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
         JPopupMenu jp = new JPopupMenu();
         settings.addActionListener(new ActionListener() {
@@ -597,6 +606,10 @@ public class MainWindow {
         history.clear();
     }
 
+    private static String getStandardTooltip(int i) {
+        return "<b>" + new Grade(i).toAllValues("<br/>") + "</b>";
+    }
+
     private static String getStandardTooltip(Boulder b) {
         return "<html>"
                 + b.getName() + " (" + b.getWall() + ")<br/>"
@@ -791,12 +804,39 @@ public class MainWindow {
         JComboBox<String> walls = new JComboBox(Files.wallsDir.list());
         walls.setSelectedItem(wallID);
         tools0.add(walls);
-        tools1.add(new JLabel("Difficulty from/to"));
-        JComboBox<String> gradesFrom = new JComboBox(Grade.currentGrades());
+        final JLabel dificultyLabel = new JLabel("Difficulty from/to");
+        tools1.add(dificultyLabel);
+        dificultyLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JOptionPane.showMessageDialog(d, dificultyLabel.getToolTipText());
+            }
+        });
+        final JComboBox<String> gradesFrom = new JComboBox(Grade.currentGrades());
+        final JComboBox<String> gradesTo = new JComboBox(Grade.currentGrades());
+        gradesFrom.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dificultyLabel.setToolTipText("<html>"
+                        + getStandardTooltip(gradesFrom.getSelectedIndex())
+                        + "-----<br>"
+                        + getStandardTooltip(gradesTo.getSelectedIndex())
+                );
+            }
+        });
+        gradesTo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dificultyLabel.setToolTipText("<html>"
+                        + getStandardTooltip(gradesFrom.getSelectedIndex())
+                        + "-----<br>"
+                        + getStandardTooltip(gradesTo.getSelectedIndex())
+                );
+            }
+        });
         gradesFrom.setSelectedIndex(0);
-        tools1.add(gradesFrom);
-        JComboBox<String> gradesTo = new JComboBox(Grade.currentGrades());
         gradesTo.setSelectedIndex(Grade.currentGrades().size() - 1);
+        tools1.add(gradesFrom);
         tools1.add(gradesTo);
         tools2.add(new JLabel("Number of holds from/to"));
         tools2.add(new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1)));
