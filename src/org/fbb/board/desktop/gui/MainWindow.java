@@ -595,7 +595,7 @@ public class MainWindow {
         final JDialog operateBoulder = new JDialog((JFrame) null, true);
         operateBoulder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bi, p.props);
-        gp.getGrid().setShowGrid(false);
+        gp.getGrid().setShowGrid(true);
         operateBoulder.add(gp);
         gp.enableBoulderModificationOnly();
         double ratio = getIdealWindowSizw(bi);
@@ -625,7 +625,7 @@ public class MainWindow {
         tools1.add(saveOnExit, BorderLayout.EAST);
         operateBoulder.add(tools1, BorderLayout.NORTH);
         JCheckBox gridb = new JCheckBox(Translator.R("Bgrid"));
-        gridb.setSelected(false);
+        gridb.setSelected(true);
         gridb.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
