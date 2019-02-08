@@ -25,6 +25,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -349,7 +350,26 @@ public class MainWindow {
                 jp.show((JButton) e.getSource(), 0, 0);
             }
         });
-        jp.add(new JMenuItem("select/list boulders")); //aslo returnboudler form this call?
+        JMenuItem selectListBoulders = new JMenuItem(Translator.R("SelectListBoulders"));
+        jp.add(selectListBoulders); //also return boudler and current filter
+        selectListBoulders.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Boulder r = selectListBouder();
+                if (r != null) {
+                    addToBoulderHistory(r);
+                    gp.getGrid().setBouler(r);
+                    name.setText(r.getGradeAndName());
+                    name.setToolTipText(getStandardTooltip(r));
+                    gp.repaint();
+                    Files.setLastBoulder(r);
+                    next.setEnabled(canFwd());
+                    previous.setEnabled(canBack());
+                }
+            }
+
+        });
         JMenuItem newBoulder = new JMenuItem(Translator.R("MNewBoulder"));
         jp.add(newBoulder);
         newBoulder.addActionListener(new ActionListener() {
@@ -741,5 +761,28 @@ public class MainWindow {
             parent.setVisible(false);
             parent.dispose();
         }
+    }
+
+    private static Boulder selectListBouder() {
+        try {
+            return selectListBouderImpl();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex);
+            return null;
+        }
+    }
+
+    private static Boulder selectListBouderImpl() throws IOException {
+        JDialog d = new JDialog((JDialog) null, true);
+        d.setSize(800, 600);
+        d.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        JList<String> boulders = new JList(Files.bouldersDir.list());
+        d.add(boulders);
+        d.setVisible(true);
+        if (boulders.getSelectedValue() == null) {
+            return null;
+        }
+        return Boulder.load(Files.getBoulderFile(boulders.getSelectedValue()));
     }
 }
