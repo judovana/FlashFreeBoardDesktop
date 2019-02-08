@@ -638,7 +638,7 @@ public class MainWindow {
         operateBoulder.add(tools2, BorderLayout.SOUTH);
         operateBoulder.pack();
         operateBoulder.setSize((int) nw, (int) nh + tools1.getHeight() + tools2.getHeight());
-        DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit.isSelected(), operateBoulder, gp.getGrid(), name, grades, p.givenId);
+        DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit, operateBoulder, gp.getGrid(), name, grades, p.givenId);
         doneButton.addActionListener(done);
         operateBoulder.setVisible(true);
         return done.getResult();
@@ -664,13 +664,13 @@ public class MainWindow {
         
         private Boulder result;
         private final Boulder orig;
-        private final boolean saveOnExit;
+        private final JCheckBox saveOnExit;
         private final JDialog parent;
         private final Grid grid;
         private final JTextField nwNameProvider;
         private final JComboBox<String> grades;
         
-        public DoneEditingBoulderListener(Boulder orig, boolean saveOnExit, JDialog parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId) {
+        public DoneEditingBoulderListener(Boulder orig, JCheckBox saveOnExit, JDialog parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId) {
             this.orig = orig;
             this.saveOnExit = saveOnExit;
             this.nwNameProvider = nwNameProvider;
@@ -698,7 +698,7 @@ public class MainWindow {
             if (orig != null) {
                 possibleReturnCandidate.setDate(orig.getDate());
             }
-            if (saveOnExit) {
+            if (saveOnExit.isSelected()) {
                 possibleReturnCandidate.setFile(possibleTargetFile);
                 if (possibleReturnCandidate.getFile().exists()) {
                     int a = JOptionPane.showConfirmDialog(null, Translator.R("RewriteBoulder", nwNameProvider.getText()));
