@@ -12,11 +12,12 @@
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/Boulder.java</file>
         </group>
         <group>
+            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/</file>
+            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/ListWithFilter.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/HistoryManager.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/desktop/gui/MainWindow.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/locales/bundles/Messages.properties</file>
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/GridPane.java</file>
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/desktop/Files.java</file>
+            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/comm/wired/PortWork.java</file>
         </group>
     </open-files>
 </project-private>

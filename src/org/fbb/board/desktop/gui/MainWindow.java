@@ -17,9 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -46,6 +44,7 @@ import org.fbb.board.internals.Boulder;
 import org.fbb.board.internals.Grid;
 import org.fbb.board.internals.GridPane;
 import org.fbb.board.internals.HistoryManager;
+import org.fbb.board.internals.ListWithFilter;
 import org.fbb.board.internals.grades.Grade;
 
 /**
@@ -56,9 +55,11 @@ import org.fbb.board.internals.grades.Grade;
 public class MainWindow {
 
     private static HistoryManager hm = new HistoryManager();
+    private static ListWithFilter list;
 
     public static void main(String... s) {
         try {
+            list = new ListWithFilter();
             Grade.loadConversiontable();
             if (Files.getLastBoard() != null && Files.getLastBoulder() != null) {
                 Boulder b = Boulder.load(Files.getBoulderFile(Files.getLastBoulder()));
@@ -321,22 +322,21 @@ public class MainWindow {
         loadWallWithBoulder(preloaded, null);
     }
 
-    private static void loadWallWithBoulder(GridPane.Preload preloaded, Boulder b) throws IOException {
+    private static void loadWallWithBoulder(GridPane.Preload preloaded, final Boulder possiblebOulder) throws IOException {
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         final JFrame createWallWindow = new JFrame();
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bi, preloaded.props);
+        list = new ListWithFilter(preloaded.givenId);
         createWallWindow.add(gp);
         gp.disableClicking();
         double ratio = getIdealWindowSizw(bi);
         double nw = ratio * (double) bi.getWidth();
         double nh = ratio * (double) bi.getHeight();
-        if (b == null) {
-            b = gp.getGrid().randomBoulder(preloaded.givenId);
-        } else {
-            gp.getGrid().clean();
-            gp.getGrid().setBouler(b);
-        }
+        final Boulder b = (possiblebOulder == null) ? gp.getGrid().randomBoulder(preloaded.givenId) : possiblebOulder;
+        list.setIndex(b.getFile().getName());
+        gp.getGrid().clean();
+        gp.getGrid().setBouler(b);
         hm.clearHistory();
         hm.addToBoulderHistory(b);
         JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
@@ -355,6 +355,9 @@ public class MainWindow {
             }
 
         });
+        final JButton nextRandom = new JButton("?>");
+        final JButton nextInList = new JButton(">>");
+        final JButton prevInList = new JButton("<<");
         JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
         JPopupMenu jp = new JPopupMenu();
         settings.addActionListener(new ActionListener() {
@@ -399,6 +402,11 @@ public class MainWindow {
                     gp.repaint();
                     if (bs.saved) {
                         Files.setLastBoulder(r);
+                        list.addToBoulderHistory(b);
+                        nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                        prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                        nextInList.setEnabled(list.canFwd());
+                        prevInList.setEnabled(list.canBack());
                     }
                     next.setEnabled(hm.canFwd());
                     previous.setEnabled(hm.canBack());
@@ -421,6 +429,11 @@ public class MainWindow {
                     gp.repaint();
                     if (bs.saved) {
                         Files.setLastBoulder(r);
+                        list.addToBoulderHistory(b);
+                        nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                        prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                        nextInList.setEnabled(list.canFwd());
+                        prevInList.setEnabled(list.canBack());
                     }
                     next.setEnabled(hm.canFwd());
                     previous.setEnabled(hm.canBack());
@@ -449,6 +462,11 @@ public class MainWindow {
                     next.setEnabled(hm.canFwd());
                     previous.setEnabled(hm.canBack());
                     Files.setLastBoulder(b);
+                    list.addToBoulderHistory(b);
+                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    nextInList.setEnabled(list.canFwd());
+                    prevInList.setEnabled(list.canBack());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, ex);
@@ -520,9 +538,71 @@ public class MainWindow {
                 previous.setEnabled(hm.canBack());
             }
         });
-        JButton nextRandom = new JButton("?>");
-        JButton nextInList = new JButton(">>");
-        JButton prevInList = new JButton("<<");
+        nextInList.setEnabled(list.canFwd());
+        prevInList.setEnabled(list.canBack());
+        nextRandom.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Boulder b = list.getRandom();
+                if (b != null) {
+                    hm.addToBoulderHistory(b);
+                    gp.getGrid().setBouler(b);
+                    name.setText(b.getGradeAndName());
+                    name.setToolTipText(getStandardTooltip(b));
+                    gp.repaint();
+                    Files.setLastBoulder(b);
+                    next.setEnabled(hm.canFwd());
+                    previous.setEnabled(hm.canBack());
+                    nextInList.setEnabled(list.canFwd());
+                    prevInList.setEnabled(list.canBack());
+                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                }
+            }
+        });
+        nextInList.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Boulder b = list.forward();
+                if (b != null) {
+                    hm.addToBoulderHistory(b);
+                    gp.getGrid().setBouler(b);
+                    name.setText(b.getGradeAndName());
+                    name.setToolTipText(getStandardTooltip(b));
+                    gp.repaint();
+                    Files.setLastBoulder(b);
+                    next.setEnabled(hm.canFwd());
+                    previous.setEnabled(hm.canBack());
+                    nextInList.setEnabled(list.canFwd());
+                    prevInList.setEnabled(list.canBack());
+                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                }
+            }
+        });
+        prevInList.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Boulder b = list.back();
+                if (b != null) {
+                    hm.addToBoulderHistory(b);
+                    gp.getGrid().setBouler(b);
+                    name.setText(b.getGradeAndName());
+                    name.setToolTipText(getStandardTooltip(b));
+                    gp.repaint();
+                    Files.setLastBoulder(b);
+                    next.setEnabled(hm.canFwd());
+                    previous.setEnabled(hm.canBack());
+                    nextInList.setEnabled(list.canFwd());
+                    prevInList.setEnabled(list.canBack());
+                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                }
+            }
+        });
         tools2.add(previous);
         tools2.add(next);
         tools2.add(nextRandomGenerated);
@@ -531,8 +611,8 @@ public class MainWindow {
         tools2.add(nextInList);
         nextRandomGenerated.setToolTipText(Translator.R("NextRandomGenerated"));
         nextRandom.setToolTipText(Translator.R("NextRandomlySelected"));
-        nextInList.setToolTipText(Translator.R("NextInRow"));
-        prevInList.setToolTipText(Translator.R("PrewInRow"));
+        nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+        prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
         previous.setToolTipText(Translator.R("PreviousBoulder"));
         settings.setToolTipText(Translator.R("Settings"));
         next.setToolTipText(Translator.R("FwdBoulder"));

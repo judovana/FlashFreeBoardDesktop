@@ -14,11 +14,11 @@ import java.util.List;
  */
 public class HistoryManager {
 
-    private final List<Boulder> history = new ArrayList<>();
-    private int historyIndex = -1;
+    protected final List<Boulder> history = new ArrayList<>();
+    protected int historyIndex = -1;
 
     //returns whether we are at end or not;
-    //@return true, if index is NOT last (and thus forward button can be enabld)
+    //return true, if index is NOT last (and thus forward button can be enabld)
     public Boulder getCurrentInHistory() {
         if (history.isEmpty() || historyIndex < 0 || historyIndex > history.size()) {
             return null;
@@ -73,6 +73,7 @@ public class HistoryManager {
     }
 
     public void clearHistory() {
+        historyIndex = -1;
         history.clear();
     }
 }
