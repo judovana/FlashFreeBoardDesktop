@@ -2,6 +2,7 @@ package org.fbb.board.desktop.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -31,8 +32,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -347,7 +350,7 @@ public class MainWindow {
         JPanel tools = new JPanel(new BorderLayout());
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
         JLabel name = new JLabel(b.getGradeAndName());
-        name.setToolTipText(getStandardTooltip(b));
+        name.setToolTipText(b.getStandardTooltip());
         name.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -377,11 +380,16 @@ public class MainWindow {
                     hm.addToBoulderHistory(r);
                     gp.getGrid().setBouler(r);
                     name.setText(r.getGradeAndName());
-                    name.setToolTipText(getStandardTooltip(r));
+                    name.setToolTipText(r.getStandardTooltip());
                     gp.repaint();
                     Files.setLastBoulder(r);
                     next.setEnabled(hm.canFwd());
                     previous.setEnabled(hm.canBack());
+                    list.setIndex(r.getFile().getName());
+                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    nextInList.setEnabled(list.canFwd());
+                    prevInList.setEnabled(list.canBack());
                 }
             }
 
@@ -398,11 +406,12 @@ public class MainWindow {
                     hm.addToBoulderHistory(r);
                     gp.getGrid().setBouler(r);
                     name.setText(r.getGradeAndName());
-                    name.setToolTipText(getStandardTooltip(r));
+                    name.setToolTipText(r.getStandardTooltip());
                     gp.repaint();
                     if (bs.saved) {
                         Files.setLastBoulder(r);
-                        list.addToBoulderHistory(b);
+                        list.addToBoulderHistory(r);
+                        list.setIndex(r.getFile().getName());
                         nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                         prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                         nextInList.setEnabled(list.canFwd());
@@ -425,11 +434,12 @@ public class MainWindow {
                     hm.addToBoulderHistory(r);
                     gp.getGrid().setBouler(r);
                     name.setText(r.getGradeAndName());
-                    name.setToolTipText(getStandardTooltip(r));
+                    name.setToolTipText(r.getStandardTooltip());
                     gp.repaint();
                     if (bs.saved) {
                         Files.setLastBoulder(r);
-                        list.addToBoulderHistory(b);
+                        list.addToBoulderHistory(r);
+                        list.setIndex(r.getFile().getName());
                         nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                         prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                         nextInList.setEnabled(list.canFwd());
@@ -458,11 +468,12 @@ public class MainWindow {
                     b.save();
                     hm.addToBoulderHistory(b);
                     name.setText(b.getGradeAndName());
-                    name.setToolTipText(getStandardTooltip(b));
+                    name.setToolTipText(b.getStandardTooltip());
                     next.setEnabled(hm.canFwd());
                     previous.setEnabled(hm.canBack());
                     Files.setLastBoulder(b);
                     list.addToBoulderHistory(b);
+                    list.setIndex(b.getFile().getName());
                     nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                     prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                     nextInList.setEnabled(list.canFwd());
@@ -490,6 +501,7 @@ public class MainWindow {
         //basic settings + ADMINISTRATOR tasks - delete boudlers, manage walls, deault grades, default higlight. new/edit wall management only too?
         //new password?
         jp.add(new JMenuItem("management"));
+        jp.add(new JMenuItem("tips")); //highlight what save do (jsut add a leg?), higluight do not save garbage
         tools.add(settings, BorderLayout.WEST);
         tools.add(name);
         tools.add(tools2, BorderLayout.EAST);
@@ -500,7 +512,7 @@ public class MainWindow {
                     Boulder b = hm.back();
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
-                    name.setToolTipText(getStandardTooltip(b));
+                    name.setToolTipText(b.getStandardTooltip());
                     gp.repaint();
                     Files.setLastBoulder(b);
                 }
@@ -515,7 +527,7 @@ public class MainWindow {
                     Boulder b = hm.forward();
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
-                    name.setToolTipText(getStandardTooltip(b));
+                    name.setToolTipText(b.getStandardTooltip());
                     gp.repaint();
                     Files.setLastBoulder(b);
                 }
@@ -531,7 +543,7 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 Boulder b = gp.getGrid().randomBoulder(preloaded.givenId);
                 name.setText(b.getGradeAndName());
-                name.setToolTipText(getStandardTooltip(b));
+                name.setToolTipText(b.getStandardTooltip());
                 hm.addToBoulderHistory(b);
                 gp.repaint();
                 next.setEnabled(hm.canFwd());
@@ -549,7 +561,7 @@ public class MainWindow {
                     hm.addToBoulderHistory(b);
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
-                    name.setToolTipText(getStandardTooltip(b));
+                    name.setToolTipText(b.getStandardTooltip());
                     gp.repaint();
                     Files.setLastBoulder(b);
                     next.setEnabled(hm.canFwd());
@@ -570,7 +582,7 @@ public class MainWindow {
                     hm.addToBoulderHistory(b);
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
-                    name.setToolTipText(getStandardTooltip(b));
+                    name.setToolTipText(b.getStandardTooltip());
                     gp.repaint();
                     Files.setLastBoulder(b);
                     next.setEnabled(hm.canFwd());
@@ -591,7 +603,7 @@ public class MainWindow {
                     hm.addToBoulderHistory(b);
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
-                    name.setToolTipText(getStandardTooltip(b));
+                    name.setToolTipText(b.getStandardTooltip());
                     gp.repaint();
                     Files.setLastBoulder(b);
                     next.setEnabled(hm.canFwd());
@@ -625,17 +637,6 @@ public class MainWindow {
                 createWallWindow.setVisible(true);
             }
         });
-    }
-
-    private static String getStandardTooltip(int i) {
-        return "<b>" + new Grade(i).toAllValues("<br/>") + "</b>";
-    }
-
-    private static String getStandardTooltip(Boulder b) {
-        return "<html>"
-                + b.getName() + " (" + b.getWall() + ")<br/>"
-                + "<b>" + b.getGrade().toAllValues("<br/>") + "</b>"
-                + b.getDate();
     }
 
     private static BoulderAndSaved editBoulder(GridPane.Preload p, Boulder b) {
@@ -683,6 +684,7 @@ public class MainWindow {
         JButton doneButton = new JButton(Translator.R("Bdone"));
         JPanel tools1 = new JPanel(new BorderLayout());
         JPanel tools2 = new JPanel(new BorderLayout());
+        JPanel tools11 = new JPanel(new BorderLayout());
         JComboBox<String> grades = new JComboBox<>(Grade.currentGrades());
         JTextField name = new JTextField();
         if (orig == null) {
@@ -696,6 +698,20 @@ public class MainWindow {
         tools1.add(grades, BorderLayout.WEST);
         tools1.add(name);
         tools1.add(saveOnExit, BorderLayout.EAST);
+        tools11.add(new JLabel("Author"), BorderLayout.WEST);
+        JTextField author = new JTextField();
+        if (orig == null) {
+            author.setText("sign yourself");
+        } else {
+            author.setText(orig.getAuthor());
+        }
+        tools11.add(author);
+        if (orig == null) {
+            tools11.add(new JLabel(dtf.format(new Date())), BorderLayout.EAST);
+        } else {
+            tools11.add(new JLabel(dtf.format(orig.getDate())), BorderLayout.EAST);
+        }
+        tools1.add(tools11, BorderLayout.SOUTH);
         operateBoulder.add(tools1, BorderLayout.NORTH);
         JCheckBox gridb = new JCheckBox(Translator.R("Bgrid"));
         gridb.setSelected(true);
@@ -711,7 +727,7 @@ public class MainWindow {
         operateBoulder.add(tools2, BorderLayout.SOUTH);
         operateBoulder.pack();
         operateBoulder.setSize((int) nw, (int) nh + tools1.getHeight() + tools2.getHeight());
-        DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit, operateBoulder, gp.getGrid(), name, grades, p.givenId);
+        DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit, operateBoulder, gp.getGrid(), name, grades, p.givenId, author);
         doneButton.addActionListener(done);
         operateBoulder.setVisible(true);
         return new BoulderAndSaved(done.getResult(), saveOnExit.isSelected());
@@ -741,9 +757,10 @@ public class MainWindow {
         private final JDialog parent;
         private final Grid grid;
         private final JTextField nwNameProvider;
+        private final JTextField nwAuthorProvider;
         private final JComboBox<String> grades;
 
-        public DoneEditingBoulderListener(Boulder orig, JCheckBox saveOnExit, JDialog parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId) {
+        public DoneEditingBoulderListener(Boulder orig, JCheckBox saveOnExit, JDialog parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId, JTextField nwAuthorProvider) {
             this.orig = orig;
             this.saveOnExit = saveOnExit;
             this.nwNameProvider = nwNameProvider;
@@ -751,6 +768,7 @@ public class MainWindow {
             this.grid = grid;
             this.grades = grades;
             this.wallId = wallId;
+            this.nwAuthorProvider = nwAuthorProvider;
         }
 
         public void actionPerformedImpl(ActionEvent e) throws IOException {
@@ -763,6 +781,7 @@ public class MainWindow {
             if (orig == null && possibleReturnCandidate.isEmpty()) {
                 return;
             }
+            possibleReturnCandidate.setAuthor(nwAuthorProvider.getText());
             String possibleFileName = Files.sanitizeFileName(nwNameProvider.getText());
             File possibleTargetFile = Files.getBoulderFile(possibleFileName + ".bldr");
             if (orig != null && orig.getFile() != null) {
@@ -814,13 +833,14 @@ public class MainWindow {
         JDialog d = new JDialog((JDialog) null, true);
         d.setSize(800, 600);
         d.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        JList<String> boulders = new JList(Files.bouldersDir.list());
-        d.add(boulders);
+        JList<Boulder> boulders = new JList(new ListWithFilter(wallID).getHistory());
+        d.add(new JScrollPane(boulders));
         JPanel tools0 = new JPanel(new BorderLayout());
         JPanel tools1 = new JPanel(new GridLayout(1, 3));
         JPanel tools2 = new JPanel(new GridLayout(1, 3));
         JPanel tools3 = new JPanel(new BorderLayout());
         JPanel tools4 = new JPanel(new GridLayout(1, 3));
+        JPanel tools5 = new JPanel(new BorderLayout());
         tools0.add(new JLabel("Wall"));
         JComboBox<String> walls = new JComboBox(Files.wallsDir.list());
         walls.setSelectedItem(wallID);
@@ -839,9 +859,9 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dificultyLabel.setToolTipText("<html>"
-                        + getStandardTooltip(gradesFrom.getSelectedIndex())
+                        + Grade.getStandardTooltip(gradesFrom.getSelectedIndex())
                         + "-----<br>"
-                        + getStandardTooltip(gradesTo.getSelectedIndex())
+                        + Grade.getStandardTooltip(gradesTo.getSelectedIndex())
                 );
             }
         });
@@ -849,9 +869,9 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dificultyLabel.setToolTipText("<html>"
-                        + getStandardTooltip(gradesFrom.getSelectedIndex())
+                        + Grade.getStandardTooltip(gradesFrom.getSelectedIndex())
                         + "-----<br>"
-                        + getStandardTooltip(gradesTo.getSelectedIndex())
+                        + Grade.getStandardTooltip(gradesTo.getSelectedIndex())
                 );
             }
         });
@@ -864,23 +884,55 @@ public class MainWindow {
         tools2.add(new JSpinner(new SpinnerNumberModel(100, 0, 1000, 1)));
         tools3.add(new JLabel("Name filter"), BorderLayout.WEST);
         tools3.add(new JTextField());
-        tools3.add(new JLabel("Name filter"), BorderLayout.WEST);
-        tools3.add(new JTextField());
+        tools5.add(new JLabel("Author filter"), BorderLayout.WEST);
+        tools5.add(new JTextField());
         tools4.add(new JLabel("Date [dd/MM/YYYY HH:mm] from/to"));
         tools4.add(new JTextField(dtf.format(new Date(0))));
         tools4.add(new JTextField(dtf.format(new Date())));
-        JPanel tools = new JPanel(new GridLayout(5, 1));
+        JPanel tools = new JPanel(new GridLayout(7, 1));
         tools.add(tools0);
         tools.add(tools1);
         tools.add(tools2);
         tools.add(tools3);
         tools.add(tools4);
+        tools.add(tools5);
+        tools.add(new JButton("apply"));
         d.add(tools, BorderLayout.NORTH);
+        boulders.setCellRenderer(new BoulderListRenderer());
         d.setVisible(true);
         if (boulders.getSelectedValue() == null) {
             return null;
         }
-        return Boulder.load(Files.getBoulderFile(boulders.getSelectedValue()));
+        return Boulder.load(boulders.getSelectedValue().getFile());
     }
 
+    private static class BoulderListRenderer extends JLabel implements ListCellRenderer<Boulder> {
+
+        public BoulderListRenderer() {
+            setOpaque(true);
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList<? extends Boulder> list, Boulder b, int index,
+                boolean isSelected, boolean cellHasFocus) {
+
+            String grade = b.getGrade().toString();
+            setText("<html><b>" + grade + "</b>:  <u>" + b.getName() + "</u>| <i>" + b.getAuthor() + "</i> (" + dtf.format(b.getDate()) + ")[" + b.getWall() + "]");
+
+            if (isSelected) {
+                setBackground(list.getSelectionBackground());
+                setForeground(list.getSelectionForeground());
+            } else {
+                int inter = 255 / Grade.currentGrades().size();
+                if (b.getGrade().toNumber() < 0) {
+                    setBackground(new Color(0, 250, 0));
+                } else {
+                    setBackground(new Color(b.getGrade().toNumber() * inter, 255, 255));
+                }
+                setForeground(list.getForeground());
+            }
+
+            return this;
+        }
+    }
 }

@@ -114,4 +114,8 @@ public class Grade {
         return Objects.equals(toNumber(), toNumber());
     }
 
+    public static String getStandardTooltip(int i) {
+        return "<b>" + new Grade(i).toAllValues("<br/>") + "</b>";
+    }
+
 }

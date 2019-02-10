@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.Vector;
 import org.fbb.board.desktop.Files;
 
 /**
@@ -77,6 +78,12 @@ public class ListWithFilter extends HistoryManager {
     public void setIndex(int index) {
         this.historyIndex = index;
     }
+
+    public Vector<Boulder> getHistory() {
+        return new Vector<Boulder>(history);
+    }
+    
+    
 
     public void setIndex(String id) {
         for (int i = 0; i < history.size(); i++) {
