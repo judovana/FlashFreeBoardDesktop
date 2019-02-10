@@ -84,7 +84,7 @@ public class PortWork {
                         outputStream.write(bytes);
                         System.out.println("written");
                         //outputStream.flush();  this causes sigsev!!!!
-                        outputStream.close();
+                        outputStream.close();//there is very likey soem bug. It sometimes do not flush.  (verified witrh single byte - it somotiems arrive, soemtimes not)
                         serialPort.close();
                     } catch (IOException | UnsupportedCommOperationException | PortInUseException  | InterruptedException e) {
                         e.printStackTrace();
