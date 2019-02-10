@@ -41,6 +41,7 @@ public class Boulder implements Cloneable {
     private static final String TOP = "top";
     private static final String GRADE = "grade";
     private static final String DATE = "date";
+    private static final String AUTHOR = "author";
 
     public static Boulder load(File boulderFile) throws IOException {
         Properties p = new Properties();
@@ -64,6 +65,10 @@ public class Boulder implements Cloneable {
 
     public void setWall(String name) {
         map.setProperty(WALL, name);
+    }
+
+    public void setAuthor(String name) {
+        map.setProperty(AUTHOR, name);
     }
 
     private Boulder(Properties p, File f) {
@@ -157,6 +162,15 @@ public class Boulder implements Cloneable {
         return map.getProperty(WALL);
     }
 
+    public String getAuthor() {
+        String a = map.getProperty(AUTHOR);
+        if (a == null) {
+            return "PC-robot";
+        } else {
+            return a;
+        }
+    }
+
     @Override
     public Boulder clone() throws CloneNotSupportedException {
         return (Boulder) super.clone();
@@ -164,6 +178,12 @@ public class Boulder implements Cloneable {
 
     @Override
     public boolean equals(Object obj) {
+        if (map.getProperty(AUTHOR) == null) {
+            setAuthor(getAuthor());
+        }
+        if (((Boulder) obj).map.getProperty(AUTHOR) == null) {
+            ((Boulder) obj).setAuthor(((Boulder) obj).getAuthor());
+        }
         if (!(obj instanceof Boulder)) {
             return false;
         }
@@ -177,6 +197,14 @@ public class Boulder implements Cloneable {
 
     public void setDate(Date date) {
         map.setProperty(DATE, date.getTime() + "");
+    }
+
+    public String getStandardTooltip() {
+        return "<html>"
+                + getName() + " (" + getWall() + ")<br/>"
+                + "<b>" + getGrade().toAllValues("<br/>") + "</b>"
+                + getDate() + "<br/>"
+                + getAuthor();
     }
 
 }
