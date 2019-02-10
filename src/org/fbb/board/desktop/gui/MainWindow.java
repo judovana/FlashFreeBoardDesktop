@@ -3,7 +3,9 @@ package org.fbb.board.desktop.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.PopupMenu;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,6 +38,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -44,6 +47,7 @@ import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.internals.Boulder;
+import org.fbb.board.internals.Filter;
 import org.fbb.board.internals.Grid;
 import org.fbb.board.internals.GridPane;
 import org.fbb.board.internals.HistoryManager;
@@ -835,7 +839,13 @@ public class MainWindow {
         JDialog d = new JDialog((JDialog) null, true);
         d.setSize(800, 600);
         d.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        JList<Boulder> boulders = new JList(new ListWithFilter(wallID).getHistory());
+        ListWithFilter currentList;
+        //if (Files.getLastFilter() == null) {
+        currentList = new ListWithFilter(wallID);
+        // } else {
+        //    currentList = new ListWithFilter(Files.getLastFilter());
+        // }
+        JList<Boulder> boulders = new JList(currentList.getHistory());
         d.add(new JScrollPane(boulders));
         JPanel tools0 = new JPanel(new BorderLayout());
         JPanel tools1 = new JPanel(new GridLayout(1, 3));
@@ -843,11 +853,11 @@ public class MainWindow {
         JPanel tools3 = new JPanel(new BorderLayout());
         JPanel tools4 = new JPanel(new GridLayout(1, 3));
         JPanel tools5 = new JPanel(new BorderLayout());
-        tools0.add(new JLabel("Wall"));
-        JComboBox<String> walls = new JComboBox(Files.wallsDir.list());
+        tools0.add(new JLabel(Translator.R("Wall")));
+        final JComboBox<String> walls = new JComboBox(Files.wallsDir.list());
         walls.setSelectedItem(wallID);
         tools0.add(walls);
-        final JLabel dificultyLabel = new JLabel("Difficulty from/to");
+        final JLabel dificultyLabel = new JLabel(Translator.R("DificultyInterval"));
         tools1.add(dificultyLabel);
         dificultyLabel.addMouseListener(new MouseAdapter() {
             @Override
@@ -877,20 +887,37 @@ public class MainWindow {
                 );
             }
         });
-        gradesFrom.setSelectedIndex(0);
-        gradesTo.setSelectedIndex(Grade.currentGrades().size() - 1);
+        gradesFrom.setSelectedItem(currentList.getEasiest().toString());
+        gradesTo.setSelectedItem(currentList.getHardest().toString());
         tools1.add(gradesFrom);
         tools1.add(gradesTo);
-        tools2.add(new JLabel("Number of holds from/to"));
-        tools2.add(new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1)));
-        tools2.add(new JSpinner(new SpinnerNumberModel(100, 0, 1000, 1)));
-        tools3.add(new JLabel("Name filter"), BorderLayout.WEST);
-        tools3.add(new JTextField());
-        tools5.add(new JLabel("Author filter"), BorderLayout.WEST);
-        tools5.add(new JTextField());
-        tools4.add(new JLabel("Date [dd/MM/YYYY HH:mm] from/to"));
-        tools4.add(new JTextField(dtf.format(new Date(0))));
-        tools4.add(new JTextField(dtf.format(new Date())));
+        tools2.add(new JLabel(Translator.R("NumberOfHolds") + " " + Translator.R("FromTo")));
+        final JSpinner holdsMin = new JSpinner(new SpinnerNumberModel(currentList.getShortest(), 0, 1000, 1));
+        tools2.add(holdsMin);
+        final JSpinner holdsMax = new JSpinner(new SpinnerNumberModel(currentList.getLongest(), 0, 1000, 1));
+        tools2.add(holdsMax);
+        JLabel nameLabel = new JLabel(Translator.R("NameFilter"));
+        tools3.add(nameLabel, BorderLayout.WEST);
+        final JTextField nameFilter = new JTextField();
+        tools3.add(nameFilter);
+        final JLabel authorLabel = new JLabel(Translator.R("AuthorFilter"));
+        authorLabel.setToolTipText(currentList.getAuthors());
+        authorLabel.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JOptionPane.showMessageDialog(d, authorLabel.getToolTipText());
+            }
+
+        });
+        tools5.add(authorLabel, BorderLayout.WEST);
+        final JTextField authorsFilter = new JTextField();
+        tools5.add(authorsFilter);
+        tools4.add(new JLabel(Translator.R("Date") + " [dd/MM/YYYY HH:mm] " + Translator.R("FromTo")));
+        final JTextField dateFrom = new JTextField(dtf.format(currentList.getOldest()));
+        tools4.add(dateFrom);
+        final JTextField dateTo = new JTextField(dtf.format(currentList.getYoungest()));
+        tools4.add(dateTo);
         JPanel tools = new JPanel(new GridLayout(7, 1));
         tools.add(tools0);
         tools.add(tools1);
@@ -898,9 +925,32 @@ public class MainWindow {
         tools.add(tools3);
         tools.add(tools4);
         tools.add(tools5);
-        tools.add(new JButton("apply"));
+        JButton apply = new JButton(Translator.R("Apply"));
+        tools.add(apply);
         d.add(tools, BorderLayout.NORTH);
         boulders.setCellRenderer(new BoulderListRenderer());
+        apply.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    new Filter(
+                            (String) walls.getSelectedItem(),
+                            gradesFrom.getSelectedIndex(),
+                            gradesTo.getSelectedIndex(),
+                            (Integer) (holdsMin.getValue()),
+                            (Integer) (holdsMax.getValue()),
+                            authorsFilter.getText(),
+                            nameFilter.getText(),
+                            dtf.parse(dateFrom.getText()),
+                            dtf.parse(dateTo.getText())
+                    );
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(dateFrom, ex);
+                }
+            }
+        });
         d.setVisible(true);
         if (boulders.getSelectedValue() == null) {
             return null;
@@ -917,7 +967,7 @@ public class MainWindow {
         @Override
         public Component getListCellRendererComponent(JList<? extends Boulder> list, Boulder b, int index,
                 boolean isSelected, boolean cellHasFocus) {
-
+            this.setFont(this.getFont().deriveFont(Font.PLAIN, new JLabel().getFont().getSize() + 2));
             String grade = b.getGrade().toString();
             setText("<html><b>" + grade + "</b>:  <u>" + b.getName() + "</u>| <i>" + b.getAuthor() + "</i> (" + dtf.format(b.getDate()) + ")[" + b.getWall() + "]");
 

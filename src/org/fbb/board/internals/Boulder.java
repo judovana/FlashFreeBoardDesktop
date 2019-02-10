@@ -207,4 +207,21 @@ public class Boulder implements Cloneable {
                 + getAuthor();
     }
 
+    int getPathLength() {
+        String compressedValue = map.getProperty(PATH);
+        if (compressedValue == null || compressedValue.trim().isEmpty()) {
+            return 0;
+        }
+        String[] strcoords = compressedValue.trim().split(";");
+        int count = 0;
+        for (String strcoord : strcoords) {
+            String[] strXY = strcoord.split(",");
+            if (strXY.length != 2) {
+                continue;
+            }
+            count++;
+        }
+        return count;
+    }
+
 }

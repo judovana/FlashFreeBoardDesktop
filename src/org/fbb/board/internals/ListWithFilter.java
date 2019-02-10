@@ -10,10 +10,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.Vector;
 import org.fbb.board.desktop.Files;
+import org.fbb.board.internals.grades.Grade;
 
 /**
  *
@@ -82,8 +86,6 @@ public class ListWithFilter extends HistoryManager {
     public Vector<Boulder> getHistory() {
         return new Vector<Boulder>(history);
     }
-    
-    
 
     public void setIndex(String id) {
         for (int i = 0; i < history.size(); i++) {
@@ -122,6 +124,66 @@ public class ListWithFilter extends HistoryManager {
             }
         });
         return allbldrs;
+    }
+
+    public Grade getEasiest() {
+        int min = Integer.MAX_VALUE;
+        for (Boulder b : history) {
+            min = Math.min(min, b.getGrade().toNumber());
+        }
+        return new Grade(min);
+    }
+
+    public Grade getHardest() {
+        int max = Integer.MIN_VALUE;
+        for (Boulder b : history) {
+            max = Math.max(max, b.getGrade().toNumber());
+        }
+        return new Grade(max);
+    }
+
+    public int getShortest() {
+        int min = Integer.MAX_VALUE;
+        for (Boulder b : history) {
+            min = Math.min(min, b.getPathLength());
+        }
+        return min;
+    }
+
+    public int getLongest() {
+        int max = Integer.MIN_VALUE;
+        for (Boulder b : history) {
+            max = Math.max(max, b.getPathLength());
+        }
+        return max;
+    }
+
+    public String getAuthors() {
+        Set<String> s = new HashSet();
+        for (Boulder b : history) {
+            s.add(b.getAuthor());
+        }
+        StringBuilder sb = new StringBuilder("<html>");
+        for (String a : s) {
+            sb.append(a).append("<br>");
+        }
+        return sb.toString();
+    }
+
+    public Date getOldest() {
+        long min = Long.MAX_VALUE;
+        for (Boulder b : history) {
+            min = Math.min(min, b.getDate().getTime());
+        }
+        return new Date(min);
+    }
+
+    public Date getYoungest() {
+        long max = Long.MIN_VALUE;
+        for (Boulder b : history) {
+            max = Math.max(max, b.getDate().getTime());
+        }
+        return new Date(max);
     }
 
 }
