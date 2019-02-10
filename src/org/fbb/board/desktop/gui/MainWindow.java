@@ -337,7 +337,9 @@ public class MainWindow {
         double nw = ratio * (double) bi.getWidth();
         double nh = ratio * (double) bi.getHeight();
         final Boulder b = (possiblebOulder == null) ? gp.getGrid().randomBoulder(preloaded.givenId) : possiblebOulder;
-        list.setIndex(b.getFile().getName());
+        if (b.getFile() != null) {
+            list.setIndex(b.getFile().getName());
+        }
         gp.getGrid().clean();
         gp.getGrid().setBouler(b);
         hm.clearHistory();
