@@ -693,7 +693,7 @@ public class Grid {
     //0 3 6      0 5 6
     //1 4 7  ->  1 4 7
     //2 5 8      2 3 8
-    //[012345678]->[012543678]
+    //[012345678]->[210345876]
     public byte[] getArrayURDR() {
         byte[] r = new byte[(horLines.length - 1) * (vertLines.length - 1)];
         int i = 0;
