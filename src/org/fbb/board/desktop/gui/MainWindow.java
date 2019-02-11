@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
@@ -843,19 +844,23 @@ public class MainWindow {
         d.setSize(800, 600);
         d.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         ListWithFilter currentList;
-        //if (Files.getLastFilter() == null) {
         currentList = new ListWithFilter(wallID);
-        // } else {
-        //    currentList = new ListWithFilter(Files.getLastFilter());
-        // }
         JList<Boulder> boulders = new JList(currentList.getHistory());
-        d.add(new JScrollPane(boulders));
+        JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(boulders), new JPanel());
+        d.add(sp);
+        //delete boulders? made walls editabel to allow old boulders cleanup? delete walls?
+        JPanel resultsPanel = new JPanel(new GridLayout(1, 2));
+        resultsPanel.add(new JButton("Add all filtered results"));
+        resultsPanel.add(new JButton("Add only selected results"));
         JPanel tools0 = new JPanel(new BorderLayout());
         JPanel tools1 = new JPanel(new GridLayout(1, 3));
         JPanel tools2 = new JPanel(new GridLayout(1, 3));
         JPanel tools3 = new JPanel(new BorderLayout());
         JPanel tools4 = new JPanel(new GridLayout(1, 3));
         JPanel tools5 = new JPanel(new BorderLayout());
+        JPanel tools6 = new JPanel(new GridLayout(1, 2));
+        tools6.add(new JButton("Apply last used filter"));
+        tools6.add(new JButton("Apply wall's default"));
         tools0.add(new JLabel(Translator.R("Wall")));
         final JComboBox<String> walls = new JComboBox(Files.wallsDir.list());
         walls.setSelectedItem(wallID);
@@ -921,16 +926,18 @@ public class MainWindow {
         tools4.add(dateFrom);
         final JTextField dateTo = new JTextField(dtf.format(currentList.getYoungest()));
         tools4.add(dateTo);
-        JPanel tools = new JPanel(new GridLayout(7, 1));
+        JPanel tools = new JPanel(new GridLayout(8, 1));
         tools.add(tools0);
         tools.add(tools1);
         tools.add(tools2);
         tools.add(tools3);
         tools.add(tools4);
         tools.add(tools5);
+        tools.add(tools6);
         JButton apply = new JButton(Translator.R("Apply"));
         tools.add(apply);
         d.add(tools, BorderLayout.NORTH);
+        d.add(resultsPanel, BorderLayout.SOUTH);
         boulders.setCellRenderer(new BoulderListRenderer());
         apply.addActionListener(new ActionListener() {
 
@@ -954,6 +961,7 @@ public class MainWindow {
                 }
             }
         });
+        sp.setDividerLocation(d.getWidth()/2);
         d.setVisible(true);
         if (boulders.getSelectedValue() == null) {
             return null;
