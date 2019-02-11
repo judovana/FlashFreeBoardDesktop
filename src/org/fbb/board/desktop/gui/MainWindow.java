@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -44,6 +46,8 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
@@ -61,10 +65,10 @@ import org.fbb.board.internals.grades.Grade;
  */
 //filters - by grade, by date, by number of holds
 public class MainWindow {
-
+    
     private static HistoryManager hm = new HistoryManager();
     private static ListWithFilter list;
-
+    
     public static void main(String... s) {
         try {
             list = new ListWithFilter();
@@ -121,7 +125,7 @@ public class MainWindow {
             JOptionPane.showMessageDialog(null, ex);
         }
     }
-
+    
     private static void createSelectOrImportWall(String urlorFile, final JFrame... redundants) throws IOException {
         JDialog f = new JDialog((JFrame) null, Translator.R("MainWindowSetWall"), true);
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -169,9 +173,9 @@ public class MainWindow {
                 JOptionPane.showMessageDialog(null, exx);
             }
         }
-
+        
     }
-
+    
     private static void createWindow(BufferedImage bis, String name, JFrame... redundants) {
         //get rid of transaprency
         BufferedImage newBufferedImage = new BufferedImage(bis.getWidth(),
@@ -179,14 +183,14 @@ public class MainWindow {
         newBufferedImage.createGraphics().drawImage(bis, 0, 0, Color.WHITE, null);
         createWindowIpl(newBufferedImage, Files.sanitizeFileName(name + " " + new Date().toString()), null, redundants);
     }
-
+    
     private static void createWindow(ZipInputStream zis, String name, JFrame... redundants) throws IOException {
         GridPane.Preload preloaded = GridPane.preload(zis, name);
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         createWindowIpl(bi, name, preloaded.props, redundants);
-
+        
     }
-
+    
     private static void createWindowIpl(BufferedImage bis, String fname, byte[] props, JFrame... redundants) {
         final JFrame createWallWindow = new JFrame();
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -256,7 +260,7 @@ public class MainWindow {
                 gp.repaintAndSend();
             }
         });
-
+        
         grid.setSelected(true);
         createWallWindow.add(tools, BorderLayout.SOUTH);
         tools.add(name);
@@ -295,7 +299,7 @@ public class MainWindow {
                     if (redundants != null) {
                         for (int i = 0; i < redundants.length; i++) {
                             redundants[i].dispose();
-
+                            
                         }
                     }
                 } catch (Exception ex) {
@@ -303,7 +307,7 @@ public class MainWindow {
                     JOptionPane.showMessageDialog(null, ex);
                 }
             }
-
+            
         });
         createWallWindow.pack();
         createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
@@ -314,7 +318,7 @@ public class MainWindow {
             }
         });
     }
-
+    
     private static double getIdealWindowSizw(BufferedImage bis) {
         Rectangle size = ScreenFinder.getCurrentScreenSizeWithoutBounds();
         double dw = (double) size.width / (double) bis.getWidth();
@@ -323,13 +327,13 @@ public class MainWindow {
         ratio = ratio * 0.8;//do not cover all screen
         return ratio;
     }
-
+    
     private static void loadWallWithBoulder(String lastBoard) throws IOException {
         File f = Files.getWallFile(lastBoard);
         GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)), f.getName());
         loadWallWithBoulder(preloaded, null);
     }
-
+    
     private static void loadWallWithBoulder(GridPane.Preload preloaded, final Boulder possiblebOulder) throws IOException {
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         final JFrame createWallWindow = new JFrame();
@@ -363,7 +367,7 @@ public class MainWindow {
             public void mouseClicked(MouseEvent e) {
                 JOptionPane.showMessageDialog(createWallWindow, name.getToolTipText());
             }
-
+            
         });
         final JButton nextRandom = new JButton("?>");
         final JButton nextInList = new JButton(">>");
@@ -379,7 +383,7 @@ public class MainWindow {
         JMenuItem selectListBoulders = new JMenuItem(Translator.R("SelectListBoulders"));
         jp.add(selectListBoulders); //also return boudler and current filter
         selectListBoulders.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder r = selectListBouder(preloaded.givenId);
@@ -399,12 +403,12 @@ public class MainWindow {
                     prevInList.setEnabled(list.canBack());
                 }
             }
-
+            
         });
         JMenuItem newBoulder = new JMenuItem(Translator.R("MNewBoulder"));
         jp.add(newBoulder);
         newBoulder.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 BoulderAndSaved bs = editBoulder(preloaded, null);
@@ -432,7 +436,7 @@ public class MainWindow {
         JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
         jp.add(editBoulder);
         editBoulder.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 BoulderAndSaved bs = editBoulder(preloaded, hm.getCurrentInHistory());
@@ -456,7 +460,7 @@ public class MainWindow {
                     previous.setEnabled(hm.canBack());
                 }
             }
-
+            
         });
         //with edit bolder in, maybe it is redundant ot save bouder as now?
         JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
@@ -563,7 +567,7 @@ public class MainWindow {
         nextInList.setEnabled(list.canFwd());
         prevInList.setEnabled(list.canBack());
         nextRandom.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder b = list.getRandom();
@@ -584,7 +588,7 @@ public class MainWindow {
             }
         });
         nextInList.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder b = list.forward();
@@ -605,7 +609,7 @@ public class MainWindow {
             }
         });
         prevInList.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder b = list.back();
@@ -648,7 +652,7 @@ public class MainWindow {
             }
         });
     }
-
+    
     private static BoulderAndSaved editBoulder(GridPane.Preload p, Boulder b) {
         try {
             return editBoulderImpl(p, b);
@@ -658,19 +662,19 @@ public class MainWindow {
             return null;
         }
     }
-
+    
     private static class BoulderAndSaved {
-
+        
         private final Boulder b;
         private final boolean saved;
-
+        
         public BoulderAndSaved(Boulder b, boolean saved) {
             this.b = b;
             this.saved = saved;
         }
-
+        
     }
-
+    
     private static BoulderAndSaved editBoulderImpl(GridPane.Preload p, Boulder orig) throws IOException, CloneNotSupportedException {
         //checkbox save? 
         //if not save, then what?
@@ -742,11 +746,11 @@ public class MainWindow {
         operateBoulder.setVisible(true);
         return new BoulderAndSaved(done.getResult(), saveOnExit.isSelected());
     }
-
+    
     private static class DoneEditingBoulderListener implements ActionListener {
-
+        
         private final String wallId;
-
+        
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
@@ -756,11 +760,11 @@ public class MainWindow {
                 JOptionPane.showMessageDialog(parent, ex);
             }
         }
-
+        
         public Boulder getResult() {
             return result;
         }
-
+        
         private Boulder result;
         private final Boulder orig;
         private final JCheckBox saveOnExit;
@@ -769,7 +773,7 @@ public class MainWindow {
         private final JTextField nwNameProvider;
         private final JTextField nwAuthorProvider;
         private final JComboBox<String> grades;
-
+        
         public DoneEditingBoulderListener(Boulder orig, JCheckBox saveOnExit, JDialog parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId, JTextField nwAuthorProvider) {
             this.orig = orig;
             this.saveOnExit = saveOnExit;
@@ -780,7 +784,7 @@ public class MainWindow {
             this.wallId = wallId;
             this.nwAuthorProvider = nwAuthorProvider;
         }
-
+        
         public void actionPerformedImpl(ActionEvent e) throws IOException {
             Boulder possibleReturnCandidate;
             if (orig != null) {
@@ -826,7 +830,7 @@ public class MainWindow {
             parent.dispose();
         }
     }
-
+    
     private static Boulder selectListBouder(String wallId) {
         try {
             return selectListBouderImpl(wallId);
@@ -836,18 +840,45 @@ public class MainWindow {
             return null;
         }
     }
-
+    
     private static final SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/YYYY HH:mm");
-
+    
     private static Boulder selectListBouderImpl(String wallID) throws IOException {
+        final Map<String, GridPane.Preload> wallCache = new HashMap();
         JDialog d = new JDialog((JDialog) null, true);
         d.setSize(800, 600);
         d.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         ListWithFilter currentList;
         currentList = new ListWithFilter(wallID);
-        JList<Boulder> boulders = new JList(currentList.getHistory());
-        JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(boulders), new JPanel());
+        final JList<Boulder> boulders = new JList(currentList.getHistory());
+        final JPanel boulderPreview = new JPanel(new BorderLayout());
+        JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(boulders), boulderPreview);
         d.add(sp);
+        boulders.addListSelectionListener(new ListSelectionListener() {
+            
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                try {
+                    boulderPreview.removeAll();
+                    Boulder b = boulders.getSelectedValue();
+                    if (b != null) {
+                        //disable repainting of boulder on real world?
+                        GridPane.Preload prelaod = wallCache.get(b.getWall());
+                        if (prelaod == null) {
+                            prelaod = GridPane.preload(new ZipInputStream(new FileInputStream(Files.getWallFile(b.getWall()))), b.getWall());
+                            wallCache.put(b.getWall(), prelaod);
+                        }
+                        GridPane gdp = new GridPane(ImageIO.read(new ByteArrayInputStream(prelaod.img)), prelaod.props);
+                        gdp.getGrid().setBouler(b);
+                        boulderPreview.add(gdp);
+                        boulderPreview.validate();
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(boulders, ex);
+                }
+            }
+        });
         //delete boulders? made walls editabel to allow old boulders cleanup? delete walls?
         JPanel resultsPanel = new JPanel(new GridLayout(1, 2));
         resultsPanel.add(new JButton("Add all filtered results"));
@@ -911,12 +942,12 @@ public class MainWindow {
         final JLabel authorLabel = new JLabel(Translator.R("AuthorFilter"));
         authorLabel.setToolTipText(currentList.getAuthors());
         authorLabel.addMouseListener(new MouseAdapter() {
-
+            
             @Override
             public void mouseClicked(MouseEvent e) {
                 JOptionPane.showMessageDialog(d, authorLabel.getToolTipText());
             }
-
+            
         });
         tools5.add(authorLabel, BorderLayout.WEST);
         final JTextField authorsFilter = new JTextField();
@@ -940,7 +971,7 @@ public class MainWindow {
         d.add(resultsPanel, BorderLayout.SOUTH);
         boulders.setCellRenderer(new BoulderListRenderer());
         apply.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -961,27 +992,27 @@ public class MainWindow {
                 }
             }
         });
-        sp.setDividerLocation(d.getWidth()/2);
+        sp.setDividerLocation(d.getWidth() / 2);
         d.setVisible(true);
         if (boulders.getSelectedValue() == null) {
             return null;
         }
         return Boulder.load(boulders.getSelectedValue().getFile());
     }
-
+    
     private static class BoulderListRenderer extends JLabel implements ListCellRenderer<Boulder> {
-
+        
         public BoulderListRenderer() {
             setOpaque(true);
         }
-
+        
         @Override
         public Component getListCellRendererComponent(JList<? extends Boulder> list, Boulder b, int index,
                 boolean isSelected, boolean cellHasFocus) {
             this.setFont(this.getFont().deriveFont(Font.PLAIN, new JLabel().getFont().getSize() + 2));
             String grade = b.getGrade().toString();
             setText("<html><b>" + grade + "</b>:  <u>" + b.getName() + "</u>| <i>" + b.getAuthor() + "</i> (" + dtf.format(b.getDate()) + ")[" + b.getWall() + "]");
-
+            
             if (isSelected) {
                 setBackground(list.getSelectionBackground());
                 setForeground(list.getSelectionForeground());
@@ -994,7 +1025,7 @@ public class MainWindow {
                 }
                 setForeground(list.getForeground());
             }
-
+            
             return this;
         }
     }
