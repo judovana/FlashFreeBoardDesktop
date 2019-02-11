@@ -97,6 +97,11 @@ public class GridPane extends JPanel implements Meassurable {
         this.addMouseListener(clicks);
     }
 
+    public void repaintAndSend() {
+        repaint();
+        grid.send();
+    }
+
     public static class Preload {
 
         public final byte[] img;
@@ -165,11 +170,11 @@ public class GridPane extends JPanel implements Meassurable {
             }
             if (e.getButton() == MouseEvent.BUTTON3) {
                 grid.setPs(e.getX(), e.getY());
-                repaint();
+                repaintAndSend();
             }
             if (e.getButton() == MouseEvent.BUTTON2) {
                 grid.setShowGrid(!grid.isShowGrid());
-                repaint();
+                repaintAndSend();
             }
         }
 
