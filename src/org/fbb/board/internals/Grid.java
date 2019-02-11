@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -142,9 +143,9 @@ public class Grid {
     }
 
     static final byte MARK_NOT = 0;
-    static final byte  MARK_START = 2;
-    static final byte  MARK_PATH = 1;
-    static final byte  MARK_TOP = 3;
+    static final byte MARK_START = 2;
+    static final byte MARK_PATH = 1;
+    static final byte MARK_TOP = 3;
 
     void draw(Graphics g) {
         //        ul.draw(g);
@@ -171,7 +172,7 @@ public class Grid {
             horLines[0].draw(g, 0, 1);
             horLines[0].draw(g, 0, -1);
         }
-        int style = Math.abs(holdStyle%8);
+        int style = Math.abs(holdStyle % 8);
         int alpha = 100;
         System.out.println("" + style);
         if (style != FILL) {
@@ -272,15 +273,6 @@ public class Grid {
                 //g.drawString("" + i, get.xpoints[3], get.ypoints[3]);
             }
         }
-//        byte[] bb = getArrayT2BthenL2R();
-//        System.out.println(Arrays.toString(bb));
-//        bb = getArrayB2TthenL2R();
-//        System.out.println(Arrays.toString(bb));
-//        bb = getArrayL2RthenB2T();
-//        System.out.println(Arrays.toString(bb));
-//        bb = getArrayL2RthenT2B();
-//        System.out.println(Arrays.toString(bb));
-
     }
 
     private int dist(int x1, int y1, int x2, int y2) {
@@ -482,10 +474,10 @@ public class Grid {
                 psStatus[coordToIndex(x, y)] = MARK_PATH;
             }
         }
-        if (wallId == null || wallId.trim().isEmpty()){
-            wallId="???";
+        if (wallId == null || wallId.trim().isEmpty()) {
+            wallId = "???";
         }
-        String name=wallId+" "+new Date().toString();
+        String name = wallId + " " + new Date().toString();
         return createBoulderFromCurrent(null, name, wallId, Grade.RandomBoulder());
     }
 
@@ -675,7 +667,7 @@ public class Grid {
 
     public void setBouler(Boulder b) {
         clean();
-        b.apply(psStatus, horLines.length-1);
+        b.apply(psStatus, horLines.length - 1);
 
     }
 
@@ -694,5 +686,38 @@ public class Grid {
             }
         }
         return sb.toString();
+    }
+
+    //returns the selected points as
+    //UpRightDownRight.... until end
+    //0 3 6      0 5 6
+    //1 4 7  ->  1 4 7
+    //2 5 8      2 3 8
+    //[012345678]->[012543678]
+    public byte[] getArrayURDR() {
+        byte[] r = new byte[(horLines.length - 1) * (vertLines.length - 1)];
+        int i = 0;
+        for (int x = 0; x < vertLines.length - 1; x++) {
+            if (x % 2 == 0) {
+                //1st 3rd 5th down2up                
+                for (int y = horLines.length - 2; y >= 0; y--) {
+                    r[i] = psStatus[x * (horLines.length - 1) + y];
+                    i++;
+                }
+            } else {
+                //0th 2nd 4th 6th from up2down
+                for (int y = 0; y < horLines.length - 1; y++) {
+                    r[i] = psStatus[x * (horLines.length - 1) + y];
+                    i++;
+                }
+            }
+        }
+        return r;
+    }
+
+    void send() {
+        byte[] bb = getArrayURDR();
+        System.out.println(Arrays.toString(bb));
+
     }
 }
