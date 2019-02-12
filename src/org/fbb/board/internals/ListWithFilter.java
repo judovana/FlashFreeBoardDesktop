@@ -129,7 +129,12 @@ public class ListWithFilter extends HistoryManager {
     public Grade getEasiest() {
         int min = Integer.MAX_VALUE;
         for (Boulder b : history) {
-            min = Math.min(min, b.getGrade().toNumber());
+            if (!b.getGrade().isRandom()) {
+                min = Math.min(min, b.getGrade().toNumber());
+            }
+        }
+        if (min == Integer.MAX_VALUE) {
+            min = 0;
         }
         return new Grade(min);
     }
@@ -139,6 +144,9 @@ public class ListWithFilter extends HistoryManager {
         for (Boulder b : history) {
             max = Math.max(max, b.getGrade().toNumber());
         }
+        if (max == Integer.MIN_VALUE) {
+            max = Grade.currentGrades().size() - 1;
+        }
         return new Grade(max);
     }
 
@@ -147,6 +155,9 @@ public class ListWithFilter extends HistoryManager {
         for (Boulder b : history) {
             min = Math.min(min, b.getPathLength());
         }
+        if (min == Integer.MAX_VALUE) {
+            min = 0;
+        }
         return min;
     }
 
@@ -154,6 +165,9 @@ public class ListWithFilter extends HistoryManager {
         int max = Integer.MIN_VALUE;
         for (Boulder b : history) {
             max = Math.max(max, b.getPathLength());
+        }
+        if (max == Integer.MIN_VALUE) {
+            max = 100;
         }
         return max;
     }
@@ -175,6 +189,9 @@ public class ListWithFilter extends HistoryManager {
         for (Boulder b : history) {
             min = Math.min(min, b.getDate().getTime());
         }
+        if (min == Integer.MAX_VALUE) {
+            return new Date(0);
+        }
         return new Date(min);
     }
 
@@ -182,6 +199,9 @@ public class ListWithFilter extends HistoryManager {
         long max = Long.MIN_VALUE;
         for (Boulder b : history) {
             max = Math.max(max, b.getDate().getTime());
+        }
+        if (max == Integer.MIN_VALUE) {
+            return new Date();
         }
         return new Date(max);
     }
