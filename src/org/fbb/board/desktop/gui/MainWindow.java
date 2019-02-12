@@ -463,8 +463,9 @@ public class MainWindow {
             }
 
         });
-        //with edit bolder in, maybe it is redundant ot save bouder as now?
+        //with edit bolder his looks like redundant
         JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
+        saveBoulder.setEnabled(false);
         jp.add(saveBoulder);
         saveBoulder.addActionListener(new ActionListener() {
             @Override
