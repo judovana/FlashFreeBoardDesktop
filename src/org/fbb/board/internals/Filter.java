@@ -33,7 +33,7 @@ public class Filter {
         this.authorLike = split(authorLike);
         this.nameLike = split(nameLike);
         this.ageFrom = Math.min(ageFrom.getTime(), ageTo.getTime());
-        this.ageTo = Math.max(ageFrom.getTime(), ageTo.getTime());
+        this.ageTo = Math.max(ageFrom.getTime(), ageTo.getTime())+61000; //+1m1s otherwise boulder created in this very minute will never be included
     }
 
     boolean accept(Boulder b) {
@@ -64,6 +64,9 @@ public class Filter {
         System.out.println((containsAny("", split(""))));
         System.out.println((containsAny("aa ", split(""))));
         System.out.println(Arrays.toString(split("    xxx yyy")));
+        Date d = new Date();
+        System.out.println((d.toString()));
+        System.out.println((new Date(d.getTime()+61000).toString()));
     }
 
     private static String[] split(String s) {

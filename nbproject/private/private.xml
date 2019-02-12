@@ -2,15 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group name="tools">
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/desktop/gui/MainWindow.java</file>
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/Grid.java</file>
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/Line.java</file>
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/locales/bundles/Messages.properties</file>
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/GridPane.java</file>
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/grades/Grade.java</file>
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/Boulder.java</file>
-        </group>
         <group>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/ListWithFilter.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/Filter.java</file>
@@ -20,6 +11,12 @@
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/GridPane.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/desktop/Files.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/grades/Grade.java</file>
+            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/Boulder.java</file>
+        </group>
+        <group name="tools">
+            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/desktop/gui/MainWindow.java</file>
+            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/Line.java</file>
+            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/locales/bundles/Messages.properties</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/Boulder.java</file>
         </group>
     </open-files>
