@@ -842,7 +842,7 @@ public class MainWindow {
         }
     }
 
-    private static final SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/YYYY HH:mm");
+    private static final SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     private static Boulder selectListBouderImpl(String wallID) throws IOException {
         final Map<String, GridPane.Preload> wallCache = new HashMap();
@@ -982,28 +982,7 @@ public class MainWindow {
         resultsPanel.add(resultsPanel2);
         d.add(resultsPanel, BorderLayout.SOUTH);
         boulders.setCellRenderer(new BoulderListRenderer());
-        apply.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    new Filter(
-                            (String) walls.getSelectedItem(),
-                            gradesFrom.getSelectedIndex(),
-                            gradesTo.getSelectedIndex(),
-                            (Integer) (holdsMin.getValue()),
-                            (Integer) (holdsMax.getValue()),
-                            authorsFilter.getText(),
-                            nameFilter.getText(),
-                            dtf.parse(dateFrom.getText()),
-                            dtf.parse(dateTo.getText())
-                    );
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(dateFrom, ex);
-                }
-            }
-        });
+        apply.addActionListener(new ApplyFilterListener(walls, gradesFrom, gradesTo, holdsMin, holdsMax, authorsFilter, nameFilter, dateFrom, dateTo, boulders));
         sp.setDividerLocation(d.getWidth() / 2);
         d.setVisible(true);
         if (boulders.getSelectedValue() == null) {
@@ -1055,6 +1034,60 @@ public class MainWindow {
             }
 
             return this;
+        }
+    }
+
+    private static class ApplyFilterListener implements ActionListener {
+
+        private final JComboBox<String> walls;
+        private final JComboBox<String> gradesFrom;
+        private final JComboBox<String> gradesTo;
+        private final JSpinner holdsMin;
+        private final JSpinner holdsMax;
+        private final JTextField authorsFilter;
+        private final JTextField nameFilter;
+        private final JTextField dateFrom;
+        private final JTextField dateTo;
+        private final JList<Boulder> boulders;
+        private ListWithFilter lastList;
+
+        public ListWithFilter getLastList() {
+            return lastList;
+        }
+
+        public ApplyFilterListener(JComboBox<String> walls, JComboBox<String> gradesFrom, JComboBox<String> gradesTo, JSpinner holdsMin, JSpinner holdsMax, JTextField authorsFilter, JTextField nameFilter, JTextField dateFrom, JTextField dateTo, JList<Boulder> boulders) {
+            this.walls = walls;
+            this.gradesFrom = gradesFrom;
+            this.gradesTo = gradesTo;
+            this.holdsMin = holdsMin;
+            this.holdsMax = holdsMax;
+            this.authorsFilter = authorsFilter;
+            this.nameFilter = nameFilter;
+            this.dateFrom = dateFrom;
+            this.dateTo = dateTo;
+            this.boulders = boulders;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                lastList = new ListWithFilter(
+                        new Filter(
+                                (String) walls.getSelectedItem(),
+                                gradesFrom.getSelectedIndex(),
+                                gradesTo.getSelectedIndex(),
+                                (Integer) (holdsMin.getValue()),
+                                (Integer) (holdsMax.getValue()),
+                                authorsFilter.getText(),
+                                nameFilter.getText(),
+                                dtf.parse(dateFrom.getText()),
+                                dtf.parse(dateTo.getText()))
+                );
+                boulders.setModel(new DefaultComboBoxModel<>(lastList.getHistory()));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(dateFrom, ex);
+            }
         }
     }
 }

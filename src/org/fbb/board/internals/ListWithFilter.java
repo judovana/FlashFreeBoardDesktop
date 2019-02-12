@@ -27,6 +27,20 @@ public class ListWithFilter extends HistoryManager {
 
     private Random r = new Random();
 
+    public ListWithFilter(Filter filter) {
+        try {
+            this.clearHistory();
+            this.history.addAll(loadAllForFilter(filter));
+            if (history.isEmpty()) {
+                historyIndex = -1;
+            } else {
+                this.historyIndex = 0;
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public ListWithFilter(String givenId) {
         try {
             this.clearHistory();
@@ -206,4 +220,14 @@ public class ListWithFilter extends HistoryManager {
         return new Date(max);
     }
 
+    private static List<Boulder> loadAllForFilter(Filter f) throws IOException {
+        List<Boulder> all = loadAll();
+        List<Boulder> walls = new ArrayList<>(all.size());
+        for (Boulder b : all) {
+            if (f.accept(b)) {
+                walls.add(b);
+            }
+        }
+        return walls;
+    }
 }
