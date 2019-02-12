@@ -73,6 +73,10 @@ public class Grade {
         return new Grade(RANDOM);
     }
 
+    public boolean isRandom() {
+        return artificialValue < 0;
+    }
+
     public Grade(String artificialValue) {
         this(Integer.valueOf(artificialValue));
     }
