@@ -373,6 +373,7 @@ public class MainWindow {
 
         });
         final JButton nextRandom = new JButton("?>");
+        //allow direct jump via some popmenu?
         final JButton nextInList = new JButton(">>");
         final JButton prevInList = new JButton("<<");
         JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
