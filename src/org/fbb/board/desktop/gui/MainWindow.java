@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
@@ -387,17 +389,26 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Boulder r = selectListBouder(preloaded.givenId);
-                if (r != null) {
-                    hm.addToBoulderHistory(r);
-                    gp.getGrid().setBouler(r);
-                    name.setText(r.getGradeAndName());
-                    name.setToolTipText(r.getStandardTooltip());
-                    gp.repaintAndSend();
-                    Files.setLastBoulder(r);
-                    next.setEnabled(hm.canFwd());
-                    previous.setEnabled(hm.canBack());
-                    list.setIndex(r.getFile().getName());
+                BoulderListAndIndex listAndothers = selectListBouder(preloaded.givenId);
+                if (listAndothers != null) {
+                    list = new ListWithFilter(listAndothers.list);
+                    if (!list.getHistory().isEmpty()) {
+                        Boulder r;
+                        if (listAndothers.selctedValue != null) {
+                            r = listAndothers.selctedValue;
+                        } else {
+                            r = list.getCurrentInHistory();
+                        }
+                        hm.addToBoulderHistory(r);
+                        gp.getGrid().setBouler(r);
+                        name.setText(r.getGradeAndName());
+                        name.setToolTipText(r.getStandardTooltip());
+                        gp.repaintAndSend();
+                        Files.setLastBoulder(r);
+                        next.setEnabled(hm.canFwd());
+                        previous.setEnabled(hm.canBack());
+                        list.setIndex(r.getFile().getName());
+                    }
                     nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                     prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                     nextInList.setEnabled(list.canFwd());
@@ -665,6 +676,14 @@ public class MainWindow {
         }
     }
 
+    private static List<Boulder> getAll(ListModel<Boulder> model) {
+        ArrayList<Boulder> r = new ArrayList(model.getSize());
+        for (int i = 0; i < model.getSize(); i++) {
+            r.add(model.getElementAt(i));
+        }
+        return r;
+    }
+
     private static class BoulderAndSaved {
 
         private final Boulder b;
@@ -833,7 +852,21 @@ public class MainWindow {
         }
     }
 
-    private static Boulder selectListBouder(String wallId) {
+    private static class BoulderListAndIndex {
+
+        private final int seelctedIndex;
+        private final Boulder selctedValue;
+        private final List<Boulder> list;
+
+        public BoulderListAndIndex(int seelctedIndex, Boulder selctedValue, List<Boulder> list) {
+            this.seelctedIndex = seelctedIndex;
+            this.selctedValue = selctedValue;
+            this.list = list;
+        }
+
+    }
+
+    private static BoulderListAndIndex selectListBouder(String wallId) {
         try {
             return selectListBouderImpl(wallId);
         } catch (Exception ex) {
@@ -845,7 +878,10 @@ public class MainWindow {
 
     private static final SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-    private static Boulder selectListBouderImpl(String wallID) throws IOException {
+    private static BoulderListAndIndex selectListBouderImpl(String wallID) throws IOException {
+        final int[] result = new int[]{0};
+        final int ALL = 1;
+        final int SEL = 2;
         final Map<String, GridPane.Preload> wallCache = new HashMap();
         JDialog d = new JDialog((JDialog) null, true);
         d.setSize(800, 600);
@@ -882,8 +918,26 @@ public class MainWindow {
         //delete boulders? made walls editabel to allow old boulders cleanup? delete walls?
         JPanel resultsPanel1 = new JPanel(new GridLayout(1, 2));
         JPanel resultsPanel2 = new JPanel(new GridLayout(1, 2));
-        resultsPanel1.add(new JButton("Add all filtered results"));
-        resultsPanel1.add(new JButton("Add only selected results"));
+        JButton addAll = new JButton(Translator.R("BAddAll"));
+        resultsPanel1.add(addAll);
+        addAll.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                result[0] = ALL;
+                d.setVisible(false);
+            }
+        });
+        JButton addSeelcted = new JButton(Translator.R("BAddSel"));
+        resultsPanel1.add(addSeelcted);
+        addSeelcted.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                result[0] = SEL;
+                d.setVisible(false);
+            }
+        });
         resultsPanel2.add(new JButton("DELETE alll filtered results"));
         resultsPanel2.add(new JButton("DELETE selected results"));
         JPanel tools0 = new JPanel(new BorderLayout());
@@ -985,11 +1039,28 @@ public class MainWindow {
         boulders.setCellRenderer(new BoulderListRenderer());
         apply.addActionListener(new ApplyFilterListener(walls, gradesFrom, gradesTo, holdsMin, holdsMax, authorsFilter, nameFilter, dateFrom, dateTo, boulders));
         sp.setDividerLocation(d.getWidth() / 2);
+        addSeelcted.setFont(addAll.getFont().deriveFont(Font.PLAIN));
+        wallDefault.setFont(addAll.getFont().deriveFont(Font.PLAIN));
+        //delete1
+        //delete2
+        //lastFilter
         d.setVisible(true);
-        if (boulders.getSelectedValue() == null) {
+        if (boulders.getModel().getSize() == 0) {
+            d.dispose();
             return null;
         }
-        return Boulder.load(boulders.getSelectedValue().getFile());
+        if (result[0] == SEL) {
+            BoulderListAndIndex r = new BoulderListAndIndex(boulders.getSelectedIndex(), boulders.getSelectedValue(), boulders.getSelectedValuesList());
+            d.dispose();
+            return r;
+        } else if (result[0] == ALL) {
+            BoulderListAndIndex r = new BoulderListAndIndex(boulders.getSelectedIndex(), boulders.getSelectedValue(), getAll(boulders.getModel()));
+            d.dispose();
+            return r;
+        } else {
+            d.dispose();
+            return null;
+        }
     }
 
     public static ListWithFilter resetDefaults(String wallID, final JComboBox<String> walls, final JList<Boulder> boulders, final JSpinner holdsMin, final JSpinner holdsMax, final JLabel authorLabel, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name) {

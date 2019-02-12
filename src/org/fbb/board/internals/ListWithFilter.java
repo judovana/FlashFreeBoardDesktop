@@ -27,6 +27,16 @@ public class ListWithFilter extends HistoryManager {
 
     private Random r = new Random();
 
+    public ListWithFilter(List<Boulder> l) {
+        this.clearHistory();
+        this.history.addAll(l);
+        if (history.isEmpty()) {
+            historyIndex = -1;
+        } else {
+            this.historyIndex = 0;
+        }
+    }
+
     public ListWithFilter(Filter filter) {
         try {
             this.clearHistory();
