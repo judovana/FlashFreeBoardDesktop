@@ -948,7 +948,10 @@ public class MainWindow {
         JPanel tools4 = new JPanel(new GridLayout(1, 3));
         JPanel tools5 = new JPanel(new BorderLayout());
         JPanel tools6 = new JPanel(new GridLayout(1, 3));
-        tools6.add(new JButton("Apply last used filter"));
+        JButton lastApplied = new JButton(Translator.R("BLastAppliedFilter"));
+        tools6.add(lastApplied);
+        JButton lastUsed = new JButton(Translator.R("BLastUsedFilter"));
+        tools6.add(lastUsed);
         JButton wallDefault = new JButton(Translator.R("BWallDefault"));
         tools6.add(wallDefault);
         tools0.add(new JLabel(Translator.R("Wall")));
@@ -1038,6 +1041,22 @@ public class MainWindow {
         resultsPanel.add(resultsPanel2);
         d.add(resultsPanel, BorderLayout.SOUTH);
         boulders.setCellRenderer(new BoulderListRenderer());
+        lastApplied.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (Files.getLastAppliedFilterFile().exists()) {
+                        Filter f = Filter.laod(Files.getLastAppliedFilterFile());
+                        if (f != null) {
+                            applyFilter(f, wallID, walls, holdsMin, holdsMax, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter);
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(boulders, ex);
+                }
+            }
+        });
         apply.addActionListener(new ApplyFilterListener(walls, gradesFrom, gradesTo, holdsMin, holdsMax, authorsFilter, nameFilter, dateFrom, dateTo, boulders));
         sp.setDividerLocation(d.getWidth() / 2);
         addSeelcted.setFont(addAll.getFont().deriveFont(Font.PLAIN));
@@ -1050,17 +1069,20 @@ public class MainWindow {
             d.dispose();
             return null;
         }
-        if (result[0] == SEL) {
-            BoulderListAndIndex r = new BoulderListAndIndex(boulders.getSelectedIndex(), boulders.getSelectedValue(), boulders.getSelectedValuesList());
-            d.dispose();
-            return r;
-        } else if (result[0] == ALL) {
-            BoulderListAndIndex r = new BoulderListAndIndex(boulders.getSelectedIndex(), boulders.getSelectedValue(), getAll(boulders.getModel()));
-            d.dispose();
-            return r;
-        } else {
-            d.dispose();
-            return null;
+        switch (result[0]) {
+            case SEL: {
+                BoulderListAndIndex r = new BoulderListAndIndex(boulders.getSelectedIndex(), boulders.getSelectedValue(), boulders.getSelectedValuesList());
+                d.dispose();
+                return r;
+            }
+            case ALL: {
+                BoulderListAndIndex r = new BoulderListAndIndex(boulders.getSelectedIndex(), boulders.getSelectedValue(), getAll(boulders.getModel()));
+                d.dispose();
+                return r;
+            }
+            default:
+                d.dispose();
+                return null;
         }
     }
 
@@ -1078,6 +1100,18 @@ public class MainWindow {
         author.setText("");
         name.setText("");
         return currentList;
+    }
+
+    public static void applyFilter(Filter f, String wallID, final JComboBox<String> walls, final JSpinner holdsMin, final JSpinner holdsMax, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name) {
+        walls.setSelectedItem(f.wall);
+        holdsMin.setValue(f.pathMin);
+        holdsMax.setValue(f.pathTo);
+        dateFrom.setText(dtf.format(new Date(f.ageFrom)));
+        dateTo.setText(dtf.format(new Date(f.ageTo)));
+        gradesFrom.setSelectedItem(new Grade(f.gradeFrom).toString());
+        gradesTo.setSelectedItem(new Grade(f.gradeTo).toString());
+        author.setText(String.join(" ", f.authorLike));
+        name.setText(String.join(" ", f.nameLike));
     }
 
     private static class BoulderListRenderer extends JLabel implements ListCellRenderer<Boulder> {
@@ -1156,6 +1190,7 @@ public class MainWindow {
                                 dtf.parse(dateFrom.getText()),
                                 dtf.parse(dateTo.getText()))
                 );
+                lastList.getLastFilter().save(Files.getLastAppliedFilterFile());
                 boulders.setModel(new DefaultComboBoxModel<>(lastList.getHistory()));
             } catch (Exception ex) {
                 ex.printStackTrace();

@@ -25,9 +25,11 @@ import org.fbb.board.internals.grades.Grade;
  */
 public class ListWithFilter extends HistoryManager {
 
-    private Random r = new Random();
+    private final Random r = new Random();
+    private final Filter lastFilter;
 
     public ListWithFilter(List<Boulder> l) {
+        this.lastFilter=null;
         this.clearHistory();
         this.history.addAll(l);
         if (history.isEmpty()) {
@@ -39,6 +41,7 @@ public class ListWithFilter extends HistoryManager {
 
     public ListWithFilter(Filter filter) {
         try {
+            this.lastFilter=filter;
             this.clearHistory();
             this.history.addAll(loadAllForFilter(filter));
             if (history.isEmpty()) {
@@ -53,6 +56,7 @@ public class ListWithFilter extends HistoryManager {
 
     public ListWithFilter(String givenId) {
         try {
+            this.lastFilter=null;
             this.clearHistory();
             this.history.addAll(loadAllForWall(givenId));
             if (history.isEmpty()) {
@@ -75,6 +79,7 @@ public class ListWithFilter extends HistoryManager {
 
     public ListWithFilter() {
         try {
+            this.lastFilter=null;
             this.clearHistory();
             this.history.addAll(loadAll());
             if (history.isEmpty()) {
@@ -240,4 +245,11 @@ public class ListWithFilter extends HistoryManager {
         }
         return walls;
     }
+
+    public Filter getLastFilter() {
+        //may be null!
+        return lastFilter;
+    }
+    
+    
 }

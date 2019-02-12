@@ -61,6 +61,15 @@ public class Files {
         java.nio.file.Files.write(lastBoard.toPath(), Arrays.asList(new String[]{content}));
     }
 
+    public static File getLastAppliedFilterFile() {
+        configDir.mkdirs();
+        return new File(configDir, "lastAppliedFilter");
+    }
+    public static File getLAstUsedFilterFile() {
+        configDir.mkdirs();
+        return new File(configDir, "lastUsedFilter");
+    }
+
     public static void setLastBoulder(String content) throws IOException {
         if (content == null && lastBoard.exists()) {
             lastBoulder.delete();

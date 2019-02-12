@@ -5,6 +5,13 @@
  */
 package org.fbb.board.internals;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -12,17 +19,17 @@ import java.util.Date;
  *
  * @author jvanek
  */
-public class Filter {
+public class Filter implements Serializable {
 
-    private final String wall;
-    private final int gradeFrom;
-    private final int gradeTo;
-    private final int pathMin;
-    private final int pathTo;
-    private final String[] authorLike;
-    private final String[] nameLike;
-    private final long ageFrom;
-    private final long ageTo;
+    public final String wall;
+    public final int gradeFrom;
+    public final int gradeTo;
+    public final int pathMin;
+    public final int pathTo;
+    public final String[] authorLike;
+    public final String[] nameLike;
+    public final long ageFrom;
+    public final long ageTo;
 
     public Filter(String wall, int gradeFrom, int gradeTo, int pathMin, int pathTo, String authorLike, String nameLike, Date ageFrom, Date ageTo) {
         this.wall = wall;
@@ -33,7 +40,7 @@ public class Filter {
         this.authorLike = split(authorLike);
         this.nameLike = split(nameLike);
         this.ageFrom = Math.min(ageFrom.getTime(), ageTo.getTime());
-        this.ageTo = Math.max(ageFrom.getTime(), ageTo.getTime())+61000; //+1m1s otherwise boulder created in this very minute will never be included
+        this.ageTo = Math.max(ageFrom.getTime(), ageTo.getTime());
     }
 
     boolean accept(Boulder b) {
@@ -45,7 +52,7 @@ public class Filter {
                 && b.getPathLength() >= pathMin
                 && b.getPathLength() <= pathTo
                 && b.getDate().getTime() >= ageFrom
-                && b.getDate().getTime() <= ageTo;
+                && b.getDate().getTime() <= ageTo + 61000; //+1m1s otherwise boulder created in this very minute will never be included
 
     }
 
@@ -66,11 +73,27 @@ public class Filter {
         System.out.println(Arrays.toString(split("    xxx yyy")));
         Date d = new Date();
         System.out.println((d.toString()));
-        System.out.println((new Date(d.getTime()+61000).toString()));
+        System.out.println((new Date(d.getTime() + 61000).toString()));
     }
 
     private static String[] split(String s) {
         return s.trim().split("\\s+");
+    }
+
+    public void save(File f) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f))) {
+            oos.writeObject(this);
+            oos.flush();
+        }
+    }
+
+    public static Filter laod(File f) throws IOException, ClassNotFoundException {
+        Object read = null;
+        try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream(f))) {
+            read = oos.readObject();
+
+        }
+        return (Filter) read;
     }
 
 }
