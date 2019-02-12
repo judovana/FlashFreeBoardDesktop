@@ -715,8 +715,36 @@ public class Grid {
         return r;
     }
 
+    //returns the selected points as
+    //right up left up right up.... until end
+    //0 3 6      0 3 6
+    //1 4 7  ->  7 4 1
+    //2 5 8      2 5 8
+    //[012345678]->[072345618]
+    public byte[] getArrayRULU() {
+        byte[] r = new byte[(horLines.length - 1) * (vertLines.length - 1)];
+        int i = 0;
+        for (int y = horLines.length - 2; y >= 0; y--) {
+            if (y % 2 == 0) {
+                //1st 3rd 5th down2up                
+                for (int x = vertLines.length - 2; x >= 0; x--) {
+                    r[i] = psStatus[x * (horLines.length - 1) + y];
+                    i++;
+                }
+            } else {
+                //0th 2nd 4th 6th from up2down
+                for (int x = 0; x < vertLines.length - 1; x++) {
+                    r[i] = psStatus[x * (horLines.length - 1) + y];
+                    i++;
+                }
+            }
+        }
+        return r;
+    }
+
     void send() {
-        byte[] bb = getArrayURDR();
+        //byte[] bb = getArrayURDR();
+        byte[] bb = getArrayRULU();
         System.out.println(Arrays.toString(bb));
 
     }
