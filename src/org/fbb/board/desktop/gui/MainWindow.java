@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.PopupMenu;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
@@ -71,6 +71,7 @@ public class MainWindow {
 
     private static HistoryManager hm = new HistoryManager();
     private static ListWithFilter list;
+    private static final JPopupMenu listJump = new JPopupMenu();
 
     public static void main(String... s) {
         try {
@@ -358,12 +359,18 @@ public class MainWindow {
         hm.addToBoulderHistory(b);
         JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
         JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
+        final JButton nextRandom = new JButton("?>");
+        final JButton nextInList = new JButton(">>");
+        final JButton prevInList = new JButton("<<");
+        JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
+        JButton nextRandomGenerated = new JButton("?");
+        JLabel name = new JLabel(b.getGradeAndName());
+        JPopupMenu jp = new JPopupMenu();
         next.setEnabled(hm.canFwd());
         previous.setEnabled(hm.canBack());
         gp.getGrid().setShowGrid(false);
         JPanel tools = new JPanel(new BorderLayout());
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
-        JLabel name = new JLabel(b.getGradeAndName());
         name.setToolTipText(b.getStandardTooltip());
         name.addMouseListener(new MouseAdapter() {
             @Override
@@ -372,12 +379,24 @@ public class MainWindow {
             }
 
         });
-        final JButton nextRandom = new JButton("?>");
-        //allow direct jump via some popmenu?
-        final JButton nextInList = new JButton(">>");
-        final JButton prevInList = new JButton("<<");
-        JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
-        JPopupMenu jp = new JPopupMenu();
+        nextInList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    listJump.show((JButton) e.getSource(), 0, 0);
+                }
+            }
+
+        });
+        prevInList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    listJump.show((JButton) e.getSource(), 0, 0);
+                }
+            }
+
+        });
         settings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -400,6 +419,7 @@ public class MainWindow {
                         } else {
                             r = list.getCurrentInHistory();
                         }
+                        generateListJumper(gp, name, nextInList, prevInList, nextInList, prevInList);
                         hm.addToBoulderHistory(r);
                         gp.getGrid().setBouler(r);
                         name.setText(r.getGradeAndName());
@@ -436,6 +456,7 @@ public class MainWindow {
                         Files.setLastBoulder(r);
                         list.addToBoulderHistory(r);
                         list.setIndex(r.getFile().getName());
+                        generateListJumper(gp, name, nextInList, prevInList, nextInList, prevInList);
                         nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                         prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                         nextInList.setEnabled(list.canFwd());
@@ -468,6 +489,7 @@ public class MainWindow {
                         prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                         nextInList.setEnabled(list.canFwd());
                         prevInList.setEnabled(list.canBack());
+                        generateListJumper(gp, name, nextInList, prevInList, nextInList, prevInList);
                     }
                     next.setEnabled(hm.canFwd());
                     previous.setEnabled(hm.canBack());
@@ -565,7 +587,6 @@ public class MainWindow {
         });
         previous.setEnabled(false);
         next.setEnabled(false);
-        JButton nextRandomGenerated = new JButton("?");
         nextRandomGenerated.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -643,6 +664,7 @@ public class MainWindow {
                 }
             }
         });
+        generateListJumper(gp, name, next, previous, nextInList, prevInList);
         tools2.add(previous);
         tools2.add(next);
         tools2.add(nextRandomGenerated);
@@ -683,6 +705,41 @@ public class MainWindow {
             r.add(model.getElementAt(i));
         }
         return r;
+    }
+
+    private static void generateListJumper(GridPane gp, JLabel name, JButton next, JButton previous, JButton nextInList, JButton prevInList) {
+        listJump.removeAll();
+        Vector<Boulder> v = list.getHistory();
+        for (Boulder boulder : v) {
+            JMenuItem i = new JMenuItem();
+            i.setText(boulder.getFile().getName() + " / " + boulder.getGrade().toString());
+            i.setToolTipText(boulder.getGrade().toString());
+            if (boulder.getFile().equals(list.getCurrentInHistory().getFile())) {
+                i.setSelected(true);
+            }
+            i.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String bldr = ((JMenuItem) e.getSource()).getText().split(" / ")[0];
+                    list.setIndex(bldr);
+                    Boulder r = list.getCurrentInHistory();
+                    hm.addToBoulderHistory(r);
+                    gp.getGrid().setBouler(r);
+                    name.setText(r.getGradeAndName());
+                    name.setToolTipText(r.getStandardTooltip());
+                    gp.repaintAndSend();
+                    Files.setLastBoulder(r);
+                    next.setEnabled(hm.canFwd());
+                    previous.setEnabled(hm.canBack());
+                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    nextInList.setEnabled(list.canFwd());
+                    prevInList.setEnabled(list.canBack());
+                    generateListJumper(gp, name, next, previous, nextInList, prevInList);
+                }
+            });
+            listJump.add(i);
+        }
     }
 
     private static class BoulderAndSaved {
