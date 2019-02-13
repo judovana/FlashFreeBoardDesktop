@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.Vector;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.internals.grades.Grade;
 
@@ -111,22 +110,7 @@ public class ListWithFilter extends HistoryManager {
     public void setIndex(int index) {
         this.historyIndex = index;
     }
-
-    public Vector<Boulder> getHistory() {
-        return new Vector<Boulder>(history);
-    }
-
-    public void setIndex(String id) {
-        for (int i = 0; i < history.size(); i++) {
-            Boulder get = history.get(i);
-            if (get.getFile().getName().equals(id)) {
-                this.historyIndex = i;
-                break;
-            }
-        }
-
-    }
-
+    
     private static List<Boulder> loadAllForWall(String wallId) throws IOException {
         List<Boulder> all = loadAll();
         List<Boulder> walls = new ArrayList<>(all.size());

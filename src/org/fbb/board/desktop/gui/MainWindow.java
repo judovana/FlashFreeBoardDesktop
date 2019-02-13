@@ -8,8 +8,6 @@ import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -74,6 +72,7 @@ public class MainWindow {
     private static HistoryManager hm = new HistoryManager();
     private static ListWithFilter list;
     private static final JPopupMenu listJump = new JPopupMenu();
+    private static final JPopupMenu historyJump = new JPopupMenu();
 
     public static void main(String... s) {
         try {
@@ -398,6 +397,25 @@ public class MainWindow {
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     listJump.show((JButton) e.getSource(), 0, 0);
                 }
+            }
+
+        });
+
+        next.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    generateHistoryJumper(gp, name, next, previous, nextInList, prevInList);
+                    historyJump.show((JButton) e.getSource(), 0, 0);
+                }
+            }
+
+        });
+        previous.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                generateHistoryJumper(gp, name, next, previous, nextInList, prevInList);
+                historyJump.show((JButton) e.getSource(), 0, 0);
             }
 
         });
@@ -738,6 +756,36 @@ public class MainWindow {
                 }
             });
             listJump.add(i);
+        }
+    }
+
+    private static void generateHistoryJumper(GridPane gp, JLabel name, JButton next, JButton previous, JButton nextInList, JButton prevInList) {
+        historyJump.removeAll();
+        Vector<Boulder> v = hm.getHistory();
+        for (Boulder boulder : v) {
+            JMenuItem i = new JMenuItem();
+            i.setText(boulder.getFile().getName() + " / " + boulder.getGrade().toString());
+            i.setToolTipText(boulder.getGrade().toString());
+            if (boulder.getFile().equals(hm.getCurrentInHistory().getFile())) {
+                i.setFont(i.getFont().deriveFont(Font.PLAIN));
+            }
+            i.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String bldr = ((JMenuItem) e.getSource()).getText().split(" / ")[0];
+                    hm.setIndex(bldr);
+                    Boulder r = hm.getCurrentInHistory();
+                    gp.getGrid().setBouler(r);
+                    name.setText(r.getGradeAndName());
+                    name.setToolTipText(r.getStandardTooltip());
+                    gp.repaintAndSend();
+                    Files.setLastBoulder(r);
+                    next.setEnabled(hm.canFwd());
+                    previous.setEnabled(hm.canBack());
+
+                }
+            });
+            historyJump.add(i);
         }
     }
 

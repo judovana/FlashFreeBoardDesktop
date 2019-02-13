@@ -7,6 +7,7 @@ package org.fbb.board.internals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  *
@@ -44,6 +45,21 @@ public class HistoryManager {
 
     public boolean canBack() {
         return historyIndex > 0;
+    }
+
+    public Vector<Boulder> getHistory() {
+        return new Vector<Boulder>(history);
+    }
+
+    public void setIndex(String id) {
+        for (int i = 0; i < history.size(); i++) {
+            Boulder get = history.get(i);
+            if (get.getFile().getName().equals(id)) {
+                this.historyIndex = i;
+                break;
+            }
+        }
+
     }
 
     public Boulder forward() {
