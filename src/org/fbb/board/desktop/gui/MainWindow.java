@@ -764,6 +764,9 @@ public class MainWindow {
         Vector<Boulder> v = hm.getHistory();
         for (Boulder boulder : v) {
             JMenuItem i = new JMenuItem();
+            if (boulder.getFile() == null){
+                continue;
+            }
             i.setText(boulder.getFile().getName() + " / " + boulder.getGrade().toString());
             i.setToolTipText(boulder.getGrade().toString());
             if (boulder.getFile().equals(hm.getCurrentInHistory().getFile())) {
