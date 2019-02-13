@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -357,8 +359,8 @@ public class MainWindow {
         gp.getGrid().setBouler(b);
         hm.clearHistory();
         hm.addToBoulderHistory(b);
-        JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
-        JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
+        final JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
+        final JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
         final JButton nextRandom = new JButton("?>");
         final JButton nextInList = new JButton(">>");
         final JButton prevInList = new JButton("<<");
@@ -375,6 +377,7 @@ public class MainWindow {
         name.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                generateListJumper(gp, name, next, previous, nextInList, prevInList);
                 JOptionPane.showMessageDialog(createWallWindow, name.getToolTipText());
             }
 
@@ -383,6 +386,7 @@ public class MainWindow {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
+                    generateListJumper(gp, name, next, previous, nextInList, prevInList);
                     listJump.show((JButton) e.getSource(), 0, 0);
                 }
             }
@@ -419,7 +423,6 @@ public class MainWindow {
                         } else {
                             r = list.getCurrentInHistory();
                         }
-                        generateListJumper(gp, name, nextInList, prevInList, nextInList, prevInList);
                         hm.addToBoulderHistory(r);
                         gp.getGrid().setBouler(r);
                         name.setText(r.getGradeAndName());
@@ -456,7 +459,6 @@ public class MainWindow {
                         Files.setLastBoulder(r);
                         list.addToBoulderHistory(r);
                         list.setIndex(r.getFile().getName());
-                        generateListJumper(gp, name, nextInList, prevInList, nextInList, prevInList);
                         nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                         prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                         nextInList.setEnabled(list.canFwd());
@@ -489,7 +491,6 @@ public class MainWindow {
                         prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                         nextInList.setEnabled(list.canFwd());
                         prevInList.setEnabled(list.canBack());
-                        generateListJumper(gp, name, nextInList, prevInList, nextInList, prevInList);
                     }
                     next.setEnabled(hm.canFwd());
                     previous.setEnabled(hm.canBack());
@@ -664,7 +665,6 @@ public class MainWindow {
                 }
             }
         });
-        generateListJumper(gp, name, next, previous, nextInList, prevInList);
         tools2.add(previous);
         tools2.add(next);
         tools2.add(nextRandomGenerated);
@@ -715,7 +715,7 @@ public class MainWindow {
             i.setText(boulder.getFile().getName() + " / " + boulder.getGrade().toString());
             i.setToolTipText(boulder.getGrade().toString());
             if (boulder.getFile().equals(list.getCurrentInHistory().getFile())) {
-                i.setSelected(true);
+                i.setFont(i.getFont().deriveFont(Font.PLAIN));
             }
             i.addActionListener(new ActionListener() {
                 @Override
@@ -735,7 +735,6 @@ public class MainWindow {
                     prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
                     nextInList.setEnabled(list.canFwd());
                     prevInList.setEnabled(list.canBack());
-                    generateListJumper(gp, name, next, previous, nextInList, prevInList);
                 }
             });
             listJump.add(i);
