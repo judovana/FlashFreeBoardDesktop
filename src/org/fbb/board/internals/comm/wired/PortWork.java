@@ -1,6 +1,8 @@
 /*
  sudo  usermod -aG uucp jvanek
  sudo  usermod -aG lock jvanek
+ sudo chown root:uucp  /run/lock
+ sudo chmod 775 /run/lock
 
  */
 package org.fbb.board.internals.comm.wired;
@@ -27,7 +29,18 @@ public class PortWork {
             System.out.println(a1);
 
         }
-        writeTo("/dev/ttyUSB0", "a".getBytes());
+        writeTo("/dev/ttyUSB0", new byte[]{
+            (byte) 5, 0, 0,
+            (byte) 5, 0, 0,
+            (byte) 0, 5, 0,
+            (byte) 0, 5, 0,
+            (byte) 0, 0, 5,
+            (byte) 0, 0, 5,
+            (byte) 5, 5, 0,
+            (byte) 0, 5, 5,
+            (byte) 5, 0, 5,
+            (byte) 5, 5, 5
+        });
 
     }
 
@@ -72,21 +85,12 @@ public class PortWork {
                                 SerialPort.PARITY_NONE);
 
                         outputStream.write(bytes);
-                        Thread.sleep(500);
-                        outputStream.write(bytes);
-                        Thread.sleep(500);
-                        outputStream.write(bytes);
-                        Thread.sleep(500);
-                        outputStream.write(bytes);
-                        Thread.sleep(500);
-                        outputStream.write(bytes);
-                        Thread.sleep(500);
-                        outputStream.write(bytes);
+
                         System.out.println("written");
                         //outputStream.flush();  this causes sigsev!!!!
-                        outputStream.close();//there is very likey soem bug. It sometimes do not flush.  (verified witrh single byte - it somotiems arrive, soemtimes not)
+                        //outputStream.close();//there is very likey soem bug. It sometimes do not flush.  (verified witrh single byte - it somotiems arrive, soemtimes not)
                         serialPort.close();
-                    } catch (IOException | UnsupportedCommOperationException | PortInUseException  | InterruptedException e) {
+                    } catch (IOException | UnsupportedCommOperationException | PortInUseException | InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
