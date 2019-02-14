@@ -730,29 +730,34 @@ public class MainWindow {
         Vector<Boulder> v = list.getHistory();
         for (Boulder boulder : v) {
             JMenuItem i = new JMenuItem();
-            i.setText(boulder.getFile().getName() + " / " + boulder.getGrade().toString());
-            i.setToolTipText(boulder.getGrade().toString());
-            if (boulder.getFile().equals(list.getCurrentInHistory().getFile())) {
+            i.setText(boulder.getGradeAndName());
+            i.setToolTipText("<html>" + boulder.getStandardTooltip());
+            if (boulder.getGradeAndName().equals(name.getText())) {
                 i.setFont(i.getFont().deriveFont(Font.PLAIN));
             }
             i.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String bldr = ((JMenuItem) e.getSource()).getText().split(" / ")[0];
-                    list.setIndex(bldr);
-                    Boulder r = list.getCurrentInHistory();
-                    hm.addToBoulderHistory(r);
-                    gp.getGrid().setBouler(r);
-                    name.setText(r.getGradeAndName());
-                    name.setToolTipText(r.getStandardTooltip());
-                    gp.repaintAndSend();
-                    Files.setLastBoulder(r);
-                    next.setEnabled(hm.canFwd());
-                    previous.setEnabled(hm.canBack());
-                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                    nextInList.setEnabled(list.canFwd());
-                    prevInList.setEnabled(list.canBack());
+                    Component[] all = ((JMenuItem) e.getSource()).getParent().getComponents();
+                    for (int j = 0; j < all.length; j++) {
+                        Component c = all[j];
+                        if (c == e.getSource()) {
+                            list.setIndex(j);
+                            Boulder r = list.getCurrentInHistory();
+                            hm.addToBoulderHistory(r);
+                            gp.getGrid().setBouler(r);
+                            name.setText(r.getGradeAndName());
+                            name.setToolTipText(r.getStandardTooltip());
+                            gp.repaintAndSend();
+                            Files.setLastBoulder(r);
+                            next.setEnabled(hm.canFwd());
+                            previous.setEnabled(hm.canBack());
+                            nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                            prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                            nextInList.setEnabled(list.canFwd());
+                            prevInList.setEnabled(list.canBack());
+                        }
+                    }
                 }
             });
             listJump.add(i);
@@ -764,28 +769,32 @@ public class MainWindow {
         Vector<Boulder> v = hm.getHistory();
         for (Boulder boulder : v) {
             JMenuItem i = new JMenuItem();
-            if (boulder.getFile() == null){
-                continue;
-            }
-            i.setText(boulder.getFile().getName() + " / " + boulder.getGrade().toString());
-            i.setToolTipText(boulder.getGrade().toString());
-            if (boulder.getFile().equals(hm.getCurrentInHistory().getFile())) {
+            i.setText(boulder.getGradeAndName());
+            i.setToolTipText("<html>" + boulder.getStandardTooltip());
+            if (boulder.getGradeAndName().equals(name.getText())) {
                 i.setFont(i.getFont().deriveFont(Font.PLAIN));
             }
             i.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String bldr = ((JMenuItem) e.getSource()).getText().split(" / ")[0];
-                    hm.setIndex(bldr);
-                    Boulder r = hm.getCurrentInHistory();
-                    gp.getGrid().setBouler(r);
-                    name.setText(r.getGradeAndName());
-                    name.setToolTipText(r.getStandardTooltip());
-                    gp.repaintAndSend();
-                    Files.setLastBoulder(r);
-                    next.setEnabled(hm.canFwd());
-                    previous.setEnabled(hm.canBack());
-
+                    Component[] all = ((JMenuItem) e.getSource()).getParent().getComponents();
+                    for (int j = 0; j < all.length; j++) {
+                        Component c = all[j];
+                        if (c == e.getSource()) {
+                            hm.setIndex(j);
+                            Boulder r = hm.getCurrentInHistory();
+                            gp.getGrid().setBouler(r);
+                            name.setText(r.getGradeAndName());
+                            name.setToolTipText(r.getStandardTooltip());
+                            gp.repaintAndSend();
+                            if (r.getFile() != null) {
+                                Files.setLastBoulder(r);
+                            }
+                            next.setEnabled(hm.canFwd());
+                            previous.setEnabled(hm.canBack());
+                            break;
+                        }
+                    }
                 }
             });
             historyJump.add(i);

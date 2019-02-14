@@ -51,6 +51,10 @@ public class HistoryManager {
         return new Vector<Boulder>(history);
     }
 
+    public void setIndex(int index) {
+        this.historyIndex = index;
+    }
+
     public void setIndex(String id) {
         for (int i = 0; i < history.size(); i++) {
             Boulder get = history.get(i);

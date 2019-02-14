@@ -107,9 +107,6 @@ public class ListWithFilter extends HistoryManager {
         return history.size();
     }
 
-    public void setIndex(int index) {
-        this.historyIndex = index;
-    }
     
     private static List<Boulder> loadAllForWall(String wallId) throws IOException {
         List<Boulder> all = loadAll();
