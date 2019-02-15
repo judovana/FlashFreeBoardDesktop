@@ -46,12 +46,18 @@ public class GlobalSettings implements ByteEater {
         }
 
         private void consumeLastAndRefrshBuffer() {
-            if (messages.isEmpty()) {
+            byte[][] last = null;
+            synchronized (messages) {
+                if (messages.isEmpty()) {
+                    return;
+                }
+                ArrayList<byte[][]> l = new ArrayList<>(messages);
+                last = l.get(l.size() - 1);
+                messages.removeAll(l);
+            }
+            if (last == null) {
                 return;
             }
-            ArrayList<byte[][]> l = new ArrayList<>(messages);
-            byte[][] last = l.get(l.size() - 1);
-            messages.removeAll(l);
             if (comm == COMM.PORT) {
                 if (selectedPort == null) {
                     PortWork.writeTo(customPort, last);

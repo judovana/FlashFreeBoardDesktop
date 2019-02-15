@@ -702,6 +702,7 @@ public class MainWindow {
         next.setToolTipText(Translator.R("FwdBoulder"));
         createWallWindow.add(tools, BorderLayout.NORTH);
         createWallWindow.pack();
+        gp.repaintAndSend(gs);
         createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
         SwingUtilities.invokeLater(new Runnable() {
             @Override
