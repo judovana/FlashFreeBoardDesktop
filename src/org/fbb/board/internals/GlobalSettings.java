@@ -6,6 +6,9 @@
 package org.fbb.board.internals;
 
 import com.fazecast.jSerialComm.SerialPort;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.fbb.board.internals.comm.wired.ByteEater;
 import org.fbb.board.internals.comm.wired.PortWork;
 
@@ -15,16 +18,57 @@ import org.fbb.board.internals.comm.wired.PortWork;
  */
 public class GlobalSettings implements ByteEater {
 
+    private MessagesResender resender;
+
+    public GlobalSettings() {
+        resender = new MessagesResender();
+        resender.start();
+    }
+
+    private class MessagesResender extends Thread {
+
+        public MessagesResender() {
+            this.setDaemon(true);
+        }
+
+        boolean alive = true;
+
+        @Override
+        public void run() {
+            while (alive) {
+                try {
+                    consumeLastAndRefrshBuffer();
+                    Thread.sleep(bufferEatingDaemonDelay);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        private void consumeLastAndRefrshBuffer() {
+            if (messages.isEmpty()) {
+                return;
+            }
+            ArrayList<byte[][]> l = new ArrayList<>(messages);
+            byte[][] last = l.get(l.size() - 1);
+            messages.removeAll(l);
+            if (comm == COMM.PORT) {
+                if (selectedPort == null) {
+                    PortWork.writeTo(customPort, last);
+                } else {
+                    PortWork.writeTo(selectedPort, last);
+                }
+            }
+
+        }
+    }
+
+    private final List<byte[][]> messages = Collections.synchronizedList(new ArrayList<>(50));
+
     @Override
     public void sendBytes(byte[]... b) {
         byte[][] m = toMessages(b);
-        if (comm == COMM.PORT) {
-            if (selectedPort == null) {
-                PortWork.writeTo(customPort, m);
-            } else {
-                PortWork.writeTo(selectedPort, m);
-            }
-        }
+        messages.add(m);
     }
 
     private byte[][] toMessages(byte[][] bs) {

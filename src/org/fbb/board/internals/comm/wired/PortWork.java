@@ -8,15 +8,14 @@
 package org.fbb.board.internals.comm.wired;
 
 import com.fazecast.jSerialComm.SerialPort;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
  * @author jvanek
  */
 public class PortWork {
-
-    //for some reason firs tocmmunication is always ignored
-    private static int firstUsage = 2;
 
     public static void main(String... s) throws Exception {
         SerialPort[] a = SerialPort.getCommPorts();
@@ -37,19 +36,26 @@ public class PortWork {
             (byte) 5, 5, 5
         };
 
-        for (int i = 0; i < firstUsage; i++) {
-            //writeTo("/dev/ttyUSB0", testData);
-            writeTo(a[0], testData);
-        }
-        firstUsage = 1;
+        writeTo("/dev/ttyUSB0", testData);
+        //writeTo(a[0], testData);
 
     }
 
     public static void writeTo(String port, byte[]... bytes) {
-        writeTo(SerialPort.getCommPort(port), bytes);
+        int u = getUsage(port);
+        for (int i = 0; i < u; i++) {
+            writeToImpl(SerialPort.getCommPort(port), bytes);
+        }
     }
 
-    public static void writeTo(SerialPort comPort, byte[]... b) {
+    public static void writeTo(SerialPort port, byte[]... bytes) {
+        int u = getUsage(port.getSystemPortName());
+        for (int i = 0; i < u; i++) {
+            writeToImpl(port, bytes);
+        }
+    }
+
+    public static void writeToImpl(SerialPort comPort, byte[]... b) {
 
         comPort.setBaudRate(9600);
         try {
@@ -65,6 +71,18 @@ public class PortWork {
             e.printStackTrace();
         }
         comPort.closePort();
+    }
+
+    private static Set<String> usages = new HashSet<>();
+
+    //First usage of each port is lost
+    private static int getUsage(String port) {
+        if (usages.contains(port)) {
+            return 1;
+        } else {
+            usages.add(port);
+            return 2;
+        }
     }
 
 }
