@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import org.fbb.board.internals.comm.wired.ByteEater;
 import org.fbb.board.internals.grades.Grade;
 
 /**
@@ -27,7 +28,7 @@ import org.fbb.board.internals.grades.Grade;
  * @author jvanek
  */
 public class Grid {
-
+    
     private final RelativePoint ul, ur, bl, br;
 //    private final int initialHorStripCunt = 24;
 //    private final int initialVerStripCunt = 44;
@@ -64,7 +65,7 @@ public class Grid {
     private static final int E_SMALL = 5;
     private static final int E_BOTH = 6;
     private static final int RECT = 7;
-
+    
     public Grid(Meassurable parent, byte[] load) {
         ul = new RelativePoint(0, 0, parent, new Rectangle2D.Double(0, 0, 0.5, 0.5));
         ur = new RelativePoint(1, 0, parent, new Rectangle2D.Double(0.5, 0, 0.5, 0.5));
@@ -93,15 +94,15 @@ public class Grid {
         }
         createLines();
     }
-
+    
     private void createLines() {
         //horizontal  line
         double leftStepX = ((double) bl.getRealX() - (double) ul.getRealX()) / (double) (horLines.length - 1);
         double leftStepY = ((double) bl.getRealY() - (double) ul.getRealY()) / (double) (horLines.length - 1);
-
+        
         double rightStepX = ((double) br.getRealX() - (double) ur.getRealX()) / (double) (horLines.length - 1);
         double rightStepY = ((double) br.getRealY() - (double) ur.getRealY()) / (double) (horLines.length - 1);
-
+        
         for (int i = 0; i < horLines.length; i++) {
             double x1 = (double) ul.getRealX() + (double) i * leftStepX;
             double y1 = (double) ul.getRealY() + (double) i * leftStepY;
@@ -112,7 +113,7 @@ public class Grid {
         //vertical  lines
         double upStepX = ((double) ur.getRealX() - (double) ul.getRealX()) / (double) (vertLines.length - 1);
         double upStepY = ((double) ur.getRealY() - (double) ul.getRealY()) / (double) (vertLines.length - 1);
-
+        
         double downStepX = ((double) br.getRealX() - (double) bl.getRealX()) / (double) (vertLines.length - 1);
         double downStepY = ((double) br.getRealY() - (double) bl.getRealY()) / (double) (vertLines.length - 1);
         for (int i = 0; i < vertLines.length; i++) {
@@ -137,16 +138,16 @@ public class Grid {
                     int[] ys = new int[]{p1.y, p2.y, p3.y, p4.y};
                     ps.add(new Polygon(xs, ys, 4));
                 }
-
+                
             }
         }
     }
-
+    
     static final byte MARK_NOT = 0;
     static final byte MARK_START = 2;
     static final byte MARK_PATH = 1;
     static final byte MARK_TOP = 3;
-
+    
     void draw(Graphics g) {
         //        ul.draw(g);
         //        ur.draw(g);
@@ -158,12 +159,12 @@ public class Grid {
             for (int i = 0; i < horLines.length; i++) {
                 Line horLine = horLines[i];
                 horLine.draw(g);
-
+                
             }
             for (int i = 0; i < vertLines.length; i++) {
                 Line vertLine = vertLines[i];
                 vertLine.draw(g);
-
+                
             }
         }
         if (getHolds(MARK_TOP).trim().isEmpty() && (getHolds(MARK_PATH).trim().length() > 0 || getHolds(MARK_START).trim().length() > 0)) {
@@ -182,7 +183,7 @@ public class Grid {
             if (psStatus[i] > 0) {
                 Polygon get = ps.get(i);
                 Color c;
-
+                
                 switch (psStatus[i]) {
                     case MARK_START://green start
                         c = new Color(0, 200, 0, alpha);
@@ -224,7 +225,7 @@ public class Grid {
                             int uly = y - dmax / 2 - j;
                             g.drawOval(ulx, uly, dmax + j * 2, dmax + j * 2);
                         }
-
+                        
                     }
                 } else if (style >= E_BIG && style <= E_BOTH) {
                     int x1max = Math.max(get.xpoints[0], get.xpoints[3]);
@@ -247,7 +248,7 @@ public class Grid {
                         if (style == E_BOTH || style == E_SMALL) {
                             g.drawOval(x1max - j, y1max - j, wmin + j * 2, hmin + j * 2);
                         }
-
+                        
                     }
                 } else if (style == RECT) {
                     int width = 4;
@@ -257,11 +258,11 @@ public class Grid {
                         for (int k = -width / 2; k <= width; k++) {
                             for (int l = 0; l < xs.length; l++) {
                                 ys[l] = get.ypoints[l] + j;
-
+                                
                             }
                             for (int l = 0; l < ys.length; l++) {
                                 xs[l] = get.xpoints[l] + k;
-
+                                
                             }
                             g.drawPolygon(xs, ys, xs.length);
                         }
@@ -274,35 +275,35 @@ public class Grid {
             }
         }
     }
-
+    
     private int dist(int x1, int y1, int x2, int y2) {
         return (int) Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
     }
-
+    
     public RelativePoint getBl() {
         return bl;
     }
-
+    
     public RelativePoint getBr() {
         return br;
     }
-
+    
     public RelativePoint getUl() {
         return ul;
     }
-
+    
     public RelativePoint getUr() {
         return ur;
     }
-
+    
     void unselect() {
         this.selected = null;
     }
-
+    
     void select(double relX, double relY) {
         this.selected = getSelect(relX, relY);
     }
-
+    
     RelativePoint getSelect(double relX, double relY) {
         if (bl.isInAreaOfControl(relX, relY)) {
             return bl;
@@ -318,7 +319,7 @@ public class Grid {
         }
         return null;
     }
-
+    
     boolean moveSelected(double relX, double relY) {
         if (selected == null) {
             return false;
@@ -329,15 +330,15 @@ public class Grid {
             return b1 || b2;
         }
     }
-
+    
     public int getHorLines() {
         return horLines.length;
     }
-
+    
     public int getVertLines() {
         return vertLines.length;
     }
-
+    
     public void setHorLines(int i) {
         if (i < 2) {
             return;
@@ -358,7 +359,7 @@ public class Grid {
                 }
                 psStatus[j] = 0;
                 psStatus[j - increment] = b;
-
+                
             }
         }
         if (horLines.length < i) {
@@ -373,14 +374,14 @@ public class Grid {
                 byte b = psStatus[j];
                 psStatus[j] = 0;
                 psStatus[j + increment] = b;
-
+                
             }
         }
         this.horLines = new Line[i];
         createLines();
         System.out.println(horLines.length + " x " + vertLines.length);
     }
-
+    
     public void setVertLines(int i) {
         if (i < 2) {
             return;
@@ -390,7 +391,7 @@ public class Grid {
         createLines();
         System.out.println(horLines.length + " x " + vertLines.length);
     }
-
+    
     public void setPs(int absX, int absY) {
         for (int i = 0; i < ps.size(); i++) {
             Polygon get = ps.get(i);
@@ -404,19 +405,19 @@ public class Grid {
             }
         }
     }
-
+    
     public void setShowGrid(boolean showGrid) {
         this.showGrid = showGrid;
     }
-
+    
     public boolean isShowGrid() {
         return showGrid;
     }
-
+    
     public void setHoldStyle(int change) {
         this.holdStyle = this.holdStyle + change;
     }
-
+    
     public Boulder randomBoulder(String wallId) {
         clean();
         Random r = new Random();
@@ -433,7 +434,7 @@ public class Grid {
         int y;//0 - horLines.length-2 :) 
         x = r.nextInt(vertLines.length - 1);
         y = horLines.length - 2;
-
+        
         psStatus[coordToIndex(x, y)] = MARK_START;
         for (int start = 1; start < starts; start++) {
             int s1 = getDirection(r) * getStep(r);
@@ -480,22 +481,22 @@ public class Grid {
         String name = wallId + " " + new Date().toString();
         return createBoulderFromCurrent(null, name, wallId, Grade.RandomBoulder());
     }
-
+    
     private int coordToIndex(int x, int y) {
         int r = x * (horLines.length - 1) + y;
         System.out.println(x + " x " + y + " => " + r);
         return r;
     }
-
+    
     private int getDirection(Random r) {
         if (r.nextBoolean()) {
             return 1;
         } else {
             return -1;
         }
-
+        
     }
-
+    
     private int getStep(Random r) {
         int minSize = (Math.min(horLines.length - 1, vertLines.length - 1));
         if (minSize <= 3) {
@@ -557,7 +558,7 @@ public class Grid {
         byte[] r = new byte[(horLines.length - 1) * (vertLines.length - 1)];
         for (int i = 0; i < r.length; i++) {
             r[i] = psStatus[i];
-
+            
         }
         return r;
     }
@@ -617,14 +618,14 @@ public class Grid {
         }
         return r;
     }
-
+    
     public void clean() {
         for (int i = 0; i < psStatus.length; i++) {
             psStatus[i] = 0;
-
+            
         }
     }
-
+    
     public void reset() {
         ul.setX(0);
         ul.setY(0);
@@ -635,7 +636,7 @@ public class Grid {
         br.setX(1);
         br.setY(1);
     }
-
+    
     byte[] getCoordsSave() throws IOException {
         Properties p = new Properties();
         p.setProperty("rows", "" + (vertLines.length - 1));
@@ -653,7 +654,7 @@ public class Grid {
         p.store(bos, "UpperLeft,UpperRight,BottomLeft,BottomRight corners.. and spme width and height");
         return bos.toByteArray();
     }
-
+    
     private void readCoord(RelativePoint coord, String id, Properties p) {
         String v = p.getProperty(id + ".x");
         if (v != null) {
@@ -664,17 +665,17 @@ public class Grid {
             coord.setY(Double.valueOf(v));
         }
     }
-
+    
     public void setBouler(Boulder b) {
         clean();
         b.apply(psStatus, horLines.length - 1);
-
+        
     }
-
+    
     public Boulder createBoulderFromCurrent(File file, String name, String wallId, Grade grade) {
         return Boulder.createBoulder(file, name, wallId, grade, getHolds(MARK_START), getHolds(MARK_PATH), getHolds(MARK_TOP));
     }
-
+    
     private String getHolds(int i) {
         StringBuilder sb = new StringBuilder();
         for (int y = 0; y < horLines.length - 1; y++) {
@@ -741,11 +742,11 @@ public class Grid {
         }
         return r;
     }
-
-    void send() {
-        //byte[] bb = getArrayURDR();
-        byte[] bb = getArrayRULU();
-        System.out.println(Arrays.toString(bb));
-
+    
+    void send(ByteEater consummer) {
+        byte[] bb = getArrayURDR();
+        //System.out.println(Arrays.toString(bb));
+        consummer.sendBytes(bb);
+        
     }
 }

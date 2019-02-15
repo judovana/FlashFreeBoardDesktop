@@ -25,6 +25,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import org.fbb.board.internals.comm.wired.ByteEater;
 
 /**
  *
@@ -49,7 +50,7 @@ public class GridPane extends JPanel implements Meassurable {
     private final MouseMotionListener drag;
     private final KeyListener keys;
 
-    public GridPane(BufferedImage img, byte[] properties) {
+    public GridPane(BufferedImage img, byte[] properties, ByteEater current) {
         this.grabFocus();
         this.img = img;
         grid = new Grid(this, properties);
@@ -61,6 +62,7 @@ public class GridPane extends JPanel implements Meassurable {
         this.addMouseListener(clicks);
         this.addMouseMotionListener(drag);
         this.addKeyListener(keys);
+        lastused = current;
     }
 
     @Override
@@ -97,9 +99,21 @@ public class GridPane extends JPanel implements Meassurable {
         this.addMouseListener(clicks);
     }
 
-    public void repaintAndSend() {
+    private ByteEater lastused = null;
+
+    public void repaintAndSendToKnown() {
         repaint();
-        grid.send();
+        if (lastused != null) {
+            grid.send(lastused);
+        } else {
+            ;
+        }
+    }
+
+    public void repaintAndSend(ByteEater consummer) {
+        repaint();
+        this.lastused = consummer;
+        grid.send(consummer);
     }
 
     public static class Preload {
@@ -170,11 +184,11 @@ public class GridPane extends JPanel implements Meassurable {
             }
             if (e.getButton() == MouseEvent.BUTTON3) {
                 grid.setPs(e.getX(), e.getY());
-                repaintAndSend();
+                repaintAndSendToKnown();
             }
             if (e.getButton() == MouseEvent.BUTTON2) {
                 grid.setShowGrid(!grid.isShowGrid());
-                repaintAndSend();
+                repaintAndSendToKnown();
             }
         }
 

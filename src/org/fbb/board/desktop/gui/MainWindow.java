@@ -56,6 +56,7 @@ import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.internals.Boulder;
 import org.fbb.board.internals.Filter;
+import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.Grid;
 import org.fbb.board.internals.GridPane;
 import org.fbb.board.internals.HistoryManager;
@@ -69,6 +70,7 @@ import org.fbb.board.internals.grades.Grade;
 //filters - by grade, by date, by number of holds
 public class MainWindow {
 
+    private static final GlobalSettings gs = new GlobalSettings();
     private static HistoryManager hm = new HistoryManager();
     private static ListWithFilter list;
     private static final JPopupMenu listJump = new JPopupMenu();
@@ -199,7 +201,7 @@ public class MainWindow {
     private static void createWindowIpl(BufferedImage bis, String fname, byte[] props, JFrame... redundants) {
         final JFrame createWallWindow = new JFrame();
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        GridPane gp = new GridPane(bis, props);
+        GridPane gp = new GridPane(bis, props, gs);
         createWallWindow.add(gp);
         double ratio = getIdealWindowSizw(bis);
         double nw = ratio * (double) bis.getWidth();
@@ -223,14 +225,14 @@ public class MainWindow {
             @Override
             public void stateChanged(ChangeEvent e) {
                 gp.getGrid().setHorLines((Integer) sh.getValue() + 1);
-                gp.repaintAndSend();
+                gp.repaintAndSend(gs);
             }
         });
         sw.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 gp.getGrid().setVertLines((Integer) sw.getValue() + 1);
-                gp.repaintAndSend();
+                gp.repaintAndSend(gs);
             }
         });
         JButton reset = new JButton(Translator.R("Breset"));
@@ -241,28 +243,28 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gp.getGrid().setShowGrid(grid.isSelected());
-                gp.repaintAndSend();
+                gp.repaintAndSend(gs);
             }
         });
         clean.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gp.getGrid().clean();
-                gp.repaintAndSend();
+                gp.repaintAndSend(gs);
             }
         });
         test.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gp.getGrid().randomBoulder(null);
-                gp.repaintAndSend();
+                gp.repaintAndSend(gs);
             }
         });
         reset.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gp.getGrid().reset();
-                gp.repaintAndSend();
+                gp.repaintAndSend(gs);
             }
         });
 
@@ -343,7 +345,7 @@ public class MainWindow {
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         final JFrame createWallWindow = new JFrame();
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        GridPane gp = new GridPane(bi, preloaded.props);
+        GridPane gp = new GridPane(bi, preloaded.props, gs);
         list = new ListWithFilter(preloaded.givenId);
         createWallWindow.add(gp);
         gp.disableClicking();
@@ -414,8 +416,10 @@ public class MainWindow {
         previous.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                generateHistoryJumper(gp, name, next, previous, nextInList, prevInList);
-                historyJump.show((JButton) e.getSource(), 0, 0);
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    generateHistoryJumper(gp, name, next, previous, nextInList, prevInList);
+                    historyJump.show((JButton) e.getSource(), 0, 0);
+                }
             }
 
         });
@@ -445,7 +449,7 @@ public class MainWindow {
                         gp.getGrid().setBouler(r);
                         name.setText(r.getGradeAndName());
                         name.setToolTipText(r.getStandardTooltip());
-                        gp.repaintAndSend();
+                        gp.repaintAndSend(gs);
                         Files.setLastBoulder(r);
                         next.setEnabled(hm.canFwd());
                         previous.setEnabled(hm.canBack());
@@ -472,7 +476,7 @@ public class MainWindow {
                     gp.getGrid().setBouler(r);
                     name.setText(r.getGradeAndName());
                     name.setToolTipText(r.getStandardTooltip());
-                    gp.repaintAndSend();
+                    gp.repaintAndSend(gs);
                     if (bs.saved) {
                         Files.setLastBoulder(r);
                         list.addToBoulderHistory(r);
@@ -500,7 +504,7 @@ public class MainWindow {
                     gp.getGrid().setBouler(r);
                     name.setText(r.getGradeAndName());
                     name.setToolTipText(r.getStandardTooltip());
-                    gp.repaintAndSend();
+                    gp.repaintAndSend(gs);
                     if (bs.saved) {
                         Files.setLastBoulder(r);
                         list.addToBoulderHistory(r);
@@ -582,7 +586,7 @@ public class MainWindow {
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
                     name.setToolTipText(b.getStandardTooltip());
-                    gp.repaintAndSend();
+                    gp.repaintAndSend(gs);
                     Files.setLastBoulder(b);
                 }
                 next.setEnabled(hm.canFwd());
@@ -597,7 +601,7 @@ public class MainWindow {
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
                     name.setToolTipText(b.getStandardTooltip());
-                    gp.repaintAndSend();
+                    gp.repaintAndSend(gs);
                     Files.setLastBoulder(b);
                 }
                 next.setEnabled(hm.canFwd());
@@ -613,7 +617,7 @@ public class MainWindow {
                 name.setText(b.getGradeAndName());
                 name.setToolTipText(b.getStandardTooltip());
                 hm.addToBoulderHistory(b);
-                gp.repaintAndSend();
+                gp.repaintAndSend(gs);
                 next.setEnabled(hm.canFwd());
                 previous.setEnabled(hm.canBack());
             }
@@ -630,7 +634,7 @@ public class MainWindow {
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
                     name.setToolTipText(b.getStandardTooltip());
-                    gp.repaintAndSend();
+                    gp.repaintAndSend(gs);
                     Files.setLastBoulder(b);
                     next.setEnabled(hm.canFwd());
                     previous.setEnabled(hm.canBack());
@@ -651,7 +655,7 @@ public class MainWindow {
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
                     name.setToolTipText(b.getStandardTooltip());
-                    gp.repaintAndSend();
+                    gp.repaintAndSend(gs);
                     Files.setLastBoulder(b);
                     next.setEnabled(hm.canFwd());
                     previous.setEnabled(hm.canBack());
@@ -672,7 +676,7 @@ public class MainWindow {
                     gp.getGrid().setBouler(b);
                     name.setText(b.getGradeAndName());
                     name.setToolTipText(b.getStandardTooltip());
-                    gp.repaintAndSend();
+                    gp.repaintAndSend(gs);
                     Files.setLastBoulder(b);
                     next.setEnabled(hm.canFwd());
                     previous.setEnabled(hm.canBack());
@@ -748,7 +752,7 @@ public class MainWindow {
                             gp.getGrid().setBouler(r);
                             name.setText(r.getGradeAndName());
                             name.setToolTipText(r.getStandardTooltip());
-                            gp.repaintAndSend();
+                            gp.repaintAndSend(gs);
                             Files.setLastBoulder(r);
                             next.setEnabled(hm.canFwd());
                             previous.setEnabled(hm.canBack());
@@ -786,7 +790,7 @@ public class MainWindow {
                             gp.getGrid().setBouler(r);
                             name.setText(r.getGradeAndName());
                             name.setToolTipText(r.getStandardTooltip());
-                            gp.repaintAndSend();
+                            gp.repaintAndSend(gs);
                             if (r.getFile() != null) {
                                 Files.setLastBoulder(r);
                             }
@@ -820,7 +824,7 @@ public class MainWindow {
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(p.img));
         final JDialog operateBoulder = new JDialog((JFrame) null, true);
         operateBoulder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        GridPane gp = new GridPane(bi, p.props);
+        GridPane gp = new GridPane(bi, p.props, gs);
         gp.getGrid().setShowGrid(true);
         operateBoulder.add(gp);
         gp.enableBoulderModificationOnly();
@@ -871,7 +875,7 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gp.getGrid().setShowGrid(gridb.isSelected());
-                gp.repaintAndSend();
+                gp.repaintAndSend(gs);
             }
         });
         tools2.add(gridb, BorderLayout.EAST);
@@ -1021,7 +1025,7 @@ public class MainWindow {
                             prelaod = GridPane.preload(new ZipInputStream(new FileInputStream(Files.getWallFile(b.getWall()))), b.getWall());
                             wallCache.put(b.getWall(), prelaod);
                         }
-                        GridPane gdp = new GridPane(ImageIO.read(new ByteArrayInputStream(prelaod.img)), prelaod.props);
+                        GridPane gdp = new GridPane(ImageIO.read(new ByteArrayInputStream(prelaod.img)), prelaod.props, gs);
                         gdp.getGrid().setBouler(b);
                         boulderPreview.add(gdp);
                         boulderPreview.validate();
