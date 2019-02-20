@@ -6,9 +6,6 @@
 package org.fbb.board.internals;
 
 import com.fazecast.jSerialComm.SerialPort;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.fbb.board.internals.comm.wired.ByteEater;
 import org.fbb.board.internals.comm.wired.PortWork;
 
@@ -35,46 +32,59 @@ public class GlobalSettings implements ByteEater {
 
         @Override
         public void run() {
-            while (alive) {
-                try {
-                    consumeLastAndRefrshBuffer();
-                    Thread.sleep(bufferEatingDaemonDelay);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+            try{
+                runImp();
+            }catch(Exception ex){
+                ex.printStackTrace();
             }
         }
 
-        private void consumeLastAndRefrshBuffer() {
-            byte[][] last = null;
-            synchronized (messages) {
-                if (messages.isEmpty()) {
-                    return;
+        public void runImp() throws InterruptedException {
+            byte[][] lastCopyToPrint;
+            for (;;) {
+                synchronized (lock) {
+                    while (last == null && alive) {
+                        lock.wait();
+                    }
+                    if (!alive) {
+                        break;
+                    }
+
+                    lastCopyToPrint = last;
+                    last = null;
                 }
-                ArrayList<byte[][]> l = new ArrayList<>(messages);
-                last = l.get(l.size() - 1);
-                messages.removeAll(l);
+                repaintRemote(lastCopyToPrint);
             }
-            if (last == null) {
-                return;
-            }
+        }
+
+        public void repaintRemote(byte[][] l) {
             if (comm == COMM.PORT) {
                 if (selectedPort == null) {
-                    PortWork.writeTo(customPort, last);
+                    PortWork.writeTo(customPort, l);
                 } else {
-                    PortWork.writeTo(selectedPort, last);
+                    PortWork.writeTo(selectedPort, l);
                 }
             }
-
         }
     }
 
-    private final List<byte[][]> messages = Collections.synchronizedList(new ArrayList<>(50));
+    private byte[][] last = null;
+    private final Object lock = new Object();
 
     @Override
     public void sendBytes(byte[]... b) {
-        byte[][] m = toMessages(b);
-        messages.add(m);
+        synchronized (lock) {
+            byte[][] m = toMessages(b);
+            last = m;
+            lock.notify();
+        }
+    }
+
+    public void stop() {
+        synchronized (lock) {
+            resender.alive = false;
+            lock.notify();
+        }
     }
 
     private byte[][] toMessages(byte[][] bs) {
@@ -108,7 +118,6 @@ public class GlobalSettings implements ByteEater {
     private String customPort = "/dev/ttyUSB0";
     private SerialPort selectedPort = null;
     private byte brightness = 5;
-    private long bufferEatingDaemonDelay = 100;
 
     //0 nothing
     //1 blue
