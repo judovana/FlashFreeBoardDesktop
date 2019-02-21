@@ -573,7 +573,63 @@ public class MainWindow {
         jp.add(new JMenuItem("start timered-training"));
         //basic settings + ADMINISTRATOR tasks - delete boudlers, manage walls, deault grades, default higlight. new/edit wall management only too?
         //new password?
-        jp.add(new JMenuItem("management"));
+        JMenuItem management = new JMenuItem(Translator.R("management"));
+        jp.add(management);
+        management.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JDialog settingsWindow = new JDialog();
+                settingsWindow.setLayout(new GridLayout(4, 2));
+                settingsWindow.add(new JLabel("brightenes"));
+                JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 250, 1));
+                sss.addChangeListener(new ChangeListener() {
+
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        gs.setBrightness(((Integer) sss.getValue()).byteValue());
+                        gp.repaintAndSend(gs);
+                    }
+                });
+                settingsWindow.add(sss);
+                settingsWindow.add(new JLabel("test/snake delay"));
+                JSpinner testDelay = new JSpinner(new SpinnerNumberModel(250, 1, 10000, 50));
+                settingsWindow.add(testDelay);
+                JButton re = new JButton("test red");
+                re.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        gp.getGrid().testRed(((Integer)testDelay.getValue()));
+                    }
+                });
+                settingsWindow.add(re);
+                JButton gr = new JButton("test green");
+                gr.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        gp.getGrid().testGreen(((Integer)testDelay.getValue()));
+                    }
+                });
+                settingsWindow.add(gr);
+                JButton bl = new JButton("test blue");
+                bl.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        gp.getGrid().testBlue(((Integer)testDelay.getValue()));
+                    }
+                });
+                settingsWindow.add(bl);
+                settingsWindow.add(new JButton("snake game"));
+                settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                settingsWindow.pack();
+                settingsWindow.setLocationRelativeTo(null);
+                settingsWindow.setVisible(true);
+                
+            }
+        });
         jp.add(new JMenuItem("tips")); //highlight what save do (jsut add a leg?), higluight do not save garbage
         tools.add(settings, BorderLayout.WEST);
         tools.add(name);

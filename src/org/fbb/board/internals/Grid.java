@@ -15,7 +15,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -751,10 +750,48 @@ public class Grid {
         return r;
     }
 
+    private ByteEater lastConsummer = null;
+
     void send(ByteEater consummer) {
+        lastConsummer = consummer;
         byte[] bb = getArrayURDR();
         //System.out.println(Arrays.toString(bb));
         consummer.sendBytes(bb);
 
+    }
+
+    void resend() {
+        if (lastConsummer == null) {
+            return;
+        }
+        send(lastConsummer);
+    }
+
+    public void testRed(int delay) {
+        test(MARK_TOP, delay);
+    }
+    public void testGreen(int delay) {
+        test(MARK_START, delay);
+    }
+    public void testBlue(int delay) {
+        test(MARK_PATH, delay);
+    }
+
+    private void test(byte mark, int delay) {
+        int l = (horLines.length - 1) * (vertLines.length - 1);
+        for (int i = 0; i < l; i++) {
+            psStatus[i] = MARK_NOT;
+        }
+        resend();
+        for (int i = 0; i < l; i++) {
+            psStatus[i] = mark;
+            resend();
+            try {
+                Thread.sleep(delay);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+        }
     }
 }

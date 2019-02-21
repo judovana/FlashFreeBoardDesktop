@@ -119,6 +119,17 @@ public class GlobalSettings implements ByteEater {
     private SerialPort selectedPort = null;
     private byte brightness = 5;
 
+    public byte getBrightness() {
+        return brightness;
+    }
+
+    public void setBrightness(byte brightness) {
+        this.brightness = brightness;
+    }
+    
+    
+    
+
     //0 nothing
     //1 blue
     //2 green
