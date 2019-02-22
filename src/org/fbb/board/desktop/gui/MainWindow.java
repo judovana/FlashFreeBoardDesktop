@@ -580,8 +580,8 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JDialog settingsWindow = new JDialog();
-                settingsWindow.setLayout(new GridLayout(4, 2));
-                settingsWindow.add(new JLabel("brightenes"));
+                settingsWindow.setLayout(new GridLayout(5, 2));
+                settingsWindow.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 250, 1));
                 sss.addChangeListener(new ChangeListener() {
 
@@ -592,10 +592,10 @@ public class MainWindow {
                     }
                 });
                 settingsWindow.add(sss);
-                settingsWindow.add(new JLabel("test/snake delay"));
+                settingsWindow.add(new JLabel(Translator.R("testdelay")));
                 JSpinner testDelay = new JSpinner(new SpinnerNumberModel(250, 1, 10000, 50));
                 settingsWindow.add(testDelay);
-                JButton re = new JButton("test red");
+                JButton re = new JButton(Translator.R("testred"));
                 re.addActionListener(new ActionListener() {
 
                     @Override
@@ -604,7 +604,7 @@ public class MainWindow {
                     }
                 });
                 settingsWindow.add(re);
-                JButton gr = new JButton("test green");
+                JButton gr = new JButton(Translator.R("testgreen"));
                 gr.addActionListener(new ActionListener() {
 
                     @Override
@@ -613,7 +613,7 @@ public class MainWindow {
                     }
                 });
                 settingsWindow.add(gr);
-                JButton bl = new JButton("test blue");
+                JButton bl = new JButton(Translator.R("testblue"));
                 bl.addActionListener(new ActionListener() {
 
                     @Override
@@ -623,6 +623,8 @@ public class MainWindow {
                 });
                 settingsWindow.add(bl);
                 settingsWindow.add(new JButton("snake game"));
+                settingsWindow.add(new JComboBox<String>(new String[]{"port", "bluetooth"}));
+                settingsWindow.add(new JComboBox<String>(new String[]{"available ports"}));
                 settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 settingsWindow.pack();
                 settingsWindow.setLocationRelativeTo(null);
