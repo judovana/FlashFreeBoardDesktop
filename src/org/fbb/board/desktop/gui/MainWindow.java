@@ -580,6 +580,7 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JDialog settingsWindow = new JDialog();
+                settingsWindow.setModal(true);
                 settingsWindow.setLayout(new GridLayout(5, 2));
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 250, 1));

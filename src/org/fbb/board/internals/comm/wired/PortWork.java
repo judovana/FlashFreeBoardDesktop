@@ -10,17 +10,32 @@ package org.fbb.board.internals.comm.wired;
 import com.fazecast.jSerialComm.SerialPort;
 import java.util.HashSet;
 import java.util.Set;
+import org.fbb.board.internals.comm.ConnectionID;
+import org.fbb.board.internals.comm.ListAndWrite;
 
 /**
  *
  * @author jvanek
  */
-public class PortWork {
+public class PortWork implements ListAndWrite {
+
+    @Override
+    public void writeToDevice(String id, byte[]... b) {
+        writeTo(id, b);
+    }
+
+    @Override
+    public ConnectionID[] listDevices() {
+        return list();
+    }
+
+    //9600 is super safe
+    private static final int BAUD_RATE = 38400;
 
     public static void main(String... s) throws Exception {
-        SerialPort[] a = SerialPort.getCommPorts();
-        for (SerialPort a1 : a) {
-            System.out.println(a1.getDescriptivePortName());
+        ConnectionID[] a = list();
+        for (ConnectionID a1 : a) {
+            System.out.println(a1);
 
         }
         byte[] testData = new byte[]{
@@ -31,33 +46,34 @@ public class PortWork {
             (byte) 0, 0, 5,
             (byte) 0, 0, 5,
             (byte) 5, 5, 0,
-            (byte) 0, 5, 5,
+            (byte) 5, 5, 0,
             (byte) 5, 0, 5,
+            (byte) 5, 0, 5,
+            (byte) 0, 5, 5,
+            (byte) 0, 5, 5,
             (byte) 5, 5, 5
         };
-
-        writeTo("/dev/ttyUSB0", testData);
-        //writeTo(a[0], testData);
+        writeTo("ttyUSB0", testData);
 
     }
 
-    public static void writeTo(String port, byte[]... bytes) {
+    private static void writeTo(String port, byte[]... bytes) {
         int u = getUsage(port);
         for (int i = 0; i < u; i++) {
             writeToImpl(SerialPort.getCommPort(port), bytes);
         }
     }
 
-    public static void writeTo(SerialPort port, byte[]... bytes) {
+    private static void writeTo(SerialPort port, byte[]... bytes) {
         int u = getUsage(port.getSystemPortName());
         for (int i = 0; i < u; i++) {
             writeToImpl(port, bytes);
         }
     }
 
-    public static void writeToImpl(SerialPort comPort, byte[]... b) {
+    private static void writeToImpl(SerialPort comPort, byte[]... b) {
 
-        comPort.setBaudRate(9600);
+        comPort.setBaudRate(BAUD_RATE);
         try {
             comPort.openPort();
             Thread.sleep(100);
@@ -83,6 +99,16 @@ public class PortWork {
             usages.add(port);
             return 2;
         }
+    }
+
+    private static ConnectionID[] list() {
+        SerialPort[] ports = SerialPort.getCommPorts();
+        ConnectionID[] a = new ConnectionID[ports.length];
+        for (int i = 0; i < ports.length; i++) {
+            SerialPort port = ports[i];
+            a[i] = new ConnectionID(port.getSystemPortName(), port.getDescriptivePortName());
+        }
+        return a;
     }
 
 }

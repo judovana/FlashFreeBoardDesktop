@@ -5,7 +5,7 @@
  */
 package org.fbb.board.internals;
 
-import com.fazecast.jSerialComm.SerialPort;
+import org.fbb.board.internals.comm.bt.BtOp;
 import org.fbb.board.internals.comm.wired.ByteEater;
 import org.fbb.board.internals.comm.wired.PortWork;
 
@@ -32,9 +32,9 @@ public class GlobalSettings implements ByteEater {
 
         @Override
         public void run() {
-            try{
+            try {
                 runImp();
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -59,11 +59,11 @@ public class GlobalSettings implements ByteEater {
 
         public void repaintRemote(byte[][] l) {
             if (comm == COMM.PORT) {
-                if (selectedPort == null) {
-                    PortWork.writeTo(customPort, l);
-                } else {
-                    PortWork.writeTo(selectedPort, l);
-                }
+                new PortWork().writeToDevice(deviceId, l);
+            } else if (comm == COMM.BLUETOOTH) {
+                new BtOp().writeToDevice(deviceId, l);
+            } else {
+                throw new RuntimeException("communication method not selected");
             }
         }
     }
@@ -114,9 +114,9 @@ public class GlobalSettings implements ByteEater {
         BLUETOOTH
     }
 
-    private COMM comm = COMM.PORT;
-    private String customPort = "/dev/ttyUSB0";
-    private SerialPort selectedPort = null;
+    private COMM comm = COMM.BLUETOOTH;
+    //private String deviceId = "/dev/ttyUSB0";
+    private String deviceId = "btspp://000666C0AC62:1;authenticate=false;encrypt=false;master=true";
     private byte brightness = 5;
 
     public byte getBrightness() {
@@ -126,9 +126,6 @@ public class GlobalSettings implements ByteEater {
     public void setBrightness(byte brightness) {
         this.brightness = brightness;
     }
-    
-    
-    
 
     //0 nothing
     //1 blue
