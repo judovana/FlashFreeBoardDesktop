@@ -581,7 +581,7 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 JDialog settingsWindow = new JDialog();
                 settingsWindow.setModal(true);
-                settingsWindow.setLayout(new GridLayout(5, 2));
+                settingsWindow.setLayout(new GridLayout(6, 2));
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 250, 1));
                 sss.addChangeListener(new ChangeListener() {
@@ -601,7 +601,7 @@ public class MainWindow {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        gp.getGrid().testRed(((Integer)testDelay.getValue()));
+                        gp.getGrid().testRed(((Integer) testDelay.getValue()));
                     }
                 });
                 settingsWindow.add(re);
@@ -610,7 +610,7 @@ public class MainWindow {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        gp.getGrid().testGreen(((Integer)testDelay.getValue()));
+                        gp.getGrid().testGreen(((Integer) testDelay.getValue()));
                     }
                 });
                 settingsWindow.add(gr);
@@ -619,18 +619,51 @@ public class MainWindow {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        gp.getGrid().testBlue(((Integer)testDelay.getValue()));
+                        gp.getGrid().testBlue(((Integer) testDelay.getValue()));
                     }
                 });
                 settingsWindow.add(bl);
-                settingsWindow.add(new JButton("snake game"));
-                settingsWindow.add(new JComboBox<String>(new String[]{"port", "bluetooth"}));
-                settingsWindow.add(new JComboBox<String>(new String[]{"available ports"}));
+                JButton snake = new JButton("snake game");
+                snake.setEnabled(false);
+                settingsWindow.add(snake);
+                JComboBox<String> portType = new JComboBox<>(new String[]{"port", "bluetooth", "nothing"});
+                portType.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        gs.setPortType(portType.getSelectedIndex());
+                    }
+                });
+                settingsWindow.add(portType);
+                JTextField portName = new JTextField("ttyUSB0");
+                settingsWindow.add(portName);
+                settingsWindow.add(new JLabel());
+                JButton selectPort = new JButton(Translator.R("Bselect"));
+                settingsWindow.add(selectPort);
+                selectPort.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            JDialog selectPortDialog = new JDialog();
+                            selectPortDialog.setModal(true);
+                            selectPortDialog.setLayout(new BorderLayout());
+                            selectPortDialog.add(new JLabel("Double click desired or close"), BorderLayout.NORTH);
+                            selectPortDialog.add(new JList(gs.list()));
+                            selectPortDialog.add(new JLabel("Double click desired or close"), BorderLayout.SOUTH);
+                            selectPortDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                            selectPortDialog.setSize(300, 200);
+                            selectPortDialog.setLocationRelativeTo(settingsWindow);
+                            selectPortDialog.setVisible(true);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(settingsWindow, ex);
+                        }
+                    }
+                });
                 settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 settingsWindow.pack();
-                settingsWindow.setLocationRelativeTo(null);
+                settingsWindow.setLocationRelativeTo(management);
                 settingsWindow.setVisible(true);
-                
+
             }
         });
         jp.add(new JMenuItem("tips")); //highlight what save do (jsut add a leg?), higluight do not save garbage

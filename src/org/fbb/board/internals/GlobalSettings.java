@@ -5,6 +5,8 @@
  */
 package org.fbb.board.internals;
 
+import javax.swing.ListModel;
+import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.comm.bt.BtOp;
 import org.fbb.board.internals.comm.wired.ByteEater;
 import org.fbb.board.internals.comm.wired.PortWork;
@@ -20,6 +22,26 @@ public class GlobalSettings implements ByteEater {
     public GlobalSettings() {
         resender = new MessagesResender();
         resender.start();
+    }
+
+    public ConnectionID[] list() {
+        if (comm == COMM.PORT) {
+            return new PortWork().listDevices();
+        } else if (comm == COMM.BLUETOOTH) {
+            return new BtOp().listDevices();
+        } else {
+            return new ConnectionID[0];
+        }
+    }
+
+    public void setPortType(int selectedIndex) {
+        if (selectedIndex == 0) {
+            comm = COMM.PORT;
+        } else if (selectedIndex == 1) {
+            comm = COMM.BLUETOOTH;
+        } else {
+            comm = COMM.NOTHING;
+        }
     }
 
     private class MessagesResender extends Thread {
@@ -63,7 +85,7 @@ public class GlobalSettings implements ByteEater {
             } else if (comm == COMM.BLUETOOTH) {
                 new BtOp().writeToDevice(deviceId, l);
             } else {
-                throw new RuntimeException("communication method not selected");
+                System.err.println("Nothing mode");
             }
         }
     }
@@ -111,7 +133,8 @@ public class GlobalSettings implements ByteEater {
     public static enum COMM {
 
         PORT,
-        BLUETOOTH
+        BLUETOOTH,
+        NOTHING
     }
 
     private COMM comm = COMM.BLUETOOTH;
