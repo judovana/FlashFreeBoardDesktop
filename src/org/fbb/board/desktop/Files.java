@@ -24,6 +24,7 @@ public class Files {
     public static final File bouldersDir = new File(configDir + "/boulders");
     private static final File lastBoard = new File(configDir + "/lastBoard");
     private static final File lastBoulder = new File(configDir + "/lastBoulder");
+    public static final File settings = new File(configDir + "/settings");
 
     public static final List<Character> INVALID_PATH = Arrays.asList(new Character[]{':', '*', '?', '"', '<', '>', '|', '[', ']', '\'', ';', '=', ','});
     public static final List<Character> INVALID_NAME = new ArrayList<>(INVALID_PATH);

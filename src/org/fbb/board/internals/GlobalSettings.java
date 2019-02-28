@@ -5,7 +5,17 @@
  */
 package org.fbb.board.internals;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.Properties;
 import javax.swing.ListModel;
+import org.fbb.board.desktop.Files;
 import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.comm.bt.BtOp;
 import org.fbb.board.internals.comm.wired.ByteEater;
@@ -22,6 +32,7 @@ public class GlobalSettings implements ByteEater {
     public GlobalSettings() {
         resender = new MessagesResender();
         resender.start();
+        load();
     }
 
     public ConnectionID[] list() {
@@ -35,6 +46,10 @@ public class GlobalSettings implements ByteEater {
     }
 
     public void setPortType(int selectedIndex) {
+        setPortType(selectedIndex, true);
+    }
+
+    private void setPortType(int selectedIndex, boolean save) {
         switch (selectedIndex) {
             case 0:
                 comm = COMM.PORT;
@@ -45,6 +60,9 @@ public class GlobalSettings implements ByteEater {
             default:
                 comm = COMM.NOTHING;
                 break;
+        }
+        if (save) {
+            save();
         }
     }
 
@@ -105,12 +123,20 @@ public class GlobalSettings implements ByteEater {
         }
 
         public void repaintRemote(byte[][] l) {
-            if (comm == COMM.PORT) {
-                new PortWork().writeToDevice(deviceId, l);
-            } else if (comm == COMM.BLUETOOTH) {
-                new BtOp().writeToDevice(deviceId, l);
-            } else {
+            if (null == comm) {
                 System.err.println("Nothing mode");
+            } else {
+                switch (comm) {
+                    case PORT:
+                        new PortWork().writeToDevice(deviceId, l);
+                        break;
+                    case BLUETOOTH:
+                        new BtOp().writeToDevice(deviceId, l);
+                        break;
+                    default:
+                        System.err.println("Nothing mode");
+                        break;
+                }
             }
         }
     }
@@ -162,9 +188,44 @@ public class GlobalSettings implements ByteEater {
         NOTHING
     }
 
-    private COMM comm = COMM.BLUETOOTH;
-    //private String deviceId = "/dev/ttyUSB0";
-    private String deviceId = "btspp://000666C0AC62:1;authenticate=false;encrypt=false;master=true";
+    private void load() {
+        if (!Files.settings.exists()) {
+            return;
+        }
+        try {
+            loadIpl();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void loadIpl() throws IOException {
+        Properties p = new Properties();
+        p.load(new FileInputStream(Files.settings));
+        setPortType(Integer.valueOf(p.getProperty("COMM", "0")), false);
+        setBrightness(Byte.valueOf(p.getProperty("SHINE", "0")), false);
+        setDeviceId((p.getProperty("URL", "/dev/ttyUSB0")), false);
+    }
+
+    private void save() {
+        try {
+            saveImpl();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void saveImpl() throws IOException {
+        Properties p = new Properties();
+        p.setProperty("COMM", "" + getPortTypeIndex());
+        p.setProperty("SHINE", "" + getBrightness());
+        p.setProperty("URL", getPortId());
+        p.store(new OutputStreamWriter(new FileOutputStream(Files.settings), Charset.forName("utf-8")), "FlashFreeBoard settings " + new Date());
+    }
+
+    private COMM comm = COMM.PORT;
+    private String deviceId = "/dev/ttyUSB0";
+    //private String deviceId = "btspp://000666C0AC62:1;authenticate=false;encrypt=false;master=true";
     private byte brightness = 5;
 
     public byte getBrightness() {
@@ -172,7 +233,14 @@ public class GlobalSettings implements ByteEater {
     }
 
     public void setBrightness(byte brightness) {
+        setBrightness(brightness, true);
+    }
+
+    private void setBrightness(byte brightness, boolean save) {
         this.brightness = brightness;
+        if (save) {
+            save();
+        }
     }
 
     //0 nothing
@@ -194,7 +262,14 @@ public class GlobalSettings implements ByteEater {
     }
 
     public void setDeviceId(String deviceId) {
+        setDeviceId(deviceId, true);
+    }
+
+    private void setDeviceId(String deviceId, boolean save) {
         this.deviceId = deviceId;
+        if (save) {
+            save();
+        }
     }
 
 }

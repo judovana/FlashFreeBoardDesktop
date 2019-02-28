@@ -667,11 +667,11 @@ public class MainWindow {
                             JDialog selectPortDialog = new JDialog();
                             selectPortDialog.setModal(true);
                             selectPortDialog.setLayout(new BorderLayout());
-                            JLabel title = new JLabel("Select port or BT device");
+                            JLabel title = new JLabel(Translator.R("selectTitle"));
                             selectPortDialog.add(title, BorderLayout.NORTH);
-                            JLabel waiting = new JLabel("<html><div style='text-align: center;'>scaning</div></html>");
+                            JLabel waiting = new JLabel("<html><div style='text-align: center;'>"+Translator.R("scanning")+"</div></html>");
                             selectPortDialog.add(waiting);
-                            JLabel message = new JLabel("click desired or close");
+                            JLabel message = new JLabel(Translator.R("click desired or close"));
                             selectPortDialog.add(message, BorderLayout.SOUTH);
                             selectPortDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                             selectPortDialog.setSize(300, 200);
@@ -688,7 +688,7 @@ public class MainWindow {
                                         selectPortDialog.remove(waiting);
                                         JList<ConnectionID> item = (JList) this.get();
                                         if (item.getModel().getSize() == 0) {
-                                            JLabel iitem = new JLabel("<html><div style='text-align: center;'>Nothing, please, close and pray</div></html>");
+                                            JLabel iitem = new JLabel("<html><div style='text-align: center;'>"+Translator.R("noDeviceFoound")+"</div></html>");
                                             selectPortDialog.add(iitem);
                                         } else {
                                             selectPortDialog.add(item);
