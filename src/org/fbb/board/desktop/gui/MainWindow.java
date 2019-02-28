@@ -590,7 +590,26 @@ public class MainWindow {
                 timeredWindow.add(new JSpinner(new SpinnerNumberModel(15, 1, 1000, 1)));
                 timeredWindow.add(new JCheckBox("Allow random boulders", true));
                 timeredWindow.add(new JCheckBox("Allow random jumps in selection", true));
-                timeredWindow.add(new JButton("Start"));
+                JButton start = new JButton("Start");
+                start.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    while (true) {
+                                        Thread.sleep(1000);
+                                        nextInList.getActionListeners()[0].actionPerformed(null);
+                                    }
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                        }).start();
+                    }
+                });
+                timeredWindow.add(start);
                 timeredWindow.add(new JLabel("00:00"));
                 timeredWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 timeredWindow.pack();
