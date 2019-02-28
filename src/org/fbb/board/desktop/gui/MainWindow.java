@@ -574,7 +574,30 @@ public class MainWindow {
             }
         });
         jp.add(newEditWall);
-        jp.add(new JMenuItem("start timered-training"));
+        JMenuItem timered = new JMenuItem(Translator.R("timered"));
+        jp.add(timered);
+        timered.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JDialog timeredWindow = new JDialog();
+                timeredWindow.setModal(true);
+                timeredWindow.setLayout(new GridLayout(5, 2));
+                timeredWindow.add(new JLabel("Time of boulder mm:ss"));
+                timeredWindow.add(new JTextField("00:20"));
+                timeredWindow.add(new JLabel("Time of training mm:ss"));
+                timeredWindow.add(new JTextField("5:00"));
+                timeredWindow.add(new JLabel("Number of boulders"));
+                timeredWindow.add(new JSpinner(new SpinnerNumberModel(15, 1, 1000, 1)));
+                timeredWindow.add(new JCheckBox("Allow random boulders", true));
+                timeredWindow.add(new JCheckBox("Allow random jumps in selection", true));
+                timeredWindow.add(new JButton("Start"));
+                timeredWindow.add(new JLabel("00:00"));
+                timeredWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                timeredWindow.pack();
+                timeredWindow.setLocationRelativeTo(createWallWindow);
+                timeredWindow.setVisible(true);
+            }
+        });
         //basic settings + ADMINISTRATOR tasks - delete boudlers, manage walls, deault grades, default higlight. new/edit wall management only too?
         //new password?
         JMenuItem management = new JMenuItem(Translator.R("management"));
@@ -1346,7 +1369,7 @@ public class MainWindow {
                 }
             }
         });
-         lastUsed.addActionListener(new ActionListener() {
+        lastUsed.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
