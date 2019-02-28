@@ -61,6 +61,32 @@ public class BtOp implements ListAndWrite {
      LegacyPairing: no
      UUID: Serial Port               (00001101-0000-1000-8000-00805f9b34fb)
      */
+ /*
+     * bluez-libs-devel, bluez-libs, bluetoothctl, rfkill
+     * systemctl start bluetooth
+     * rfkill  list
+    0: tpacpi_bluetooth_sw: Bluetooth
+	Soft blocked: yes
+	Hard blocked: no
+    1: phy0: Wireless LAN
+	Soft blocked: yes
+	Hard blocked: no
+     * 
+     * rfkill   unblock 0
+     * rfkill  list
+    0: tpacpi_bluetooth_sw: Bluetooth
+	Soft blocked: no
+	Hard blocked: no
+    1: phy0: Wireless LAN
+	Soft blocked: yes
+	Hard blocked: no
+    4: hci0: Bluetooth
+	Soft blocked: yes
+	Hard blocked: no
+      * rfkill unblock 4
+      * bluetoothctl
+      * power on
+     */
     private static boolean inquiryRunning = false;
 
     private static ConnectionID[] list() {
@@ -159,6 +185,7 @@ public class BtOp implements ListAndWrite {
         private final DiscoveryAgent agent;
         private final List<ServiceRecord> services = new ArrayList<>();
         private final List<RemoteDevice> devices = new ArrayList<>();
+        private int hit = 0;
 
         private SearchContoller(DiscoveryAgent agent) {
             this.agent = agent;
@@ -190,8 +217,13 @@ public class BtOp implements ListAndWrite {
 
         @Override
         public void serviceSearchCompleted(int arg0, int arg1) {
-            System.out.println("Services done");
-            inquiryRunning = false;
+            hit++;
+            System.out.println("Services done1: " + arg0 + "/" + arg1);
+            System.out.println("Services done2: " + hit + "/" + devices.size());
+            //if (hit >= devices.size() || arg0 >= arg1) { ??
+            if (hit >= devices.size()) {
+                inquiryRunning = false;
+            }
 
         }
 

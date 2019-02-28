@@ -35,13 +35,36 @@ public class GlobalSettings implements ByteEater {
     }
 
     public void setPortType(int selectedIndex) {
-        if (selectedIndex == 0) {
-            comm = COMM.PORT;
-        } else if (selectedIndex == 1) {
-            comm = COMM.BLUETOOTH;
-        } else {
-            comm = COMM.NOTHING;
+        switch (selectedIndex) {
+            case 0:
+                comm = COMM.PORT;
+                break;
+            case 1:
+                comm = COMM.BLUETOOTH;
+                break;
+            default:
+                comm = COMM.NOTHING;
+                break;
         }
+    }
+
+    public int getPortTypeIndex() {
+        if (null == comm) {
+            return 2;
+        } else {
+            switch (comm) {
+                case PORT:
+                    return 0;
+                case BLUETOOTH:
+                    return 1;
+                default:
+                    return 2;
+            }
+        }
+    }
+
+    public String getPortId() {
+        return deviceId;
     }
 
     private class MessagesResender extends Thread {
@@ -54,10 +77,12 @@ public class GlobalSettings implements ByteEater {
 
         @Override
         public void run() {
-            try {
-                runImp();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            while (true) {
+                try {
+                    runImp();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         }
 
@@ -166,6 +191,10 @@ public class GlobalSettings implements ByteEater {
                 return new byte[]{brightness, 0, 0};
         }
         return null;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
 }

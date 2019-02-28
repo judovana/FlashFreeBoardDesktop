@@ -47,8 +47,11 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.fbb.board.Translator;
@@ -61,6 +64,7 @@ import org.fbb.board.internals.Grid;
 import org.fbb.board.internals.GridPane;
 import org.fbb.board.internals.HistoryManager;
 import org.fbb.board.internals.ListWithFilter;
+import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.grades.Grade;
 
 /**
@@ -627,6 +631,7 @@ public class MainWindow {
                 snake.setEnabled(false);
                 settingsWindow.add(snake);
                 JComboBox<String> portType = new JComboBox<>(new String[]{"port", "bluetooth", "nothing"});
+                portType.setSelectedIndex(gs.getPortTypeIndex());
                 portType.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -634,8 +639,24 @@ public class MainWindow {
                     }
                 });
                 settingsWindow.add(portType);
-                JTextField portName = new JTextField("ttyUSB0");
+                JTextField portName = new JTextField(gs.getPortId());
                 settingsWindow.add(portName);
+                portName.getDocument().addDocumentListener(new DocumentListener() {
+                    @Override
+                    public void insertUpdate(DocumentEvent e) {
+                        gs.setDeviceId(portName.getText());
+                    }
+
+                    @Override
+                    public void removeUpdate(DocumentEvent e) {
+                        gs.setDeviceId(portName.getText());
+                    }
+
+                    @Override
+                    public void changedUpdate(DocumentEvent e) {
+                        gs.setDeviceId(portName.getText());
+                    }
+                });
                 settingsWindow.add(new JLabel());
                 JButton selectPort = new JButton(Translator.R("Bselect"));
                 settingsWindow.add(selectPort);
@@ -646,12 +667,55 @@ public class MainWindow {
                             JDialog selectPortDialog = new JDialog();
                             selectPortDialog.setModal(true);
                             selectPortDialog.setLayout(new BorderLayout());
-                            selectPortDialog.add(new JLabel("Double click desired or close"), BorderLayout.NORTH);
-                            selectPortDialog.add(new JList(gs.list()));
-                            selectPortDialog.add(new JLabel("Double click desired or close"), BorderLayout.SOUTH);
+                            JLabel title = new JLabel("Select port or BT device");
+                            selectPortDialog.add(title, BorderLayout.NORTH);
+                            JLabel waiting = new JLabel("<html><div style='text-align: center;'>scaning</div></html>");
+                            selectPortDialog.add(waiting);
+                            JLabel message = new JLabel("click desired or close");
+                            selectPortDialog.add(message, BorderLayout.SOUTH);
                             selectPortDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                             selectPortDialog.setSize(300, 200);
                             selectPortDialog.setLocationRelativeTo(settingsWindow);
+                            SwingWorker<JList<ConnectionID>, JList<ConnectionID>> sw = new SwingWorker() {
+                                @Override
+                                protected JList<ConnectionID> doInBackground() throws Exception {
+                                    return new JList<>(gs.list());
+                                }
+
+                                @Override
+                                public void done() {
+                                    try {
+                                        selectPortDialog.remove(waiting);
+                                        JList<ConnectionID> item = (JList) this.get();
+                                        if (item.getModel().getSize() == 0) {
+                                            JLabel iitem = new JLabel("<html><div style='text-align: center;'>Nothing, please, close and pray</div></html>");
+                                            selectPortDialog.add(iitem);
+                                        } else {
+                                            selectPortDialog.add(item);
+                                            item.addListSelectionListener(new ListSelectionListener() {
+                                                @Override
+                                                public void valueChanged(ListSelectionEvent e) {
+                                                    portName.setText(item.getSelectedValue().getId());
+                                                }
+                                            });
+                                        }
+                                        item.addMouseListener(new MouseAdapter() {
+                                            @Override
+                                            public void mouseClicked(MouseEvent e) {
+                                                if (e.getClickCount()>1){
+                                                    selectPortDialog.dispose();
+                                                }
+                                            }
+                                            
+                                        });
+                                        selectPortDialog.pack();
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                        JOptionPane.showMessageDialog(selectPortDialog, ex);
+                                    }
+                                }
+                            };
+                            sw.execute();
                             selectPortDialog.setVisible(true);
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -661,7 +725,7 @@ public class MainWindow {
                 });
                 settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 settingsWindow.pack();
-                settingsWindow.setLocationRelativeTo(management);
+                settingsWindow.setLocationRelativeTo(createWallWindow);
                 settingsWindow.setVisible(true);
 
             }
