@@ -7,6 +7,7 @@ package org.fbb.board.desktop;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,7 +67,7 @@ public class Files {
         configDir.mkdirs();
         return new File(configDir, "lastAppliedFilter");
     }
-    public static File getLAstUsedFilterFile() {
+    public static File getLastUsedFilterFile() {
         configDir.mkdirs();
         return new File(configDir, "lastUsedFilter");
     }
@@ -137,5 +138,12 @@ public class Files {
 
     public static File getBoulderFile(String n) {
         return new File(Files.bouldersDir, n);
+    }
+
+    public static void lastUsedToLastApplied() throws IOException {
+        File f = getLastAppliedFilterFile();
+        if (f.exists()){
+            java.nio.file.Files.copy(f.toPath(), getLastUsedFilterFile().toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 }

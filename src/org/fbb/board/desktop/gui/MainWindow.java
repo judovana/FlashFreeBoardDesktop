@@ -669,7 +669,7 @@ public class MainWindow {
                             selectPortDialog.setLayout(new BorderLayout());
                             JLabel title = new JLabel(Translator.R("selectTitle"));
                             selectPortDialog.add(title, BorderLayout.NORTH);
-                            JLabel waiting = new JLabel("<html><div style='text-align: center;'>"+Translator.R("scanning")+"</div></html>");
+                            JLabel waiting = new JLabel("<html><div style='text-align: center;'>" + Translator.R("scanning") + "</div></html>");
                             selectPortDialog.add(waiting);
                             JLabel message = new JLabel(Translator.R("click desired or close"));
                             selectPortDialog.add(message, BorderLayout.SOUTH);
@@ -688,7 +688,7 @@ public class MainWindow {
                                         selectPortDialog.remove(waiting);
                                         JList<ConnectionID> item = (JList) this.get();
                                         if (item.getModel().getSize() == 0) {
-                                            JLabel iitem = new JLabel("<html><div style='text-align: center;'>"+Translator.R("noDeviceFoound")+"</div></html>");
+                                            JLabel iitem = new JLabel("<html><div style='text-align: center;'>" + Translator.R("noDeviceFoound") + "</div></html>");
                                             selectPortDialog.add(iitem);
                                         } else {
                                             selectPortDialog.add(item);
@@ -702,11 +702,11 @@ public class MainWindow {
                                         item.addMouseListener(new MouseAdapter() {
                                             @Override
                                             public void mouseClicked(MouseEvent e) {
-                                                if (e.getClickCount()>1){
+                                                if (e.getClickCount() > 1) {
                                                     selectPortDialog.dispose();
                                                 }
                                             }
-                                            
+
                                         });
                                         selectPortDialog.pack();
                                     } catch (Exception ex) {
@@ -1202,6 +1202,12 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                try {
+                    Files.lastUsedToLastApplied();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(d, ex);
+                }
                 result[0] = ALL;
                 d.setVisible(false);
             }
@@ -1212,6 +1218,12 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                try {
+                    Files.lastUsedToLastApplied();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(d, ex);
+                }
                 result[0] = SEL;
                 d.setVisible(false);
             }
@@ -1324,6 +1336,22 @@ public class MainWindow {
                 try {
                     if (Files.getLastAppliedFilterFile().exists()) {
                         Filter f = Filter.laod(Files.getLastAppliedFilterFile());
+                        if (f != null) {
+                            applyFilter(f, wallID, walls, holdsMin, holdsMax, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter);
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(boulders, ex);
+                }
+            }
+        });
+         lastUsed.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (Files.getLastUsedFilterFile().exists()) {
+                        Filter f = Filter.laod(Files.getLastUsedFilterFile());
                         if (f != null) {
                             applyFilter(f, wallID, walls, holdsMin, holdsMax, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter);
                         }
