@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,6 +29,7 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
+import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -64,6 +67,7 @@ import org.fbb.board.internals.Grid;
 import org.fbb.board.internals.GridPane;
 import org.fbb.board.internals.HistoryManager;
 import org.fbb.board.internals.ListWithFilter;
+import org.fbb.board.internals.TimeredTraining;
 import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.grades.Grade;
 
@@ -581,7 +585,7 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 JDialog timeredWindow = new JDialog();
                 timeredWindow.setModal(true);
-                timeredWindow.setLayout(new GridLayout(5, 2));
+                timeredWindow.setLayout(new GridLayout(7, 2));
                 timeredWindow.add(new JLabel("Time of boulder mm:ss"));
                 timeredWindow.add(new JTextField("00:20"));
                 timeredWindow.add(new JLabel("Time of training mm:ss"));
@@ -589,31 +593,63 @@ public class MainWindow {
                 timeredWindow.add(new JLabel("Number of boulders"));
                 timeredWindow.add(new JSpinner(new SpinnerNumberModel(15, 1, 1000, 1)));
                 timeredWindow.add(new JCheckBox("Allow random boulders", true));
+                timeredWindow.add(new JCheckBox("Allow regularboulders", true));
+                timeredWindow.add(new JLabel(""));
                 timeredWindow.add(new JCheckBox("Allow random jumps in selection", true));
-                JButton start = new JButton("Start");
+                JButton start = new JButton("start/stop");
+                timeredWindow.add(start);
+                JButton pause = new JButton("pause/unpause");
+                timeredWindow.add(pause);
+                final JLabel counterClock = new JLabel("00:00");
+                timeredWindow.add(counterClock);
+                final TimeredTraining[] trainig = new TimeredTraining[1];
                 start.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    while (true) {
-                                        Thread.sleep(1000);
-                                        nextInList.getActionListeners()[0].actionPerformed(null);
-                                    }
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
-                                }
-                            }
-                        }).start();
+                        if (trainig[0] == null) {
+                            trainig[0] = new TimeredTraining(
+                                    nextInList.getActionListeners()[0],
+                                    prevInList.getActionListeners()[0],
+                                    nextRandom.getActionListeners()[0],
+                                    nextRandomGenerated.getActionListeners()[0],
+                                    true, true, true, 300, counterClock
+                            );
+                            new Thread(trainig[0]).start();
+                        } else {
+                            trainig[0].stop();
+                            trainig[0] = null;
+                        }
                     }
                 });
-                timeredWindow.add(start);
-                timeredWindow.add(new JLabel("00:00"));
+                pause.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (trainig[0] != null) {
+                            trainig[0].setPaused(!trainig[0].isPaused());
+                        }
+                    }
+                });
                 timeredWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 timeredWindow.pack();
                 timeredWindow.setLocationRelativeTo(createWallWindow);
+                timeredWindow.addWindowListener(new WindowAdapter() {
+
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        if (trainig[0] != null) {
+                            trainig[0].stop();
+                        }
+                    }
+
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        if (trainig[0] != null) {
+                            trainig[0].stop();
+                        }
+                    }
+
+                });
                 timeredWindow.setVisible(true);
             }
         });
