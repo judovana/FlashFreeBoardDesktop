@@ -25,7 +25,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-import org.fbb.board.internals.comm.wired.ByteEater;
+import org.fbb.board.internals.comm.ByteEater;
 
 /**
  *

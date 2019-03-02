@@ -6,19 +6,16 @@
 package org.fbb.board.internals;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Properties;
-import javax.swing.ListModel;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.comm.bt.BtOp;
-import org.fbb.board.internals.comm.wired.ByteEater;
+import org.fbb.board.internals.comm.ByteEater;
 import org.fbb.board.internals.comm.wired.PortWork;
 
 /**
@@ -145,7 +142,7 @@ public class GlobalSettings implements ByteEater {
     private final Object lock = new Object();
 
     @Override
-    public void sendBytes(byte[]... b) {
+    public void sendBytes(int[]... b) {
         synchronized (lock) {
             byte[][] m = toMessages(b);
             last = m;
@@ -160,17 +157,16 @@ public class GlobalSettings implements ByteEater {
         }
     }
 
-    private byte[][] toMessages(byte[][] bs) {
+    private byte[][] toMessages(int[][] bs) {
         byte[][] r = new byte[bs.length][];
         for (int i = 0; i < bs.length; i++) {
-            byte[] b = bs[i];
-            r[i] = toMessage(b);
+            r[i] = toMessage(bs[i]);
 
         }
         return r;
     }
 
-    private byte[] toMessage(byte[] b) {
+    private byte[] toMessage(int[] b) {
         byte[] r = new byte[b.length * 3];
         for (int i = 0; i < b.length; i++) {
             byte[] rgb = holdToColor(b[i]);
@@ -203,7 +199,7 @@ public class GlobalSettings implements ByteEater {
         Properties p = new Properties();
         p.load(new FileInputStream(Files.settings));
         setPortType(Integer.valueOf(p.getProperty("COMM", "0")), false);
-        setBrightness(Byte.valueOf(p.getProperty("SHINE", "0")), false);
+        setBrightness(Integer.valueOf(p.getProperty("SHINE", "0")), false);
         setDeviceId((p.getProperty("URL", "/dev/ttyUSB0")), false);
     }
 
@@ -226,17 +222,29 @@ public class GlobalSettings implements ByteEater {
     private COMM comm = COMM.PORT;
     private String deviceId = "/dev/ttyUSB0";
     //private String deviceId = "btspp://000666C0AC62:1;authenticate=false;encrypt=false;master=true";
-    private byte brightness = 5;
+    private int brightness = 5;
 
-    public byte getBrightness() {
+    public int getBrightness() {
+        if (brightness <= 1) {
+            return 1;
+        }
+        if (brightness >= 255) {
+            return 255;
+        }
         return brightness;
     }
 
-    public void setBrightness(byte brightness) {
+    public void setBrightness(int brightness) {
         setBrightness(brightness, true);
     }
 
-    private void setBrightness(byte brightness, boolean save) {
+    private void setBrightness(int brightness, boolean save) {
+            if (brightness <= 1) {
+            brightness = 1;
+        }
+        if (brightness >= 255) {
+            brightness = 255;
+        }
         this.brightness = brightness;
         if (save) {
             save();
@@ -247,16 +255,16 @@ public class GlobalSettings implements ByteEater {
     //1 blue
     //2 green
     //3 red
-    public byte[] holdToColor(byte i) {
+    public byte[] holdToColor(int i) {
         switch (i) {
             case (0):
                 return new byte[]{0, 0, 0};
             case (1):
-                return new byte[]{0, 0, brightness};
+                return new byte[]{0, 0, (byte)brightness};
             case (2):
-                return new byte[]{0, brightness, 0};
+                return new byte[]{0, (byte)brightness, 0};
             case (3):
-                return new byte[]{brightness, 0, 0};
+                return new byte[]{(byte)brightness, 0, 0};
         }
         return null;
     }

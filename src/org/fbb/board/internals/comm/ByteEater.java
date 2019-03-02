@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fbb.board.internals.comm.wired;
+package org.fbb.board.internals.comm;
 
 /**
  *
@@ -11,6 +11,6 @@ package org.fbb.board.internals.comm.wired;
  */
 public interface ByteEater {
 
-    public void sendBytes(byte[]... b);
+    public void sendBytes(int[]... b);
 
 }

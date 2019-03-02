@@ -61,31 +61,31 @@ public class BtOp implements ListAndWrite {
      LegacyPairing: no
      UUID: Serial Port               (00001101-0000-1000-8000-00805f9b34fb)
      */
- /*
+    /*
      * bluez-libs-devel, bluez-libs, bluetoothctl, rfkill
      * systemctl start bluetooth
      * rfkill  list
-    0: tpacpi_bluetooth_sw: Bluetooth
-	Soft blocked: yes
-	Hard blocked: no
-    1: phy0: Wireless LAN
-	Soft blocked: yes
-	Hard blocked: no
+     0: tpacpi_bluetooth_sw: Bluetooth
+     Soft blocked: yes
+     Hard blocked: no
+     1: phy0: Wireless LAN
+     Soft blocked: yes
+     Hard blocked: no
      * 
      * rfkill   unblock 0
      * rfkill  list
-    0: tpacpi_bluetooth_sw: Bluetooth
-	Soft blocked: no
-	Hard blocked: no
-    1: phy0: Wireless LAN
-	Soft blocked: yes
-	Hard blocked: no
-    4: hci0: Bluetooth
-	Soft blocked: yes
-	Hard blocked: no
-      * rfkill unblock 4
-      * bluetoothctl
-      * power on
+     0: tpacpi_bluetooth_sw: Bluetooth
+     Soft blocked: no
+     Hard blocked: no
+     1: phy0: Wireless LAN
+     Soft blocked: yes
+     Hard blocked: no
+     4: hci0: Bluetooth
+     Soft blocked: yes
+     Hard blocked: no
+     * rfkill unblock 4
+     * bluetoothctl
+     * power on
      */
     private static boolean inquiryRunning = false;
 
@@ -158,15 +158,20 @@ public class BtOp implements ListAndWrite {
     private static Map<String, OutputStream> ocache = new HashMap<>();
 
     private static void writeTo(String url, byte[]... b) throws IOException {
+        
         OutputStream os = ocache.get(url);
         if (os == null) {
-            os = Connector.openOutputStream(url);
+            os = Connector.openDataOutputStream(url);
             ocache.put(url, os);
         }
         try {
             for (byte[] byteArray : b) {
-                os.write(byteArray);
-                os.flush();
+                for (int i = 0; i < byteArray.length; i++) {
+                    os.write(byteArray[i]);
+                    os.flush();
+                    Thread.sleep(1);
+
+                }
                 System.out.println("written -  " + byteArray.length);
                 Thread.sleep(10);
             }

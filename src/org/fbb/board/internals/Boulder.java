@@ -93,7 +93,7 @@ public class Boulder implements Cloneable {
         }
     }
 
-    void apply(byte[] psStatus, int heigt) {
+    void apply(int[] psStatus, int heigt) {
         String start = map.getProperty(START);
         String path = map.getProperty(PATH);
         String top = map.getProperty(TOP);
@@ -109,7 +109,7 @@ public class Boulder implements Cloneable {
                 && map.getProperty(PATH).trim().isEmpty();
     }
 
-    private void apply(byte[] values, String compressedValue, byte mark, int heigt) {
+    private void apply(int[] values, String compressedValue, int mark, int heigt) {
         if (compressedValue == null || compressedValue.trim().isEmpty()) {
             return;
         }

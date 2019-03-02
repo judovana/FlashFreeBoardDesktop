@@ -665,12 +665,12 @@ public class MainWindow {
                 settingsWindow.setModal(true);
                 settingsWindow.setLayout(new GridLayout(6, 2));
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
-                JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 250, 1));
+                JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 255, 1));
                 sss.addChangeListener(new ChangeListener() {
 
                     @Override
                     public void stateChanged(ChangeEvent e) {
-                        gs.setBrightness(((Integer) sss.getValue()).byteValue());
+                        gs.setBrightness(((Integer) sss.getValue()));
                         gp.repaintAndSend(gs);
                     }
                 });

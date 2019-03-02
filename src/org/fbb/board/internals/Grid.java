@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import org.fbb.board.internals.comm.wired.ByteEater;
+import org.fbb.board.internals.comm.ByteEater;
 import org.fbb.board.internals.grades.Grade;
 
 /**
@@ -42,7 +42,7 @@ public class Grid {
     //all possible statuses, considering also resizing, and be warned, there can be garbage at the end
     private static final int hyperRedundantArray = 1000 * 1000;
     //cuurenly by COLUMN. see setHorLines and bottom of createLines
-    private final byte[] psStatus = new byte[hyperRedundantArray];
+    private final int[] psStatus = new int[hyperRedundantArray];
     //=>
     //0 3 6
     //1 4 6
@@ -351,7 +351,7 @@ public class Grid {
                 if (j % usedColumns == 0 && j > 0) {
                     increment = increment + 1;
                 }
-                byte b = psStatus[j];
+                int b = psStatus[j];
                 //tail garbage lost
                 if (j + increment >= psStatus.length) {
                     break;
@@ -370,7 +370,7 @@ public class Grid {
                 if (j % usedColumns == (usedColumns - 1) && j < start) {
                     increment = increment - 1;
                 }
-                byte b = psStatus[j];
+                int b = psStatus[j];
                 psStatus[j] = 0;
                 psStatus[j + increment] = b;
 
@@ -561,8 +561,8 @@ public class Grid {
     //1 4 7  ->  1 4 7
     //2 5 8      2 5 8
     //[012345678]->[012345678]
-    public byte[] getArrayT2BthenL2R() {
-        byte[] r = new byte[(horLines.length - 1) * (vertLines.length - 1)];
+    public int[] getArrayT2BthenL2R() {
+        int[] r = new int[(horLines.length - 1) * (vertLines.length - 1)];
         for (int i = 0; i < r.length; i++) {
             r[i] = psStatus[i];
 
@@ -575,8 +575,8 @@ public class Grid {
     //1 4 7  ->  3 4 5
     //2 5 8      0 1 2
     //[012345678] -> [258147036]
-    public byte[] getArrayL2RthenB2T() {
-        byte[] r = new byte[(horLines.length - 1) * (vertLines.length - 1)];
+    public int[] getArrayL2RthenB2T() {
+        int[] r = new int[(horLines.length - 1) * (vertLines.length - 1)];
         int i = 0;
         for (int y = horLines.length - 2; y >= 0; y--) {
             for (int x = 0; x < vertLines.length - 1; x++) {
@@ -597,8 +597,8 @@ public class Grid {
     //2 6 10     1 5 9
     //3 7 11     0 4 8
     //[0123456789 10 11]->[32107654 11 10 98]
-    public byte[] getArrayB2TthenL2R() {
-        byte[] r = new byte[(horLines.length - 1) * (vertLines.length - 1)];
+    public int[] getArrayB2TthenL2R() {
+        int[] r = new int[(horLines.length - 1) * (vertLines.length - 1)];
         int i = 0;
         for (int x = 0; x < vertLines.length - 1; x++) {
             for (int y = horLines.length - 2; y >= 0; y--) {
@@ -614,8 +614,8 @@ public class Grid {
     //1 4 7  ->  3 4 5
     //2 5 8      6 7 8
     /* deal with start at right?, maybe later...*/
-    public byte[] getArrayL2RthenT2B() {
-        byte[] r = new byte[(horLines.length - 1) * (vertLines.length - 1)];
+    public int[] getArrayL2RthenT2B() {
+        int[] r = new int[(horLines.length - 1) * (vertLines.length - 1)];
         int i = 0;
         for (int y = 0; y < horLines.length - 1; y++) {
             for (int x = 0; x < vertLines.length - 1; x++) {
@@ -658,7 +658,7 @@ public class Grid {
         p.setProperty("br.y", "" + br.getY());
         p.setProperty("date", new Date().getTime() + "");
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        p.store(bos, "UpperLeft,UpperRight,BottomLeft,BottomRight corners.. and spme width and height");
+        p.store(bos, "UpperLeft,UpperRight,BottomLeft,BottomRight corners.. and some width and height");
         return bos.toByteArray();
     }
 
@@ -702,8 +702,8 @@ public class Grid {
     //1 4 7  ->  1 4 7
     //2 5 8      2 3 8
     //[012345678]->[210345876]
-    public byte[] getArrayURDR() {
-        byte[] r = new byte[(horLines.length - 1) * (vertLines.length - 1)];
+    public int[] getArrayURDR() {
+        int[] r = new int[(horLines.length - 1) * (vertLines.length - 1)];
         int i = 0;
         for (int x = 0; x < vertLines.length - 1; x++) {
             if (x % 2 == 0) {
@@ -729,8 +729,8 @@ public class Grid {
     //1 4 7  ->  7 4 1
     //2 5 8      2 5 8
     //[012345678]->[072345618]
-    public byte[] getArrayRULU() {
-        byte[] r = new byte[(horLines.length - 1) * (vertLines.length - 1)];
+    public int[] getArrayRULU() {
+        int[] r = new int[(horLines.length - 1) * (vertLines.length - 1)];
         int i = 0;
         for (int y = horLines.length - 2; y >= 0; y--) {
             if (y % 2 == 0) {
@@ -754,7 +754,7 @@ public class Grid {
 
     void send(ByteEater consummer) {
         lastConsummer = consummer;
-        byte[] bb = getArrayURDR();
+        int[] bb = getArrayURDR();
         //System.out.println(Arrays.toString(bb));
         consummer.sendBytes(bb);
 
@@ -777,7 +777,7 @@ public class Grid {
         test(MARK_PATH, delay);
     }
 
-    private void test(byte mark, int delay) {
+    private void test(int mark, int delay) {
         int l = (horLines.length - 1) * (vertLines.length - 1);
         for (int i = 0; i < l; i++) {
             psStatus[i] = MARK_NOT;
