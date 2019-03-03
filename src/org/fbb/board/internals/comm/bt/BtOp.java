@@ -1,7 +1,32 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ sudo dnf install bluez-hid2hci
+
+ $ rfkill list
+ 0: tpacpi_bluetooth_sw: Bluetooth
+ Soft blocked: no
+ Hard blocked: no
+ 1: phy0: Wireless LAN
+ Soft blocked: no
+ Hard blocked: no
+ 3: hci0: Bluetooth
+ Soft blocked: yes
+ Hard blocked: no
+
+ $ rfkill unblock 3
+ =>	Soft blocked: no
+
+ sudo hciconfig hci0 up
+ bluetoothctl
+ [bluetooth]scan on
+ Discovery started
+ [CHG] Controller 40:2C:F4:55:53:C5 Discovering: yes
+ [NEW] Device 00:06:66:C0:AC:62 RNBT-AC62
+ [bluetooth] scan off
+ [bluetooth] pair 00:06:66:C0:AC:62
+
+
+
+ sudo rfcomm connect hci0  00:06:66:C0:AC:62
  */
 package org.fbb.board.internals.comm.bt;
 
