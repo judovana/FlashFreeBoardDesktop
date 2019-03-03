@@ -21,6 +21,7 @@ import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
+import javax.microedition.io.StreamConnection;
 import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.comm.ListAndWrite;
 
@@ -155,34 +156,78 @@ public class BtOp implements ListAndWrite {
         writeTo(url, testData);
     }
 
-    private static Map<String, OutputStream> ocache = new HashMap<>();
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                for (ConnWithStream v : ocache.values()) {
+                    try {
+                        v.os.close();
+                        v.sn.close();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        }
+        ));
+    }
+    private static Map<String, ConnWithStream> ocache = new HashMap<>();
+
+    private static class ConnWithStream {
+
+        private final StreamConnection sn;
+        private final OutputStream os;
+
+        public ConnWithStream(StreamConnection sn, OutputStream os) {
+            this.sn = sn;
+            this.os = os;
+        }
+
+    }
 
     private static void writeTo(String url, byte[]... b) throws IOException {
-        
-        OutputStream os = ocache.get(url);
-        if (os == null) {
-            os = Connector.openDataOutputStream(url);
-            ocache.put(url, os);
-        }
-        try {
-            for (byte[] byteArray : b) {
-                for (int i = 0; i < byteArray.length; i++) {
-                    os.write(byteArray[i]);
-                    os.flush();
-                    Thread.sleep(1);
 
-                }
+        ConnWithStream os = ocache.get(url);
+        try {
+            if (os == null) {
+                //com.intel.bluetooth.BluetoothRFCommClientConnection
+                //implements StreamConnection, BluetoothConnectionAccess
+                StreamConnection conn = (StreamConnection) Connector.open(url);
+                Thread.sleep(500);
+                os = new ConnWithStream(conn, conn.openOutputStream());
+                ocache.put(url, os);
+                //soft reset arduino her (send only zeros?)
+                //byte[] resert = new byte[b[0].length];
+                //System.out.println("reset send");
+
+            }
+            for (byte[] byteArray : b) {
+                sendSingleArrayBySingleByte(byteArray, os);
                 System.out.println("written -  " + byteArray.length);
                 Thread.sleep(10);
             }
             System.out.println("written - end - " + b.length);
             Thread.sleep(500);//time to fullyconsume? HYPER CRITICAL!
         } catch (Exception e) {
-            os.close();
+            if (os != null) {
+                os.os.close();
+                os.sn.close();
+            }
             ocache.remove(url);
             e.printStackTrace();
         }
 
+    }
+
+    private static void sendSingleArrayBySingleByte(byte[] byteArray, ConnWithStream os) throws InterruptedException, IOException {
+        for (int i = 0; i < byteArray.length; i++) {
+            byte c = byteArray[i];
+            os.os.write(new byte[]{c});
+            os.os.flush();
+            Thread.sleep(1);
+        }
     }
 
     private static class SearchContoller implements DiscoveryListener {
