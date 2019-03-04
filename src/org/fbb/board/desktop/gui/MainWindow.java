@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
-import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -60,6 +59,7 @@ import javax.swing.event.ListSelectionListener;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
+import org.fbb.board.desktop.TextToSpeech;
 import org.fbb.board.internals.Boulder;
 import org.fbb.board.internals.Filter;
 import org.fbb.board.internals.GlobalSettings;
@@ -79,8 +79,8 @@ import org.fbb.board.internals.grades.Grade;
 public class MainWindow {
 
     private static final GlobalSettings gs = new GlobalSettings();
-    private static HistoryManager hm = new HistoryManager();
-    private static ListWithFilter list;
+    public static final HistoryManager hm = new HistoryManager();
+    public static ListWithFilter list;
     private static final JPopupMenu listJump = new JPopupMenu();
     private static final JPopupMenu historyJump = new JPopupMenu();
 
@@ -583,26 +583,72 @@ public class MainWindow {
         timered.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JDialog timeredWindow = new JDialog();
+                final JDialog timeredWindow = new JDialog();
+                final TimeredTraining[] trainig = new TimeredTraining[1];
                 timeredWindow.setModal(true);
                 timeredWindow.setLayout(new GridLayout(7, 2));
-                timeredWindow.add(new JLabel("Time of boulder mm:ss"));
-                timeredWindow.add(new JTextField("00:20"));
-                timeredWindow.add(new JLabel("Time of training mm:ss"));
-                timeredWindow.add(new JTextField("5:00"));
-                timeredWindow.add(new JLabel("Number of boulders"));
-                timeredWindow.add(new JSpinner(new SpinnerNumberModel(15, 1, 1000, 1)));
-                timeredWindow.add(new JCheckBox("Allow random boulders", true));
-                timeredWindow.add(new JCheckBox("Allow regularboulders", true));
-                timeredWindow.add(new JLabel(""));
-                timeredWindow.add(new JCheckBox("Allow random jumps in selection", true));
-                JButton start = new JButton("start/stop");
+                timeredWindow.add(new JLabel(Translator.R("tmeOfBoulder")));
+                final JTextField timeOfBoulder = new JTextField("00:20");
+                timeredWindow.add(timeOfBoulder);
+                timeredWindow.add(new JLabel(Translator.R("timeOfTraining")));
+                final JTextField timeOfTraining = new JTextField("5:00");
+                timeredWindow.add(timeOfTraining);
+                //timeredWindow.add(new JLabel(Translator.R("pauseTime")));
+                //JTextField pauseTime = new JTextField("00:00");
+                //timeredWindow.add(pauseTime);
+                timeredWindow.add(new JLabel(Translator.R("numBoulders")));
+                final JSpinner numBoulders = new JSpinner(new SpinnerNumberModel(15, 1, 1000, 1));
+                timeredWindow.add(numBoulders);
+                final JCheckBox allowRandom = new JCheckBox(Translator.R("allowRandom"), true);
+                allowRandom.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (trainig[0] != null) {
+                            trainig[0].setRandomAllowed(allowRandom.isSelected());
+                        }
+                    }
+                });
+                timeredWindow.add(allowRandom);
+                final JCheckBox allowRegular = new JCheckBox("allowRegular", true);
+                allowRegular.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (trainig[0] != null) {
+                            trainig[0].setRandomAllowed(allowRegular.isSelected());
+                        }
+                    }
+                });
+                timeredWindow.add(allowRegular);
+                final JCheckBox allowJumps = new JCheckBox("allowJumps", true);
+                allowJumps.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (trainig[0] != null) {
+                            trainig[0].setJumpingAllowed(allowJumps.isSelected());
+                        }
+                    }
+                });
+                timeredWindow.add(allowJumps);
+                final JComboBox<TextToSpeech.TextId> reader = new JComboBox(TextToSpeech.getLangs());
+                reader.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (trainig[0] != null) {
+                            trainig[0].setSpeak((TextToSpeech.TextId) reader.getSelectedItem());
+                        }
+                    }
+                });
+                timeredWindow.add(reader);
+                final JButton start = new JButton("start/stop");
                 timeredWindow.add(start);
                 JButton pause = new JButton("pause/unpause");
                 timeredWindow.add(pause);
                 final JLabel counterClock = new JLabel("00:00");
                 timeredWindow.add(counterClock);
-                final TimeredTraining[] trainig = new TimeredTraining[1];
                 start.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -612,8 +658,7 @@ public class MainWindow {
                                     prevInList.getActionListeners()[0],
                                     nextRandom.getActionListeners()[0],
                                     nextRandomGenerated.getActionListeners()[0],
-                                    true, true, true, 300, counterClock
-                            );
+                                    allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), 300, counterClock, (TextToSpeech.TextId) reader.getSelectedItem());
                             new Thread(trainig[0]).start();
                         } else {
                             trainig[0].stop();

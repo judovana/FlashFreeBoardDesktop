@@ -8,6 +8,8 @@ package org.fbb.board.internals;
 import java.awt.event.ActionListener;
 import java.util.Random;
 import javax.swing.JLabel;
+import org.fbb.board.desktop.TextToSpeech;
+import org.fbb.board.desktop.gui.MainWindow;
 
 /**
  *
@@ -22,6 +24,7 @@ public class TimeredTraining implements Runnable {
     private final int time;
     private int counter;
     private final JLabel output;
+    private TextToSpeech.TextId speak;
 
     public void setJumpingAllowed(boolean jumpingAllowed) {
         this.jumpingAllowed = jumpingAllowed;
@@ -51,7 +54,11 @@ public class TimeredTraining implements Runnable {
         return running;
     }
 
-    public TimeredTraining(ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, boolean randomAllowed, boolean regularAllowed, boolean jumpingAllowed, int time, JLabel output) {
+    public void setSpeak(TextToSpeech.TextId speak) {
+        this.speak = speak;
+    }
+
+    public TimeredTraining(ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, boolean randomAllowed, boolean regularAllowed, boolean jumpingAllowed, int time, JLabel output, TextToSpeech.TextId speak) {
         this.next = next;
         this.prev = prev;
         this.nextRandom = nextRandom;
@@ -61,6 +68,7 @@ public class TimeredTraining implements Runnable {
         this.jumpingAllowed = jumpingAllowed;
         this.output = output;
         this.time = time;
+        this.speak = speak;
         counter = time;
     }
 
@@ -69,7 +77,6 @@ public class TimeredTraining implements Runnable {
         Random r = new Random();
         try {
             while (running && counter > 0) {
-                Thread.sleep(1000);
                 if (!paused) {
                     counter--;
                     output.setText(counter / 60 + ":" + counter % 60);
@@ -77,9 +84,21 @@ public class TimeredTraining implements Runnable {
                     if (randomAllowed && r.nextBoolean()) {
                         nextGenerateRandom.actionPerformed(null);
                     } else {
-                        next.actionPerformed(null);
+                        if (MainWindow.list.canFwd()) {
+                            next.actionPerformed(null);
+                        } else {
+                            MainWindow.list.setIndex(-1);
+                            next.actionPerformed(null);
+                        }
                     }
                 }
+                Boulder b = MainWindow.hm.getCurrentInHistory();
+                if (b.getGrade().isRandom()) {
+                    TextToSpeech.tellImpl(b.getGrade().toString(), speak);
+                } else {
+                    TextToSpeech.tellImpl(b.getGradeAndNameAndAuthor(), speak);
+                }
+                Thread.sleep(1000);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
