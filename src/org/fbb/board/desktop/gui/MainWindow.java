@@ -599,6 +599,7 @@ public class MainWindow {
                 timeredWindow.add(new JLabel(Translator.R("numBoulders")));
                 final JSpinner numBoulders = new JSpinner(new SpinnerNumberModel(15, 1, 1000, 1));
                 timeredWindow.add(numBoulders);
+                final BoulderCalc boulderCalc = new BoulderCalc(timeOfBoulder, timeOfTraining, numBoulders);
                 final JCheckBox allowRandom = new JCheckBox(Translator.R("allowRandom"), true);
                 allowRandom.addActionListener(new ActionListener() {
 
@@ -658,7 +659,7 @@ public class MainWindow {
                                     prevInList.getActionListeners()[0],
                                     nextRandom.getActionListeners()[0],
                                     nextRandomGenerated.getActionListeners()[0],
-                                    allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), 300, counterClock, (TextToSpeech.TextId) reader.getSelectedItem());
+                                    allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), boulderCalc.getTotalTime(),boulderCalc.getTimeOfBoulder(), counterClock, (TextToSpeech.TextId) reader.getSelectedItem());
                             new Thread(trainig[0]).start();
                         } else {
                             trainig[0].stop();

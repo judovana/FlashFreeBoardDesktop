@@ -21,7 +21,8 @@ public class TimeredTraining implements Runnable {
     private boolean running = true;
     private boolean paused = false;
     private boolean randomAllowed, regularAllowed, jumpingAllowed;
-    private final int time;
+    private final int totalTime;
+    private final int timeOfBoulder;
     private int counter;
     private final JLabel output;
     private TextToSpeech.TextId speak;
@@ -58,7 +59,7 @@ public class TimeredTraining implements Runnable {
         this.speak = speak;
     }
 
-    public TimeredTraining(ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, boolean randomAllowed, boolean regularAllowed, boolean jumpingAllowed, int time, JLabel output, TextToSpeech.TextId speak) {
+    public TimeredTraining(ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, boolean randomAllowed, boolean regularAllowed, boolean jumpingAllowed, int totalTime, int timeOfBoulder, JLabel output, TextToSpeech.TextId speak) {
         this.next = next;
         this.prev = prev;
         this.nextRandom = nextRandom;
@@ -67,9 +68,10 @@ public class TimeredTraining implements Runnable {
         this.regularAllowed = regularAllowed;
         this.jumpingAllowed = jumpingAllowed;
         this.output = output;
-        this.time = time;
+        this.totalTime = totalTime;
+        this.timeOfBoulder = timeOfBoulder;
         this.speak = speak;
-        counter = time;
+        counter = totalTime + 1;
     }
 
     @Override
@@ -81,22 +83,24 @@ public class TimeredTraining implements Runnable {
                     counter--;
                     output.setText(counter / 60 + ":" + counter % 60);
                     output.repaint();
-                    if (randomAllowed && r.nextBoolean()) {
-                        nextGenerateRandom.actionPerformed(null);
-                    } else {
-                        if (MainWindow.list.canFwd()) {
-                            next.actionPerformed(null);
+                    if (counter % timeOfBoulder == 0) {
+                        if (randomAllowed && r.nextBoolean()) {
+                            nextGenerateRandom.actionPerformed(null);
                         } else {
-                            MainWindow.list.setIndex(-1);
-                            next.actionPerformed(null);
+                            if (MainWindow.list.canFwd()) {
+                                next.actionPerformed(null);
+                            } else {
+                                MainWindow.list.setIndex(-1);
+                                next.actionPerformed(null);
+                            }
+                        }
+                        Boulder b = MainWindow.hm.getCurrentInHistory();
+                        if (b.getGrade().isRandom()) {
+                            TextToSpeech.tellImpl(b.getGrade().toString(), speak);
+                        } else {
+                            TextToSpeech.tellImpl(b.getGradeAndNameAndAuthor(), speak);
                         }
                     }
-                }
-                Boulder b = MainWindow.hm.getCurrentInHistory();
-                if (b.getGrade().isRandom()) {
-                    TextToSpeech.tellImpl(b.getGrade().toString(), speak);
-                } else {
-                    TextToSpeech.tellImpl(b.getGradeAndNameAndAuthor(), speak);
                 }
                 Thread.sleep(1000);
             }

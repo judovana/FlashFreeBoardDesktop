@@ -11,8 +11,16 @@ package org.fbb.board.internals.comm;
  */
 public interface ListAndWrite {
 
+    public static interface LogConsole {
+
+        public void print(Exception ex);
+    }
+
     public ConnectionID[] listDevices();
 
     public void writeToDevice(String id, byte[]... b);
+
+   // public void setLogConsole(LogConsole l);
+    //need tee stream, and as the BT and Wire are static, different architecture
 
 }
