@@ -234,7 +234,7 @@ public class BtOp implements ListAndWrite {
                 Thread.sleep(10);
             }
             System.out.println("written - end - " + b.length);
-            Thread.sleep(500);//time to fullyconsume? HYPER CRITICAL!
+            Thread.sleep(1000);//time to fullyconsume? HYPER CRITICAL!
         } catch (Exception e) {
             if (os != null) {
                 os.os.close();
