@@ -710,7 +710,7 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 JDialog settingsWindow = new JDialog();
                 settingsWindow.setModal(true);
-                settingsWindow.setLayout(new GridLayout(6+9, 2));
+                settingsWindow.setLayout(new GridLayout(6 + 9, 2));
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 255, 1));
                 sss.addChangeListener(new ChangeListener() {
@@ -854,42 +854,42 @@ public class MainWindow {
                 JSpinner greenGreen = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
                 JLabel greenBlueTitle = new JLabel("StartCompozition - blue");
                 JSpinner greenBlue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
-                
+
                 JLabel blueRedTitle = new JLabel("PathCompozition - red");
                 JSpinner blueRed = new JSpinner(new SpinnerNumberModel(1d, 0d, 1d, 0.1));
                 JLabel blueGreenTitle = new JLabel("PathCompozition - green");
                 JSpinner blueGreen = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
                 JLabel blueBlueTitle = new JLabel("PathCompozition - blue");
                 JSpinner blueBlue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
-                
+
                 JLabel redRedTitle = new JLabel("TopCompozition - red");
                 JSpinner redRed = new JSpinner(new SpinnerNumberModel(1d, 0d, 1d, 0.1));
                 JLabel redGreenTitle = new JLabel("TopCompozition - green");
                 JSpinner redGreen = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
                 JLabel redBlueTitle = new JLabel("TopCompozition - blue");
                 JSpinner redBlue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
-               
+
                 settingsWindow.add(greenRedTitle);
                 settingsWindow.add(greenRed);
                 settingsWindow.add(greenGreenTitle);
                 settingsWindow.add(greenGreen);
                 settingsWindow.add(greenBlueTitle);
                 settingsWindow.add(greenBlue);
-                
+
                 settingsWindow.add(blueRedTitle);
                 settingsWindow.add(blueRed);
                 settingsWindow.add(blueGreenTitle);
                 settingsWindow.add(blueGreen);
                 settingsWindow.add(blueBlueTitle);
                 settingsWindow.add(blueBlue);
-                
+
                 settingsWindow.add(redRedTitle);
                 settingsWindow.add(redRed);
                 settingsWindow.add(redGreenTitle);
                 settingsWindow.add(redGreen);
                 settingsWindow.add(redBlueTitle);
                 settingsWindow.add(redBlue);
-                
+
                 settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 settingsWindow.pack();
                 settingsWindow.setLocationRelativeTo(createWallWindow);
@@ -899,8 +899,7 @@ public class MainWindow {
         });
         jp.add(new JMenuItem("tips")); //highlight what save do (jsut add a leg?), higluight do not save garbage
         tools.add(settings, BorderLayout.WEST);
-        tools.add(name);
-        tools.add(tools2, BorderLayout.EAST);
+        tools.add(name, BorderLayout.EAST);
         previous.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -1010,12 +1009,19 @@ public class MainWindow {
                 }
             }
         });
+        tools2.add(prevInList);
         tools2.add(previous);
-        tools2.add(next);
         tools2.add(nextRandomGenerated);
         tools2.add(nextRandom);
-        tools2.add(prevInList);
+        tools2.add(next);
         tools2.add(nextInList);
+        name.setFont(name.getFont().deriveFont((float) name.getFont().getSize() * 2));
+        for (Component c : tools.getComponents()) {
+            c.setFont(name.getFont());
+        }
+        for (Component c : tools2.getComponents()) {
+            c.setFont(name.getFont());
+        }
         nextRandomGenerated.setToolTipText(Translator.R("NextRandomGenerated"));
         nextRandom.setToolTipText(Translator.R("NextRandomlySelected"));
         nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
@@ -1024,9 +1030,10 @@ public class MainWindow {
         settings.setToolTipText(Translator.R("Settings"));
         next.setToolTipText(Translator.R("FwdBoulder"));
         createWallWindow.add(tools, BorderLayout.NORTH);
+        createWallWindow.add(tools2, BorderLayout.SOUTH);
         createWallWindow.pack();
         gp.repaintAndSend(gs);
-        createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
+        createWallWindow.setSize((int) nw, (int) nh + tools.getHeight() + tools2.getHeight());
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
