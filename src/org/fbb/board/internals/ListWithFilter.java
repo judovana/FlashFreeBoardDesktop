@@ -28,7 +28,7 @@ public class ListWithFilter extends HistoryManager {
     private final Filter lastFilter;
 
     public ListWithFilter(List<Boulder> l) {
-        this.lastFilter=null;
+        this.lastFilter = null;
         this.clearHistory();
         this.history.addAll(l);
         if (history.isEmpty()) {
@@ -40,7 +40,7 @@ public class ListWithFilter extends HistoryManager {
 
     public ListWithFilter(Filter filter) {
         try {
-            this.lastFilter=filter;
+            this.lastFilter = filter;
             this.clearHistory();
             this.history.addAll(loadAllForFilter(filter));
             if (history.isEmpty()) {
@@ -53,9 +53,13 @@ public class ListWithFilter extends HistoryManager {
         }
     }
 
+    public ListWithFilter(Grade from, Grade to, String wall) {
+        this(new Filter(wall, from.toNumber(), to.hashCode(), Integer.MIN_VALUE, Integer.MAX_VALUE, "", "", new Date(Long.MIN_VALUE), new Date(Long.MAX_VALUE/2/*there is + in comparsion*/)));
+    }
+
     public ListWithFilter(String givenId) {
         try {
-            this.lastFilter=null;
+            this.lastFilter = null;
             this.clearHistory();
             this.history.addAll(loadAllForWall(givenId));
             if (history.isEmpty()) {
@@ -78,7 +82,7 @@ public class ListWithFilter extends HistoryManager {
 
     public ListWithFilter() {
         try {
-            this.lastFilter=null;
+            this.lastFilter = null;
             this.clearHistory();
             this.history.addAll(loadAll());
             if (history.isEmpty()) {
@@ -107,7 +111,6 @@ public class ListWithFilter extends HistoryManager {
         return history.size();
     }
 
-    
     private static List<Boulder> loadAllForWall(String wallId) throws IOException {
         List<Boulder> all = loadAll();
         List<Boulder> walls = new ArrayList<>(all.size());
@@ -231,6 +234,5 @@ public class ListWithFilter extends HistoryManager {
         //may be null!
         return lastFilter;
     }
-    
-    
+
 }

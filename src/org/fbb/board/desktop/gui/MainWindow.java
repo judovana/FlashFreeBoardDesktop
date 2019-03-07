@@ -77,13 +77,13 @@ import org.fbb.board.internals.grades.Grade;
  */
 //filters - by grade, by date, by number of holds
 public class MainWindow {
-
+    
     private static final GlobalSettings gs = new GlobalSettings();
     public static final HistoryManager hm = new HistoryManager();
     public static ListWithFilter list;
     private static final JPopupMenu listJump = new JPopupMenu();
     private static final JPopupMenu historyJump = new JPopupMenu();
-
+    
     public static void main(String... s) {
         try {
             list = new ListWithFilter();
@@ -140,7 +140,7 @@ public class MainWindow {
             JOptionPane.showMessageDialog(null, ex);
         }
     }
-
+    
     private static void createSelectOrImportWall(String urlorFile, final JFrame... redundants) throws IOException {
         JDialog f = new JDialog((JFrame) null, Translator.R("MainWindowSetWall"), true);
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -188,9 +188,9 @@ public class MainWindow {
                 JOptionPane.showMessageDialog(null, exx);
             }
         }
-
+        
     }
-
+    
     private static void createWindow(BufferedImage bis, String name, JFrame... redundants) {
         //get rid of transaprency
         BufferedImage newBufferedImage = new BufferedImage(bis.getWidth(),
@@ -198,14 +198,14 @@ public class MainWindow {
         newBufferedImage.createGraphics().drawImage(bis, 0, 0, Color.WHITE, null);
         createWindowIpl(newBufferedImage, Files.sanitizeFileName(name + " " + new Date().toString()), null, redundants);
     }
-
+    
     private static void createWindow(ZipInputStream zis, String name, JFrame... redundants) throws IOException {
         GridPane.Preload preloaded = GridPane.preload(zis, name);
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         createWindowIpl(bi, name, preloaded.props, redundants);
-
+        
     }
-
+    
     private static void createWindowIpl(BufferedImage bis, String fname, byte[] props, JFrame... redundants) {
         final JFrame createWallWindow = new JFrame();
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -275,7 +275,7 @@ public class MainWindow {
                 gp.repaintAndSend(gs);
             }
         });
-
+        
         grid.setSelected(true);
         createWallWindow.add(tools, BorderLayout.SOUTH);
         tools.add(name);
@@ -314,7 +314,7 @@ public class MainWindow {
                     if (redundants != null) {
                         for (int i = 0; i < redundants.length; i++) {
                             redundants[i].dispose();
-
+                            
                         }
                     }
                 } catch (Exception ex) {
@@ -322,7 +322,7 @@ public class MainWindow {
                     JOptionPane.showMessageDialog(null, ex);
                 }
             }
-
+            
         });
         createWallWindow.pack();
         createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
@@ -333,7 +333,7 @@ public class MainWindow {
             }
         });
     }
-
+    
     private static double getIdealWindowSizw(BufferedImage bis) {
         Rectangle size = ScreenFinder.getCurrentScreenSizeWithoutBounds();
         double dw = (double) size.width / (double) bis.getWidth();
@@ -342,13 +342,13 @@ public class MainWindow {
         ratio = ratio * 0.8;//do not cover all screen
         return ratio;
     }
-
+    
     private static void loadWallWithBoulder(String lastBoard) throws IOException {
         File f = Files.getWallFile(lastBoard);
         GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)), f.getName());
         loadWallWithBoulder(preloaded, null);
     }
-
+    
     private static void loadWallWithBoulder(GridPane.Preload preloaded, final Boulder possiblebOulder) throws IOException {
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         final JFrame createWallWindow = new JFrame();
@@ -380,18 +380,44 @@ public class MainWindow {
         next.setEnabled(hm.canFwd());
         previous.setEnabled(hm.canBack());
         gp.getGrid().setShowGrid(false);
-        JPanel tools = new JPanel(new BorderLayout());
+        JPanel tools = new JPanel(new GridLayout(2, 1));
+        JPanel quickFilterPanel = new JPanel(new GridLayout(1, 4));
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
+        JButton a5 = new JButton("-5A");
+        quickFilterPanel.add(a5);
+        JButton a6 = new JButton("5A-6A");
+        quickFilterPanel.add(a6);
+        JButton a7 = new JButton("6A-7A");
+        quickFilterPanel.add(a7);
+        JButton a8 = new JButton("7A-8A");
+        quickFilterPanel.add(a8);
+        JButton a9 = new JButton("8A-");
+        quickFilterPanel.add(a9);
+        a5.addActionListener(new QuickFilterLIstener(0, 10, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
+        a6.addActionListener(new QuickFilterLIstener(10, 13, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
+        a7.addActionListener(new QuickFilterLIstener(13, 19, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
+        a8.addActionListener(new QuickFilterLIstener(19, 26, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
+        a8.addActionListener(new QuickFilterLIstener(26, 31, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
+        a9.addActionListener(new QuickFilterLIstener(31, 35, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
         name.setToolTipText(b.getStandardTooltip());
         name.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                generateListJumper(gp, name, next, previous, nextInList, prevInList);
                 JOptionPane.showMessageDialog(createWallWindow, name.getToolTipText());
             }
-
+            
         });
         nextInList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    generateListJumper(gp, name, next, previous, nextInList, nextInList);
+                    listJump.show((JButton) e.getSource(), 0, 0);
+                }
+            }
+            
+        });
+        prevInList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
@@ -399,18 +425,9 @@ public class MainWindow {
                     listJump.show((JButton) e.getSource(), 0, 0);
                 }
             }
-
+            
         });
-        prevInList.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) {
-                    listJump.show((JButton) e.getSource(), 0, 0);
-                }
-            }
-
-        });
-
+        
         next.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -419,7 +436,7 @@ public class MainWindow {
                     historyJump.show((JButton) e.getSource(), 0, 0);
                 }
             }
-
+            
         });
         previous.addMouseListener(new MouseAdapter() {
             @Override
@@ -429,7 +446,7 @@ public class MainWindow {
                     historyJump.show((JButton) e.getSource(), 0, 0);
                 }
             }
-
+            
         });
         settings.addActionListener(new ActionListener() {
             @Override
@@ -440,7 +457,7 @@ public class MainWindow {
         JMenuItem selectListBoulders = new JMenuItem(Translator.R("SelectListBoulders"));
         jp.add(selectListBoulders); //also return boudler and current filter
         selectListBoulders.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 BoulderListAndIndex listAndothers = selectListBouder(preloaded.givenId);
@@ -469,13 +486,13 @@ public class MainWindow {
                     prevInList.setEnabled(list.canBack());
                 }
             }
-
+            
         });
         //for new/edit bolulder a pro new/edit wall - add changed/document listeners  to check if name, author and dificulty was edited
         JMenuItem newBoulder = new JMenuItem(Translator.R("MNewBoulder"));
         jp.add(newBoulder);
         newBoulder.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 BoulderAndSaved bs = editBoulder(preloaded, null);
@@ -503,7 +520,7 @@ public class MainWindow {
         JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
         jp.add(editBoulder);
         editBoulder.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 BoulderAndSaved bs = editBoulder(preloaded, hm.getCurrentInHistory());
@@ -527,7 +544,7 @@ public class MainWindow {
                     previous.setEnabled(hm.canBack());
                 }
             }
-
+            
         });
         //with edit bolder his looks like redundant
         JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
@@ -603,7 +620,7 @@ public class MainWindow {
                 final BoulderCalc boulderCalc = new BoulderCalc(timeOfBoulder, timeOfTraining, numBoulders);
                 final JCheckBox allowRandom = new JCheckBox(Translator.R("allowRandom"), true);
                 allowRandom.addActionListener(new ActionListener() {
-
+                    
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (trainig[0] != null) {
@@ -614,7 +631,7 @@ public class MainWindow {
                 timeredWindow.add(allowRandom);
                 final JCheckBox allowRegular = new JCheckBox("allowRegular", true);
                 allowRegular.addActionListener(new ActionListener() {
-
+                    
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (trainig[0] != null) {
@@ -625,7 +642,7 @@ public class MainWindow {
                 timeredWindow.add(allowRegular);
                 final JCheckBox allowJumps = new JCheckBox("allowJumps", true);
                 allowJumps.addActionListener(new ActionListener() {
-
+                    
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (trainig[0] != null) {
@@ -636,7 +653,7 @@ public class MainWindow {
                 timeredWindow.add(allowJumps);
                 final JComboBox<TextToSpeech.TextId> reader = new JComboBox(TextToSpeech.getLangs());
                 reader.addActionListener(new ActionListener() {
-
+                    
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (trainig[0] != null) {
@@ -669,7 +686,7 @@ public class MainWindow {
                     }
                 });
                 pause.addActionListener(new ActionListener() {
-
+                    
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (trainig[0] != null) {
@@ -681,21 +698,21 @@ public class MainWindow {
                 timeredWindow.pack();
                 timeredWindow.setLocationRelativeTo(createWallWindow);
                 timeredWindow.addWindowListener(new WindowAdapter() {
-
+                    
                     @Override
                     public void windowClosed(WindowEvent e) {
                         if (trainig[0] != null) {
                             trainig[0].stop();
                         }
                     }
-
+                    
                     @Override
                     public void windowClosing(WindowEvent e) {
                         if (trainig[0] != null) {
                             trainig[0].stop();
                         }
                     }
-
+                    
                 });
                 timeredWindow.setVisible(true);
             }
@@ -705,7 +722,7 @@ public class MainWindow {
         JMenuItem management = new JMenuItem(Translator.R("management"));
         jp.add(management);
         management.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 JDialog settingsWindow = new JDialog();
@@ -714,7 +731,7 @@ public class MainWindow {
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 255, 1));
                 sss.addChangeListener(new ChangeListener() {
-
+                    
                     @Override
                     public void stateChanged(ChangeEvent e) {
                         gs.setBrightness(((Integer) sss.getValue()));
@@ -727,7 +744,7 @@ public class MainWindow {
                 settingsWindow.add(testDelay);
                 JButton re = new JButton(Translator.R("testred"));
                 re.addActionListener(new ActionListener() {
-
+                    
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         gp.getGrid().testRed(((Integer) testDelay.getValue()));
@@ -736,7 +753,7 @@ public class MainWindow {
                 settingsWindow.add(re);
                 JButton gr = new JButton(Translator.R("testgreen"));
                 gr.addActionListener(new ActionListener() {
-
+                    
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         gp.getGrid().testGreen(((Integer) testDelay.getValue()));
@@ -745,7 +762,7 @@ public class MainWindow {
                 settingsWindow.add(gr);
                 JButton bl = new JButton(Translator.R("testblue"));
                 bl.addActionListener(new ActionListener() {
-
+                    
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         gp.getGrid().testBlue(((Integer) testDelay.getValue()));
@@ -771,12 +788,12 @@ public class MainWindow {
                     public void insertUpdate(DocumentEvent e) {
                         gs.setDeviceId(portName.getText());
                     }
-
+                    
                     @Override
                     public void removeUpdate(DocumentEvent e) {
                         gs.setDeviceId(portName.getText());
                     }
-
+                    
                     @Override
                     public void changedUpdate(DocumentEvent e) {
                         gs.setDeviceId(portName.getText());
@@ -806,7 +823,7 @@ public class MainWindow {
                                 protected JList<ConnectionID> doInBackground() throws Exception {
                                     return new JList<>(gs.list());
                                 }
-
+                                
                                 @Override
                                 public void done() {
                                     try {
@@ -831,7 +848,7 @@ public class MainWindow {
                                                     selectPortDialog.dispose();
                                                 }
                                             }
-
+                                            
                                         });
                                         selectPortDialog.pack();
                                     } catch (Exception ex) {
@@ -854,52 +871,55 @@ public class MainWindow {
                 JSpinner greenGreen = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
                 JLabel greenBlueTitle = new JLabel("StartCompozition - blue");
                 JSpinner greenBlue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
-
+                
                 JLabel blueRedTitle = new JLabel("PathCompozition - red");
                 JSpinner blueRed = new JSpinner(new SpinnerNumberModel(1d, 0d, 1d, 0.1));
                 JLabel blueGreenTitle = new JLabel("PathCompozition - green");
                 JSpinner blueGreen = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
                 JLabel blueBlueTitle = new JLabel("PathCompozition - blue");
                 JSpinner blueBlue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
-
+                
                 JLabel redRedTitle = new JLabel("TopCompozition - red");
                 JSpinner redRed = new JSpinner(new SpinnerNumberModel(1d, 0d, 1d, 0.1));
                 JLabel redGreenTitle = new JLabel("TopCompozition - green");
                 JSpinner redGreen = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
                 JLabel redBlueTitle = new JLabel("TopCompozition - blue");
                 JSpinner redBlue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
-
+                
                 settingsWindow.add(greenRedTitle);
                 settingsWindow.add(greenRed);
                 settingsWindow.add(greenGreenTitle);
                 settingsWindow.add(greenGreen);
                 settingsWindow.add(greenBlueTitle);
                 settingsWindow.add(greenBlue);
-
+                
                 settingsWindow.add(blueRedTitle);
                 settingsWindow.add(blueRed);
                 settingsWindow.add(blueGreenTitle);
                 settingsWindow.add(blueGreen);
                 settingsWindow.add(blueBlueTitle);
                 settingsWindow.add(blueBlue);
-
+                
                 settingsWindow.add(redRedTitle);
                 settingsWindow.add(redRed);
                 settingsWindow.add(redGreenTitle);
                 settingsWindow.add(redGreen);
                 settingsWindow.add(redBlueTitle);
                 settingsWindow.add(redBlue);
-
+                
                 settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 settingsWindow.pack();
                 settingsWindow.setLocationRelativeTo(createWallWindow);
                 settingsWindow.setVisible(true);
-
+                
             }
         });
         jp.add(new JMenuItem("tips")); //highlight what save do (jsut add a leg?), higluight do not save garbage
-        tools.add(settings, BorderLayout.WEST);
-        tools.add(name, BorderLayout.EAST);
+        JPanel subtools = new JPanel(new BorderLayout());
+        subtools.add(settings, BorderLayout.WEST);
+        subtools.add(name, BorderLayout.EAST);
+        tools.add(quickFilterPanel);
+        tools.add(subtools);
         previous.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -947,7 +967,7 @@ public class MainWindow {
         nextInList.setEnabled(list.canFwd());
         prevInList.setEnabled(list.canBack());
         nextRandom.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder b = list.getRandom();
@@ -968,7 +988,7 @@ public class MainWindow {
             }
         });
         nextInList.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder b = list.forward();
@@ -989,7 +1009,7 @@ public class MainWindow {
             }
         });
         prevInList.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder b = list.back();
@@ -1041,7 +1061,7 @@ public class MainWindow {
             }
         });
     }
-
+    
     private static BoulderAndSaved editBoulder(GridPane.Preload p, Boulder b) {
         try {
             return editBoulderImpl(p, b);
@@ -1051,7 +1071,7 @@ public class MainWindow {
             return null;
         }
     }
-
+    
     private static List<Boulder> getAll(ListModel<Boulder> model) {
         ArrayList<Boulder> r = new ArrayList(model.getSize());
         for (int i = 0; i < model.getSize(); i++) {
@@ -1059,7 +1079,7 @@ public class MainWindow {
         }
         return r;
     }
-
+    
     private static void generateListJumper(GridPane gp, JLabel name, JButton next, JButton previous, JButton nextInList, JButton prevInList) {
         listJump.removeAll();
         Vector<Boulder> v = list.getHistory();
@@ -1098,7 +1118,7 @@ public class MainWindow {
             listJump.add(i);
         }
     }
-
+    
     private static void generateHistoryJumper(GridPane gp, JLabel name, JButton next, JButton previous, JButton nextInList, JButton prevInList) {
         historyJump.removeAll();
         Vector<Boulder> v = hm.getHistory();
@@ -1135,19 +1155,19 @@ public class MainWindow {
             historyJump.add(i);
         }
     }
-
+    
     private static class BoulderAndSaved {
-
+        
         private final Boulder b;
         private final boolean saved;
-
+        
         public BoulderAndSaved(Boulder b, boolean saved) {
             this.b = b;
             this.saved = saved;
         }
-
+        
     }
-
+    
     private static BoulderAndSaved editBoulderImpl(GridPane.Preload p, Boulder orig) throws IOException, CloneNotSupportedException {
         //checkbox save? 
         //if not save, then what?
@@ -1219,11 +1239,11 @@ public class MainWindow {
         operateBoulder.setVisible(true);
         return new BoulderAndSaved(done.getResult(), saveOnExit.isSelected());
     }
-
+    
     private static class DoneEditingBoulderListener implements ActionListener {
-
+        
         private final String wallId;
-
+        
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
@@ -1233,11 +1253,11 @@ public class MainWindow {
                 JOptionPane.showMessageDialog(parent, ex);
             }
         }
-
+        
         public Boulder getResult() {
             return result;
         }
-
+        
         private Boulder result;
         private final Boulder orig;
         private final JCheckBox saveOnExit;
@@ -1246,7 +1266,7 @@ public class MainWindow {
         private final JTextField nwNameProvider;
         private final JTextField nwAuthorProvider;
         private final JComboBox<String> grades;
-
+        
         public DoneEditingBoulderListener(Boulder orig, JCheckBox saveOnExit, JDialog parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId, JTextField nwAuthorProvider) {
             this.orig = orig;
             this.saveOnExit = saveOnExit;
@@ -1257,7 +1277,7 @@ public class MainWindow {
             this.wallId = wallId;
             this.nwAuthorProvider = nwAuthorProvider;
         }
-
+        
         public void actionPerformedImpl(ActionEvent e) throws IOException {
             Boulder possibleReturnCandidate;
             if (orig != null) {
@@ -1303,21 +1323,21 @@ public class MainWindow {
             parent.dispose();
         }
     }
-
+    
     private static class BoulderListAndIndex {
-
+        
         private final int seelctedIndex;
         private final Boulder selctedValue;
         private final List<Boulder> list;
-
+        
         public BoulderListAndIndex(int seelctedIndex, Boulder selctedValue, List<Boulder> list) {
             this.seelctedIndex = seelctedIndex;
             this.selctedValue = selctedValue;
             this.list = list;
         }
-
+        
     }
-
+    
     private static BoulderListAndIndex selectListBouder(String wallId) {
         try {
             return selectListBouderImpl(wallId);
@@ -1327,9 +1347,9 @@ public class MainWindow {
             return null;
         }
     }
-
+    
     private static final SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
+    
     private static BoulderListAndIndex selectListBouderImpl(String wallID) throws IOException {
         final int[] result = new int[]{0};
         final int ALL = 1;
@@ -1343,7 +1363,7 @@ public class MainWindow {
         JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(boulders), boulderPreview);
         d.add(sp);
         boulders.addListSelectionListener(new ListSelectionListener() {
-
+            
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 try {
@@ -1373,7 +1393,7 @@ public class MainWindow {
         JButton addAll = new JButton(Translator.R("BAddAll"));
         resultsPanel1.add(addAll);
         addAll.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -1389,7 +1409,7 @@ public class MainWindow {
         JButton addSeelcted = new JButton(Translator.R("BAddSel"));
         resultsPanel1.add(addSeelcted);
         addSeelcted.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -1463,12 +1483,12 @@ public class MainWindow {
         tools3.add(nameFilter);
         final JLabel authorLabel = new JLabel(Translator.R("AuthorFilter"));
         authorLabel.addMouseListener(new MouseAdapter() {
-
+            
             @Override
             public void mouseClicked(MouseEvent e) {
                 JOptionPane.showMessageDialog(d, authorLabel.getToolTipText());
             }
-
+            
         });
         tools5.add(authorLabel, BorderLayout.WEST);
         final JTextField authorsFilter = new JTextField();
@@ -1478,16 +1498,16 @@ public class MainWindow {
         tools4.add(dateFrom);
         final JTextField dateTo = new JTextField();
         tools4.add(dateTo);
-
+        
         wallDefault.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter);
             }
         });
         resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter);
-
+        
         JPanel tools = new JPanel(new GridLayout(8, 1));
         tools.add(tools0);
         tools.add(tools1);
@@ -1564,7 +1584,7 @@ public class MainWindow {
                 return null;
         }
     }
-
+    
     public static ListWithFilter resetDefaults(String wallID, final JComboBox<String> walls, final JList<Boulder> boulders, final JSpinner holdsMin, final JSpinner holdsMax, final JLabel authorLabel, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name) {
         ListWithFilter currentList = new ListWithFilter(wallID);
         walls.setSelectedItem(wallID);
@@ -1580,7 +1600,7 @@ public class MainWindow {
         name.setText("");
         return currentList;
     }
-
+    
     public static void applyFilter(Filter f, String wallID, final JComboBox<String> walls, final JSpinner holdsMin, final JSpinner holdsMax, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name) {
         walls.setSelectedItem(f.wall);
         holdsMin.setValue(f.pathMin);
@@ -1592,20 +1612,20 @@ public class MainWindow {
         author.setText(String.join(" ", f.authorLike));
         name.setText(String.join(" ", f.nameLike));
     }
-
+    
     private static class BoulderListRenderer extends JLabel implements ListCellRenderer<Boulder> {
-
+        
         public BoulderListRenderer() {
             setOpaque(true);
         }
-
+        
         @Override
         public Component getListCellRendererComponent(JList<? extends Boulder> list, Boulder b, int index,
                 boolean isSelected, boolean cellHasFocus) {
             this.setFont(this.getFont().deriveFont(Font.PLAIN, new JLabel().getFont().getSize() + 2));
             String grade = b.getGrade().toString();
             setText("<html><b>" + grade + "</b>:  <u>" + b.getName() + "</u>| <i>" + b.getAuthor() + "</i> (" + dtf.format(b.getDate()) + ")[" + b.getWall() + "]");
-
+            
             if (isSelected) {
                 setBackground(list.getSelectionBackground());
                 setForeground(list.getSelectionForeground());
@@ -1618,13 +1638,13 @@ public class MainWindow {
                 }
                 setForeground(list.getForeground());
             }
-
+            
             return this;
         }
     }
-
+    
     private static class ApplyFilterListener implements ActionListener {
-
+        
         private final JComboBox<String> walls;
         private final JComboBox<String> gradesFrom;
         private final JComboBox<String> gradesTo;
@@ -1636,11 +1656,11 @@ public class MainWindow {
         private final JTextField dateTo;
         private final JList<Boulder> boulders;
         private ListWithFilter lastList;
-
+        
         public ListWithFilter getLastList() {
             return lastList;
         }
-
+        
         public ApplyFilterListener(JComboBox<String> walls, JComboBox<String> gradesFrom, JComboBox<String> gradesTo, JSpinner holdsMin, JSpinner holdsMax, JTextField authorsFilter, JTextField nameFilter, JTextField dateFrom, JTextField dateTo, JList<Boulder> boulders) {
             this.walls = walls;
             this.gradesFrom = gradesFrom;
@@ -1653,7 +1673,7 @@ public class MainWindow {
             this.dateTo = dateTo;
             this.boulders = boulders;
         }
-
+        
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
@@ -1674,6 +1694,56 @@ public class MainWindow {
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(dateFrom, ex);
+            }
+        }
+    }
+    
+    private static class QuickFilterLIstener implements ActionListener {
+        
+        private final Grade from;
+        private final Grade to;
+        private final String wall;
+        private final JButton nextInList;
+        private final JButton prevInList;
+        private final GridPane gp;
+        private final JButton next;
+        private final JButton previous;
+        private final JLabel name;
+        
+        public QuickFilterLIstener(int gradeFrom, int gradeTo, String wall, JButton nextInRow, JButton prevInRow, GridPane gp, JLabel name, JButton next, JButton prev) {
+            this.from = new Grade(gradeFrom);
+            this.to = new Grade(gradeTo);
+            this.wall = wall;
+            this.nextInList = nextInRow;
+            this.prevInList = prevInRow;
+            this.next = next;
+            this.previous = prev;
+            this.gp = gp;
+            this.name = name;
+            
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            list = new ListWithFilter(from, to, wall);
+            next.setEnabled(list.canFwd());
+            previous.setEnabled(list.canBack());
+            if (list.getSize() > 0) {
+                list.setIndex(list.getSize() - 1);
+                Boulder b = list.getCurrentInHistory();
+                gp.getGrid().setBouler(b);
+                hm.addToBoulderHistory(b);
+                gp.getGrid().setBouler(b);
+                name.setText(b.getGradeAndName());
+                name.setToolTipText(b.getStandardTooltip());
+                gp.repaintAndSend(gs);
+                Files.setLastBoulder(b);
+                next.setEnabled(hm.canFwd());
+                previous.setEnabled(hm.canBack());
+                nextInList.setEnabled(list.canFwd());
+                prevInList.setEnabled(list.canBack());
+                nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
             }
         }
     }
