@@ -659,7 +659,7 @@ public class MainWindow {
                                     prevInList.getActionListeners()[0],
                                     nextRandom.getActionListeners()[0],
                                     nextRandomGenerated.getActionListeners()[0],
-                                    allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), boulderCalc.getTotalTime(),boulderCalc.getTimeOfBoulder(), counterClock, (TextToSpeech.TextId) reader.getSelectedItem());
+                                    allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), boulderCalc.getTotalTime(), boulderCalc.getTimeOfBoulder(), counterClock, (TextToSpeech.TextId) reader.getSelectedItem());
                             new Thread(trainig[0]).start();
                         } else {
                             trainig[0].stop();
@@ -709,7 +709,7 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 JDialog settingsWindow = new JDialog();
                 settingsWindow.setModal(true);
-                settingsWindow.setLayout(new GridLayout(6, 2));
+                settingsWindow.setLayout(new GridLayout(6+9, 2));
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 255, 1));
                 sss.addChangeListener(new ChangeListener() {
@@ -798,7 +798,7 @@ public class MainWindow {
                             JLabel message = new JLabel(Translator.R("click desired or close"));
                             selectPortDialog.add(message, BorderLayout.SOUTH);
                             selectPortDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                            selectPortDialog.setSize(300, 200);
+                            selectPortDialog.setSize(300, 400);
                             selectPortDialog.setLocationRelativeTo(settingsWindow);
                             SwingWorker<JList<ConnectionID>, JList<ConnectionID>> sw = new SwingWorker() {
                                 @Override
@@ -847,6 +847,48 @@ public class MainWindow {
                         }
                     }
                 });
+                JLabel greenRedTitle = new JLabel("StartCompozition - red");
+                JSpinner greenRed = new JSpinner(new SpinnerNumberModel(1d, 0d, 1d, 0.1));
+                JLabel greenGreenTitle = new JLabel("StartCompozition - green");
+                JSpinner greenGreen = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
+                JLabel greenBlueTitle = new JLabel("StartCompozition - blue");
+                JSpinner greenBlue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
+                
+                JLabel blueRedTitle = new JLabel("PathCompozition - red");
+                JSpinner blueRed = new JSpinner(new SpinnerNumberModel(1d, 0d, 1d, 0.1));
+                JLabel blueGreenTitle = new JLabel("PathCompozition - green");
+                JSpinner blueGreen = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
+                JLabel blueBlueTitle = new JLabel("PathCompozition - blue");
+                JSpinner blueBlue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
+                
+                JLabel redRedTitle = new JLabel("TopCompozition - red");
+                JSpinner redRed = new JSpinner(new SpinnerNumberModel(1d, 0d, 1d, 0.1));
+                JLabel redGreenTitle = new JLabel("TopCompozition - green");
+                JSpinner redGreen = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
+                JLabel redBlueTitle = new JLabel("TopCompozition - blue");
+                JSpinner redBlue = new JSpinner(new SpinnerNumberModel(0d, 0d, 1d, 0.1));
+               
+                settingsWindow.add(greenRedTitle);
+                settingsWindow.add(greenRed);
+                settingsWindow.add(greenGreenTitle);
+                settingsWindow.add(greenGreen);
+                settingsWindow.add(greenBlueTitle);
+                settingsWindow.add(greenBlue);
+                
+                settingsWindow.add(blueRedTitle);
+                settingsWindow.add(blueRed);
+                settingsWindow.add(blueGreenTitle);
+                settingsWindow.add(blueGreen);
+                settingsWindow.add(blueBlueTitle);
+                settingsWindow.add(blueBlue);
+                
+                settingsWindow.add(redRedTitle);
+                settingsWindow.add(redRed);
+                settingsWindow.add(redGreenTitle);
+                settingsWindow.add(redGreen);
+                settingsWindow.add(redBlueTitle);
+                settingsWindow.add(redBlue);
+                
                 settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 settingsWindow.pack();
                 settingsWindow.setLocationRelativeTo(createWallWindow);
