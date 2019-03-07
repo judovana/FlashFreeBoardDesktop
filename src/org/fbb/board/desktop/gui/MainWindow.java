@@ -471,6 +471,7 @@ public class MainWindow {
             }
 
         });
+        //for new/edit bolulder a pro new/edit wall - add changed/document listeners  to check if name, author and dificulty was edited
         JMenuItem newBoulder = new JMenuItem(Translator.R("MNewBoulder"));
         jp.add(newBoulder);
         newBoulder.addActionListener(new ActionListener() {
