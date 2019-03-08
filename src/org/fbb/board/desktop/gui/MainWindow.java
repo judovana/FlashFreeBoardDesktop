@@ -397,8 +397,7 @@ public class MainWindow {
         a6.addActionListener(new QuickFilterLIstener(10, 13, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
         a7.addActionListener(new QuickFilterLIstener(13, 19, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
         a8.addActionListener(new QuickFilterLIstener(19, 26, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
-        a8.addActionListener(new QuickFilterLIstener(26, 31, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
-        a9.addActionListener(new QuickFilterLIstener(31, 35, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
+        a9.addActionListener(new QuickFilterLIstener(26, 35, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
         name.setToolTipText(b.getStandardTooltip());
         name.addMouseListener(new MouseAdapter() {
             @Override
@@ -1450,6 +1449,8 @@ public class MainWindow {
         tools0.add(new JLabel(Translator.R("Wall")));
         final JComboBox<String> walls = new JComboBox(Files.wallsDir.list());
         tools0.add(walls);
+        final JCheckBox random = new JCheckBox(Translator.R("random"),true);
+        tools0.add(random, BorderLayout.EAST);
         final JLabel dificultyLabel = new JLabel(Translator.R("DificultyInterval"));
         tools1.add(dificultyLabel);
         dificultyLabel.addMouseListener(new MouseAdapter() {
@@ -1513,10 +1514,10 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter);
+                resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter,random);
             }
         });
-        resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter);
+        resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter, random);
 
         JPanel tools = new JPanel(new GridLayout(8, 1));
         tools.add(tools0);
@@ -1539,9 +1540,9 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (Files.getLastAppliedFilterFile().exists()) {
-                        Filter f = Filter.laod(Files.getLastAppliedFilterFile());
+                        Filter f = Filter.load(Files.getLastAppliedFilterFile());
                         if (f != null) {
-                            applyFilter(f, wallID, walls, holdsMin, holdsMax, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter);
+                            applyFilter(f, wallID, walls, holdsMin, holdsMax, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter, random);
                         }
                     }
                 } catch (Exception ex) {
@@ -1555,9 +1556,9 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (Files.getLastUsedFilterFile().exists()) {
-                        Filter f = Filter.laod(Files.getLastUsedFilterFile());
+                        Filter f = Filter.load(Files.getLastUsedFilterFile());
                         if (f != null) {
-                            applyFilter(f, wallID, walls, holdsMin, holdsMax, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter);
+                            applyFilter(f, wallID, walls, holdsMin, holdsMax, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter, random);
                         }
                     }
                 } catch (Exception ex) {
@@ -1566,7 +1567,7 @@ public class MainWindow {
                 }
             }
         });
-        apply.addActionListener(new ApplyFilterListener(walls, gradesFrom, gradesTo, holdsMin, holdsMax, authorsFilter, nameFilter, dateFrom, dateTo, boulders));
+        apply.addActionListener(new ApplyFilterListener(walls, gradesFrom, gradesTo, holdsMin, holdsMax, authorsFilter, nameFilter, dateFrom, dateTo, boulders, random));
         sp.setDividerLocation(d.getWidth() / 2);
         addSeelcted.setFont(addAll.getFont().deriveFont(Font.PLAIN));
         wallDefault.setFont(addAll.getFont().deriveFont(Font.PLAIN));
@@ -1595,7 +1596,7 @@ public class MainWindow {
         }
     }
 
-    public static ListWithFilter resetDefaults(String wallID, final JComboBox<String> walls, final JList<Boulder> boulders, final JSpinner holdsMin, final JSpinner holdsMax, final JLabel authorLabel, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name) {
+    public static ListWithFilter resetDefaults(String wallID, final JComboBox<String> walls, final JList<Boulder> boulders, final JSpinner holdsMin, final JSpinner holdsMax, final JLabel authorLabel, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name, JCheckBox random) {
         ListWithFilter currentList = new ListWithFilter(wallID);
         walls.setSelectedItem(wallID);
         boulders.setModel(new DefaultComboBoxModel<>(currentList.getHistory()));
@@ -1608,10 +1609,11 @@ public class MainWindow {
         gradesTo.setSelectedItem(currentList.getHardest().toString());
         author.setText("");
         name.setText("");
+        random.setSelected(true);
         return currentList;
     }
 
-    public static void applyFilter(Filter f, String wallID, final JComboBox<String> walls, final JSpinner holdsMin, final JSpinner holdsMax, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name) {
+    public static void applyFilter(Filter f, String wallID, final JComboBox<String> walls, final JSpinner holdsMin, final JSpinner holdsMax, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name, JCheckBox random) {
         walls.setSelectedItem(f.wall);
         holdsMin.setValue(f.pathMin);
         holdsMax.setValue(f.pathTo);
@@ -1621,6 +1623,7 @@ public class MainWindow {
         gradesTo.setSelectedItem(new Grade(f.gradeTo).toString());
         author.setText(String.join(" ", f.authorLike));
         name.setText(String.join(" ", f.nameLike));
+        random.setSelected(f.random);
     }
 
     private static class BoulderListRenderer extends JLabel implements ListCellRenderer<Boulder> {
@@ -1666,12 +1669,13 @@ public class MainWindow {
         private final JTextField dateTo;
         private final JList<Boulder> boulders;
         private ListWithFilter lastList;
+        private final JCheckBox random;
 
         public ListWithFilter getLastList() {
             return lastList;
         }
 
-        public ApplyFilterListener(JComboBox<String> walls, JComboBox<String> gradesFrom, JComboBox<String> gradesTo, JSpinner holdsMin, JSpinner holdsMax, JTextField authorsFilter, JTextField nameFilter, JTextField dateFrom, JTextField dateTo, JList<Boulder> boulders) {
+        public ApplyFilterListener(JComboBox<String> walls, JComboBox<String> gradesFrom, JComboBox<String> gradesTo, JSpinner holdsMin, JSpinner holdsMax, JTextField authorsFilter, JTextField nameFilter, JTextField dateFrom, JTextField dateTo, JList<Boulder> boulders, JCheckBox random) {
             this.walls = walls;
             this.gradesFrom = gradesFrom;
             this.gradesTo = gradesTo;
@@ -1682,6 +1686,7 @@ public class MainWindow {
             this.dateFrom = dateFrom;
             this.dateTo = dateTo;
             this.boulders = boulders;
+            this.random = random;
         }
 
         @Override
@@ -1697,7 +1702,8 @@ public class MainWindow {
                                 authorsFilter.getText(),
                                 nameFilter.getText(),
                                 dtf.parse(dateFrom.getText()),
-                                dtf.parse(dateTo.getText()))
+                                dtf.parse(dateTo.getText()),
+                                random.isSelected())
                 );
                 lastList.getLastFilter().save(Files.getLastAppliedFilterFile());
                 boulders.setModel(new DefaultComboBoxModel<>(lastList.getHistory()));
@@ -1775,14 +1781,14 @@ public class MainWindow {
         @Override
         public void stateChanged(ChangeEvent e) {
             JSpinner s = (JSpinner) e.getSource();
-            gs.setPart(((Double)(s.getValue())), i);
+            gs.setPart(((Double) (s.getValue())), i);
             Color c = Color.WHITE;
             if (i >= 0 && i < 3) {
-                c=gs.getStartColor();
+                c = gs.getStartColor();
             } else if (i >= 3 && i < 6) {
-                c=gs.getPathColor();
+                c = gs.getPathColor();
             } else if (i >= 6 && i < 9) {
-                c=gs.getTopColor();
+                c = gs.getTopColor();
             }
             prev.setBackground(c);
             prev.repaint();

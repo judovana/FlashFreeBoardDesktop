@@ -54,7 +54,7 @@ public class ListWithFilter extends HistoryManager {
     }
 
     public ListWithFilter(Grade from, Grade to, String wall) {
-        this(new Filter(wall, from.toNumber(), to.hashCode(), Integer.MIN_VALUE, Integer.MAX_VALUE, "", "", new Date(Long.MIN_VALUE), new Date(Long.MAX_VALUE/2/*there is + in comparsion*/)));
+        this(new Filter(wall, from.toNumber(), to.hashCode(), Integer.MIN_VALUE, Integer.MAX_VALUE, "", "", new Date(Long.MIN_VALUE), new Date(Long.MAX_VALUE/2/*there is + in comparsion*/), false));
     }
 
     public ListWithFilter(String givenId) {

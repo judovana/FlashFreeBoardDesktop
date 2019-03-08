@@ -30,8 +30,9 @@ public class Filter implements Serializable {
     public final String[] nameLike;
     public final long ageFrom;
     public final long ageTo;
+    public final boolean random;
 
-    public Filter(String wall, int gradeFrom, int gradeTo, int pathMin, int pathTo, String authorLike, String nameLike, Date ageFrom, Date ageTo) {
+    public Filter(String wall, int gradeFrom, int gradeTo, int pathMin, int pathTo, String authorLike, String nameLike, Date ageFrom, Date ageTo, boolean random) {
         this.wall = wall;
         this.gradeFrom = Math.min(gradeFrom, gradeTo);
         this.gradeTo = Math.max(gradeFrom, gradeTo);
@@ -41,14 +42,15 @@ public class Filter implements Serializable {
         this.nameLike = split(nameLike);
         this.ageFrom = Math.min(ageFrom.getTime(), ageTo.getTime());
         this.ageTo = Math.max(ageFrom.getTime(), ageTo.getTime());
+        this.random = random;
     }
 
     boolean accept(Boulder b) {
         return containsAny(b.getName(), nameLike)
                 && containsAny(b.getAuthor(), authorLike)
                 && b.getWall().equals(wall)
-                && (b.getGrade().toNumber() >= gradeFrom || b.getGrade().isRandom())
-                && (b.getGrade().toNumber() <= gradeTo || b.getGrade().isRandom())
+                && (b.getGrade().toNumber() >= gradeFrom || (b.getGrade().isRandom()) && random)
+                && (b.getGrade().toNumber() <= gradeTo || (b.getGrade().isRandom()) && random)
                 && b.getPathLength() >= pathMin
                 && b.getPathLength() <= pathTo
                 && b.getDate().getTime() >= ageFrom
@@ -87,7 +89,7 @@ public class Filter implements Serializable {
         }
     }
 
-    public static Filter laod(File f) throws IOException, ClassNotFoundException {
+    public static Filter load(File f) throws IOException, ClassNotFoundException {
         Object read = null;
         try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream(f))) {
             read = oos.readObject();
