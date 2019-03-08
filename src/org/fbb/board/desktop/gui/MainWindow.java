@@ -1181,6 +1181,7 @@ public class MainWindow {
         //checkbox save? 
         //if not save, then what?
         //return  new BoulderAlways? - on Ok?
+        final boolean[] change = new boolean[]{false};
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(p.img));
         final JDialog operateBoulder = new JDialog((JFrame) null, true);
         operateBoulder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -1238,12 +1239,38 @@ public class MainWindow {
                 gp.repaintAndSend(gs);
             }
         });
+        DocumentListener dl = new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                change[0] = true;
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                change[0] = true;
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                change[0] = true;
+            }
+        };
+        name.getDocument().addDocumentListener(dl);
+        author.getDocument().addDocumentListener(dl);
+        grades.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                change[0] = true;
+            }
+        });
         tools2.add(gridb, BorderLayout.EAST);
         tools2.add(doneButton);
         operateBoulder.add(tools2, BorderLayout.SOUTH);
         operateBoulder.pack();
         operateBoulder.setSize((int) nw, (int) nh + tools1.getHeight() + tools2.getHeight());
-        DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit, operateBoulder, gp.getGrid(), name, grades, p.givenId, author);
+        DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit, operateBoulder, gp.getGrid(), name, grades, p.givenId, author, change);
         doneButton.addActionListener(done);
         operateBoulder.setVisible(true);
         return new BoulderAndSaved(done.getResult(), saveOnExit.isSelected());
@@ -1275,8 +1302,9 @@ public class MainWindow {
         private final JTextField nwNameProvider;
         private final JTextField nwAuthorProvider;
         private final JComboBox<String> grades;
+        private final boolean[] changed;
 
-        public DoneEditingBoulderListener(Boulder orig, JCheckBox saveOnExit, JDialog parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId, JTextField nwAuthorProvider) {
+        public DoneEditingBoulderListener(Boulder orig, JCheckBox saveOnExit, JDialog parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId, JTextField nwAuthorProvider, boolean[] changed) {
             this.orig = orig;
             this.saveOnExit = saveOnExit;
             this.nwNameProvider = nwNameProvider;
@@ -1285,9 +1313,16 @@ public class MainWindow {
             this.grades = grades;
             this.wallId = wallId;
             this.nwAuthorProvider = nwAuthorProvider;
+            this.changed = changed;
         }
 
         public void actionPerformedImpl(ActionEvent e) throws IOException {
+            if (!changed[0]) {
+                int a = JOptionPane.showConfirmDialog(parent, Translator.R("ForgotAll"));
+                if (a != 1) {
+                    return;
+                }
+            }
             Boulder possibleReturnCandidate;
             if (orig != null) {
                 possibleReturnCandidate = grid.createBoulderFromCurrent(orig.getFile(), nwNameProvider.getText(), wallId, new Grade(grades.getSelectedIndex()));
@@ -1449,7 +1484,7 @@ public class MainWindow {
         tools0.add(new JLabel(Translator.R("Wall")));
         final JComboBox<String> walls = new JComboBox(Files.wallsDir.list());
         tools0.add(walls);
-        final JCheckBox random = new JCheckBox(Translator.R("random"),true);
+        final JCheckBox random = new JCheckBox(Translator.R("random"), true);
         tools0.add(random, BorderLayout.EAST);
         final JLabel dificultyLabel = new JLabel(Translator.R("DificultyInterval"));
         tools1.add(dificultyLabel);
@@ -1514,7 +1549,7 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter,random);
+                resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter, random);
             }
         });
         resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter, random);
