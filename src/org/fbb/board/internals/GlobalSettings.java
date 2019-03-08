@@ -5,6 +5,7 @@
  */
 package org.fbb.board.internals;
 
+import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -80,6 +81,28 @@ public class GlobalSettings implements ByteEater {
 
     public String getPortId() {
         return deviceId;
+    }
+
+    public Color getPathColor() {
+        //int br = brightness;
+        int br = 250;
+        int[] b = new int[]{(int) (((double) br) * parts[3]), (int) (((double) br) * parts[4]), (int) (((double) br) * parts[5])};
+        return new Color(b[0], b[1], b[2]);
+
+    }
+
+    public Color getStartColor() {
+        //int br = brightness;
+        int br = 250;
+        int[] b = new int[]{(int) (((double) br) * parts[0]), (int) (((double) br) * parts[1]), (int) (((double) br) * parts[2])};
+        return new Color(b[0], b[1], b[2]);
+    }
+
+    public Color getTopColor() {
+        //int br = brightness;
+        int br = 250;
+        int[] b = new int[]{(int) (((double) br) * parts[6]), (int) (((double) br) * parts[7]), (int) (((double) br) * parts[8])};
+        return new Color(b[0], b[1], b[2]);
     }
 
     private class MessagesResender extends Thread {
@@ -201,6 +224,7 @@ public class GlobalSettings implements ByteEater {
         setPortType(Integer.valueOf(p.getProperty("COMM", "0")), false);
         setBrightness(Integer.valueOf(p.getProperty("SHINE", "0")), false);
         setDeviceId((p.getProperty("URL", "/dev/ttyUSB0")), false);
+        setParts((p.getProperty("COMPOSITION", "0,1,0,0,0,1,1,0,0")));
     }
 
     private void save() {
@@ -216,6 +240,7 @@ public class GlobalSettings implements ByteEater {
         p.setProperty("COMM", "" + getPortTypeIndex());
         p.setProperty("SHINE", "" + getBrightness());
         p.setProperty("URL", getPortId());
+        p.setProperty("COMPOSITION", getParts());
         p.store(new OutputStreamWriter(new FileOutputStream(Files.settings), Charset.forName("utf-8")), "FlashFreeBoard settings " + new Date());
     }
 
@@ -239,7 +264,7 @@ public class GlobalSettings implements ByteEater {
     }
 
     private void setBrightness(int brightness, boolean save) {
-            if (brightness <= 1) {
+        if (brightness <= 1) {
             brightness = 1;
         }
         if (brightness >= 255) {
@@ -250,21 +275,54 @@ public class GlobalSettings implements ByteEater {
             save();
         }
     }
+    //startr path top
+    //rgb    rgb  rgb
+    final double[] parts = new double[]{
+        0, 1, 0,
+        0, 0, 1,
+        1, 0, 0};
+
+    public double getPart(int i) {
+        return parts[i];
+    }
+
+    public void setPart(double part, int i) {
+        this.parts[i] = part;
+        save();
+    }
+
+    public void setParts(String sparts) {
+        String[] r = sparts.trim().split(",");
+        for (int i = 0; i < r.length; i++) {
+            String r1 = r[i];
+            parts[i] = Double.valueOf(r1);
+        }
+    }
+
+    public String getParts() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < parts.length; i++) {
+            Double part = parts[i];
+            sb.append(part.toString()).append(",");
+
+        }
+        return sb.toString();
+    }
 
     //0 nothing
-    //1 blue
-    //2 green
-    //3 red
+    //1 blue - path
+    //2 green - start
+    //3 red - top
     public byte[] holdToColor(int i) {
         switch (i) {
             case (0):
                 return new byte[]{0, 0, 0};
             case (1):
-                return new byte[]{0, 0, (byte)brightness};
+                return new byte[]{(byte) (((double) brightness) * parts[3]), (byte) (((double) brightness) * parts[4]), (byte) (((double) brightness) * parts[5])};
             case (2):
-                return new byte[]{0, (byte)brightness, 0};
+                return new byte[]{(byte) (((double) brightness) * parts[0]), (byte) (((double) brightness) * parts[1]), (byte) (((double) brightness) * parts[2])};
             case (3):
-                return new byte[]{(byte)brightness, 0, 0};
+                return new byte[]{(byte) (((double) brightness) * parts[6]), (byte) (((double) brightness) * parts[7]), (byte) (((double) brightness) * parts[8])};
         }
         return null;
     }
