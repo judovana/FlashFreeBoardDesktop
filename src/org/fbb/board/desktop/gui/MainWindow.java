@@ -1425,6 +1425,7 @@ public class MainWindow {
         JPanel resultsPanel1 = new JPanel(new GridLayout(1, 2));
         JPanel resultsPanel2 = new JPanel(new GridLayout(1, 2));
         JButton addAll = new JButton(Translator.R("BAddAll"));
+        addAll.setFont(addAll.getFont().deriveFont(Font.BOLD | Font.ITALIC));
         resultsPanel1.add(addAll);
         addAll.addActionListener(new ActionListener() {
 
@@ -1441,6 +1442,7 @@ public class MainWindow {
             }
         });
         JButton addSeelcted = new JButton(Translator.R("BAddSel"));
+        addSeelcted.setFont(addSeelcted.getFont().deriveFont(Font.BOLD));
         resultsPanel1.add(addSeelcted);
         addSeelcted.addActionListener(new ActionListener() {
 
@@ -1456,8 +1458,12 @@ public class MainWindow {
                 d.setVisible(false);
             }
         });
-        resultsPanel2.add(new JButton("DELETE alll filtered results"));
-        resultsPanel2.add(new JButton("DELETE selected results"));
+        JButton deleteAll = new JButton("DELETE alll filtered results");
+        deleteAll.setFont(deleteAll.getFont().deriveFont(Font.PLAIN));
+        JButton delteSelected = new JButton("DELETE selected results");
+        delteSelected.setFont(delteSelected.getFont().deriveFont(Font.PLAIN));
+        resultsPanel2.add(deleteAll);
+        resultsPanel2.add(delteSelected);
         JPanel tools0 = new JPanel(new BorderLayout());
         JPanel tools1 = new JPanel(new GridLayout(1, 3));
         JPanel tools2 = new JPanel(new GridLayout(1, 3));
@@ -1594,7 +1600,6 @@ public class MainWindow {
         });
         apply.addActionListener(new ApplyFilterListener(walls, gradesFrom, gradesTo, holdsMin, holdsMax, authorsFilter, nameFilter, dateFrom, dateTo, boulders, random));
         sp.setDividerLocation(d.getWidth() / 2);
-        addSeelcted.setFont(addAll.getFont().deriveFont(Font.PLAIN));
         wallDefault.setFont(addAll.getFont().deriveFont(Font.PLAIN));
         //delete1
         //delete2
