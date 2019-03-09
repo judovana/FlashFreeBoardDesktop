@@ -634,7 +634,7 @@ public class MainWindow {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (trainig[0] != null) {
-                            trainig[0].setRandomAllowed(allowRegular.isSelected());
+                            trainig[0].setRegularAllowed(allowRegular.isSelected());
                         }
                     }
                 });
