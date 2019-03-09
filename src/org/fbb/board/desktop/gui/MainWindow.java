@@ -1181,7 +1181,7 @@ public class MainWindow {
         //checkbox save? 
         //if not save, then what?
         //return  new BoulderAlways? - on Ok?
-        final boolean[] change = new boolean[]{false};
+        final boolean[] change = new boolean[]{false, false, false};
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(p.img));
         final JDialog operateBoulder = new JDialog((JFrame) null, true);
         operateBoulder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -1239,25 +1239,10 @@ public class MainWindow {
                 gp.repaintAndSend(gs);
             }
         });
-        DocumentListener dl = new DocumentListener() {
-
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                change[0] = true;
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                change[0] = true;
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                change[0] = true;
-            }
-        };
-        name.getDocument().addDocumentListener(dl);
-        author.getDocument().addDocumentListener(dl);
+        DocumentListener dl1 = new ChangeRecodingDocumentListener(change, 1);
+        DocumentListener dl2 = new ChangeRecodingDocumentListener(change, 2);
+        name.getDocument().addDocumentListener(dl1);
+        author.getDocument().addDocumentListener(dl2);
         grades.addActionListener(new ActionListener() {
 
             @Override
@@ -1317,8 +1302,13 @@ public class MainWindow {
         }
 
         public void actionPerformedImpl(ActionEvent e) throws IOException {
-            if (!changed[0]) {
-                int a = JOptionPane.showConfirmDialog(parent, Translator.R("ForgotAll"));
+            //0=grade; 1=name, 2=author
+            if (/*saveOnExit.isSelected() && ?*/(!changed[0] || !changed[1] || !changed[2])) {
+                int a = JOptionPane.showConfirmDialog(parent, Translator.R("ForgotAll",
+                        !changed[0] ? Translator.R("grade") : "",
+                        !changed[1] ? Translator.R("name") : "",
+                        !changed[2] ? Translator.R("author") : "")
+                );
                 if (a != 1) {
                     return;
                 }
@@ -1831,4 +1821,32 @@ public class MainWindow {
             gp.repaintAndSend(gs);
         }
     }
+
+    private static class ChangeRecodingDocumentListener implements DocumentListener {
+
+        private final boolean[] change;
+        private final int index;
+
+        public ChangeRecodingDocumentListener(boolean[] change, int index) {
+            this.change = change;
+            this.index = index;
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            change[index] = true;
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            change[index] = true;
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            change[index] = true;
+
+        }
+    }
+
 }

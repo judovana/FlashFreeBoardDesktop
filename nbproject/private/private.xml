@@ -9,11 +9,11 @@
         </group>
         <group>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/ListWithFilter.java</file>
+            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/Filter.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/desktop/gui/MainWindow.java</file>
+            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/TimeredTraining.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/locales/bundles/Messages.properties</file>
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/GridPane.java</file>
             <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/grades/Grade.java</file>
-            <file>file:/home/jvanek/git/FlashFreeBoardDesktop/src/org/fbb/board/internals/GlobalSettings.java</file>
         </group>
     </open-files>
 </project-private>
