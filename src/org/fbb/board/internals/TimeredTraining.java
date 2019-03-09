@@ -84,14 +84,23 @@ public class TimeredTraining implements Runnable {
                     output.setText(counter / 60 + ":" + counter % 60);
                     output.repaint();
                     if (counter % timeOfBoulder == 0) {
-                        if (randomAllowed && r.nextBoolean()) {
+                        boolean choice1 = r.nextBoolean();
+                        if (!regularAllowed || (randomAllowed && choice1)) {
                             nextGenerateRandom.actionPerformed(null);
-                        } else {
-                            if (MainWindow.list.canFwd()) {
+                        }
+                        if (!randomAllowed || (regularAllowed && !choice1)) {
+                            if (jumpingAllowed && r.nextBoolean()) {
+                                int i = r.nextInt(MainWindow.list.getSize());
+                                i = i--;
+                                MainWindow.list.setIndex(i);
                                 next.actionPerformed(null);
                             } else {
-                                MainWindow.list.setIndex(-1);
-                                next.actionPerformed(null);
+                                if (MainWindow.list.canFwd()) {
+                                    next.actionPerformed(null);
+                                } else {
+                                    MainWindow.list.setIndex(-1);
+                                    next.actionPerformed(null);
+                                }
                             }
                         }
                         Boulder b = MainWindow.hm.getCurrentInHistory();
