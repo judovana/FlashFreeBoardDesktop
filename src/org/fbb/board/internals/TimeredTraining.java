@@ -84,6 +84,9 @@ public class TimeredTraining implements Runnable {
                     output.setText(counter / 60 + ":" + counter % 60);
                     output.repaint();
                     if (counter % timeOfBoulder == 0) {
+                        if (!regularAllowed && !randomAllowed) {
+                            continue;
+                        }
                         boolean choice1 = r.nextBoolean();
                         if (!regularAllowed || (randomAllowed && choice1)) {
                             nextGenerateRandom.actionPerformed(null);
