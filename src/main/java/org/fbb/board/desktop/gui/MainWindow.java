@@ -83,6 +83,7 @@ public class MainWindow {
     public static ListWithFilter list;
     private static final JPopupMenu listJump = new JPopupMenu();
     private static final JPopupMenu historyJump = new JPopupMenu();
+    private static final Authenticator auth = new Authenticator();
 
     public static void main(String... s) {
         try {
@@ -724,6 +725,13 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                try {
+                    auth.authenticate(Translator.R("settingsAuth"));
+                } catch (Authenticator.AuthoriseException a) {
+                    a.printStackTrace();
+                    JOptionPane.showMessageDialog(null, a);
+                    return;
+                }
                 JDialog settingsWindow = new JDialog();
                 settingsWindow.setModal(true);
                 settingsWindow.setLayout(new GridLayout(6 + 9, 2));
