@@ -26,6 +26,8 @@ public class Files {
     private static final File lastBoard = new File(configDir + "/lastBoard");
     private static final File lastBoulder = new File(configDir + "/lastBoulder");
     public static final File settings = new File(configDir + "/settings");
+    private static final File masterAuth = new File("/etc/FFB.auth");
+    private static final File localAuth = new File(configDir + "/FFB.auth");
 
     public static final List<Character> INVALID_PATH = Arrays.asList(new Character[]{':', '*', '?', '"', '<', '>', '|', '[', ']', '\'', ';', '=', ','});
     public static final List<Character> INVALID_NAME = new ArrayList<>(INVALID_PATH);
@@ -67,6 +69,7 @@ public class Files {
         configDir.mkdirs();
         return new File(configDir, "lastAppliedFilter");
     }
+
     public static File getLastUsedFilterFile() {
         configDir.mkdirs();
         return new File(configDir, "lastUsedFilter");
@@ -142,8 +145,35 @@ public class Files {
 
     public static void lastUsedToLastApplied() throws IOException {
         File f = getLastAppliedFilterFile();
-        if (f.exists()){
+        if (f.exists()) {
             java.nio.file.Files.copy(f.toPath(), getLastUsedFilterFile().toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
+    }
+
+    public static String getAuthFileHash() {
+        try {
+            return getAuthFileHashImpl();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String getAuthFileHashImpl() throws IOException {
+        if (masterAuth.exists()) {
+            return readHash(masterAuth);
+        } else if (localAuth.exists()) {
+            return readHash(localAuth);
+        } else {
+            return null;
+        }
+    }
+
+    //echo -n  pass| sha256sum  > ~/.config/FlashBoard/FFB.auth or into /etc/FFB.auth
+    private static String readHash(File f) throws IOException {
+        byte[] hash = java.nio.file.Files.readAllBytes(f.toPath());
+        //some tols are recordig metadata - eg sha256summ writes by default sum - file, and without file, sum -
+        String shash = new String(hash, java.nio.charset.Charset.forName("utf-8"));
+        return shash.split("[^\\w']+")[0];
     }
 }

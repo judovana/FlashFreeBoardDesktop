@@ -6,11 +6,18 @@
 package org.fbb.board.desktop.gui;
 
 import java.awt.GridLayout;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Base64;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import org.fbb.board.Translator;
+import org.fbb.board.desktop.Files;
 
 /**
  *
@@ -21,12 +28,24 @@ public class Authenticator {
     private boolean pernament = false;
 
     public void authenticate(String message) throws AuthoriseException {
-        if (!authenticateImpl(message)) {
-            throw new AuthoriseException();
+        try {
+            if (!authenticateImpl(message)) {
+                throw new AuthoriseException();
+            }
+        } catch (Exception ex) {
+            throw new AuthoriseException(ex);
         }
     }
 
-    private boolean authenticateImpl(String message) {
+    private boolean authenticateImpl(String message) throws NoSuchAlgorithmException {
+        String hash = Files.getAuthFileHash();
+        if (hash == null) {
+            //warning security by obscurity!
+            //if the file do not exists, app is not "secured" at all
+            //note, that all the config files are plain an readable in ~/.config anyway
+            //to secure them, encrypt them with locekd pass
+            return true;
+        }
         if (pernament) {
             return true;
         }
@@ -38,7 +57,16 @@ public class Authenticator {
         if (s == null || s.trim().isEmpty()) {
             return false;
         }
-        if (s.equals("changeit")) {
+
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(s.getBytes(StandardCharsets.UTF_8));
+        byte[] passHash = md.digest();
+        //to nice (correct) string
+        StringBuilder sb = new StringBuilder();
+        for (byte b : passHash) {
+            sb.append(String.format("%02x", b));
+        }
+        if (hash.equals(sb.toString())) {
             if ((boolean) r[1]) {
                 pernament = true;
             }
@@ -68,6 +96,10 @@ public class Authenticator {
 
         public AuthoriseException() {
             super(Translator.R("authFail"));
+        }
+
+        private AuthoriseException(Exception ex) {
+            super(ex);
         }
 
     }
