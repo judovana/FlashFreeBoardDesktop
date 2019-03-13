@@ -377,7 +377,8 @@ public class MainWindow {
         final JButton prevInList = new JButton("<<");
         JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
         JButton nextRandomGenerated = new JButton("?");
-        JLabel name = new JLabel(b.getGradeAndName());
+        JLabel name = new JLabel();
+        setNameTextAndGrade(name, b);
         JPopupMenu jp = new JPopupMenu();
         next.setEnabled(hm.canFwd());
         previous.setEnabled(hm.canBack());
@@ -473,8 +474,7 @@ public class MainWindow {
                         }
                         hm.addToBoulderHistory(r);
                         gp.getGrid().setBouler(r);
-                        name.setText(r.getGradeAndName());
-                        name.setToolTipText(r.getStandardTooltip());
+                        setNameTextAndGrade(name, r);
                         gp.repaintAndSend(gs);
                         Files.setLastBoulder(r);
                         next.setEnabled(hm.canFwd());
@@ -501,8 +501,7 @@ public class MainWindow {
                     Boulder r = bs.b;
                     hm.addToBoulderHistory(r);
                     gp.getGrid().setBouler(r);
-                    name.setText(r.getGradeAndName());
-                    name.setToolTipText(r.getStandardTooltip());
+                    setNameTextAndGrade(name, r);
                     gp.repaintAndSend(gs);
                     if (bs.saved) {
                         Files.setLastBoulder(r);
@@ -529,8 +528,7 @@ public class MainWindow {
                     Boulder r = bs.b;
                     hm.addToBoulderHistory(r);
                     gp.getGrid().setBouler(r);
-                    name.setText(r.getGradeAndName());
-                    name.setToolTipText(r.getStandardTooltip());
+                    setNameTextAndGrade(name, r);
                     gp.repaintAndSend(gs);
                     if (bs.saved) {
                         Files.setLastBoulder(r);
@@ -567,8 +565,7 @@ public class MainWindow {
                     Boulder b = gp.getGrid().createBoulderFromCurrent(Files.getBoulderFile(fn), nameNice, preloaded.givenId, Grade.RandomBoulder());
                     b.save();
                     hm.addToBoulderHistory(b);
-                    name.setText(b.getGradeAndName());
-                    name.setToolTipText(b.getStandardTooltip());
+                    setNameTextAndGrade(name, b);
                     next.setEnabled(hm.canFwd());
                     previous.setEnabled(hm.canBack());
                     Files.setLastBoulder(b);
@@ -944,8 +941,7 @@ public class MainWindow {
                 if (hm.canBack()) {
                     Boulder b = hm.back();
                     gp.getGrid().setBouler(b);
-                    name.setText(b.getGradeAndName());
-                    name.setToolTipText(b.getStandardTooltip());
+                    setNameTextAndGrade(name, b);
                     gp.repaintAndSend(gs);
                     Files.setLastBoulder(b);
                 }
@@ -959,8 +955,7 @@ public class MainWindow {
                 if (hm.canFwd()) {
                     Boulder b = hm.forward();
                     gp.getGrid().setBouler(b);
-                    name.setText(b.getGradeAndName());
-                    name.setToolTipText(b.getStandardTooltip());
+                    setNameTextAndGrade(name, b);
                     gp.repaintAndSend(gs);
                     Files.setLastBoulder(b);
                 }
@@ -974,8 +969,7 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder b = gp.getGrid().randomBoulder(preloaded.givenId);
-                name.setText(b.getGradeAndName());
-                name.setToolTipText(b.getStandardTooltip());
+                setNameTextAndGrade(name, b);
                 hm.addToBoulderHistory(b);
                 gp.repaintAndSend(gs);
                 next.setEnabled(hm.canFwd());
@@ -992,8 +986,7 @@ public class MainWindow {
                 if (b != null) {
                     hm.addToBoulderHistory(b);
                     gp.getGrid().setBouler(b);
-                    name.setText(b.getGradeAndName());
-                    name.setToolTipText(b.getStandardTooltip());
+                    setNameTextAndGrade(name, b);
                     gp.repaintAndSend(gs);
                     Files.setLastBoulder(b);
                     next.setEnabled(hm.canFwd());
@@ -1013,8 +1006,7 @@ public class MainWindow {
                 if (b != null) {
                     hm.addToBoulderHistory(b);
                     gp.getGrid().setBouler(b);
-                    name.setText(b.getGradeAndName());
-                    name.setToolTipText(b.getStandardTooltip());
+                    setNameTextAndGrade(name, b);
                     gp.repaintAndSend(gs);
                     Files.setLastBoulder(b);
                     next.setEnabled(hm.canFwd());
@@ -1034,8 +1026,7 @@ public class MainWindow {
                 if (b != null) {
                     hm.addToBoulderHistory(b);
                     gp.getGrid().setBouler(b);
-                    name.setText(b.getGradeAndName());
-                    name.setToolTipText(b.getStandardTooltip());
+                    setNameTextAndGrade(name, b);
                     gp.repaintAndSend(gs);
                     Files.setLastBoulder(b);
                     next.setEnabled(hm.canFwd());
@@ -1119,8 +1110,7 @@ public class MainWindow {
                             Boulder r = list.getCurrentInHistory();
                             hm.addToBoulderHistory(r);
                             gp.getGrid().setBouler(r);
-                            name.setText(r.getGradeAndName());
-                            name.setToolTipText(r.getStandardTooltip());
+                            setNameTextAndGrade(name, r);
                             gp.repaintAndSend(gs);
                             Files.setLastBoulder(r);
                             next.setEnabled(hm.canFwd());
@@ -1157,8 +1147,7 @@ public class MainWindow {
                             hm.setIndex(j);
                             Boulder r = hm.getCurrentInHistory();
                             gp.getGrid().setBouler(r);
-                            name.setText(r.getGradeAndName());
-                            name.setToolTipText(r.getStandardTooltip());
+                            setNameTextAndGrade(name, r);
                             gp.repaintAndSend(gs);
                             if (r.getFile() != null) {
                                 Files.setLastBoulder(r);
@@ -1845,8 +1834,7 @@ public class MainWindow {
                 gp.getGrid().setBouler(b);
                 hm.addToBoulderHistory(b);
                 gp.getGrid().setBouler(b);
-                name.setText(b.getGradeAndName());
-                name.setToolTipText(b.getStandardTooltip());
+                setNameTextAndGrade(name, b);
                 gp.repaintAndSend(gs);
                 Files.setLastBoulder(b);
                 next.setEnabled(hm.canFwd());
@@ -1917,6 +1905,12 @@ public class MainWindow {
             change[index] = true;
 
         }
+    }
+    
+    private static void setNameTextAndGrade(JLabel n, Boulder b){
+        n.setText(b.getGradeAndName());
+        n.setToolTipText(b.getStandardTooltip());
+        
     }
 
 }
