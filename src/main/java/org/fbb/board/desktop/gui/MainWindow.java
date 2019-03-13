@@ -48,6 +48,7 @@ import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
@@ -1906,11 +1907,16 @@ public class MainWindow {
 
         }
     }
-    
-    private static void setNameTextAndGrade(JLabel n, Boulder b){
+
+    private static void setNameTextAndGrade(JLabel n, Boulder b) {
         n.setText(b.getGradeAndName());
         n.setToolTipText(b.getStandardTooltip());
-        
+        if (n.getFontMetrics(n.getFont()).getStringBounds(n.getText(), n.getGraphics()).getWidth() > n.getWidth()) {
+            n.setHorizontalAlignment(SwingConstants.LEFT);
+        } else {
+            n.setHorizontalAlignment(SwingConstants.CENTER);
+        }
+
     }
 
 }
