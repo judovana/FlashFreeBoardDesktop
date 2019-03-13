@@ -13,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -26,6 +27,10 @@ import org.fbb.board.desktop.Files;
 public class Authenticator {
 
     private boolean pernament = false;
+
+    public boolean isPernament() {
+        return pernament || Files.getAuthFileHash() == null;
+    }
 
     public void authenticate(String message) throws AuthoriseException {
         try {
@@ -81,7 +86,8 @@ public class Authenticator {
             JPasswordField pass = new JPasswordField(5);
             JCheckBox save = new JCheckBox(Translator.R("keepLoged"), false);
 
-            JPanel myPanel = new JPanel(new GridLayout(2, 1));
+            JPanel myPanel = new JPanel(new GridLayout(3, 1));
+            myPanel.add(new JLabel(message));
             myPanel.add(pass);
             myPanel.add(save);
             int result = JOptionPane.showConfirmDialog(null, myPanel, Translator.R("autenticate"), JOptionPane.OK_CANCEL_OPTION);

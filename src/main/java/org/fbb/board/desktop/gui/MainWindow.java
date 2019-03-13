@@ -54,6 +54,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.fbb.board.Translator;
@@ -934,7 +935,7 @@ public class MainWindow {
         jp.add(new JMenuItem("tips")); //highlight what save do (jsut add a leg?), higluight do not save garbage
         JPanel subtools = new JPanel(new BorderLayout());
         subtools.add(settings, BorderLayout.WEST);
-        subtools.add(name, BorderLayout.EAST);
+        subtools.add(name);
         tools.add(quickFilterPanel);
         tools.add(subtools);
         previous.addActionListener(new ActionListener() {
@@ -1466,9 +1467,9 @@ public class MainWindow {
                 d.setVisible(false);
             }
         });
-        JButton deleteAll = new JButton("DELETE alll filtered results");
+        JButton deleteAll = new JButton(Translator.R("delAll"));
         deleteAll.setFont(deleteAll.getFont().deriveFont(Font.PLAIN));
-        JButton delteSelected = new JButton("DELETE selected results");
+        JButton delteSelected = new JButton(Translator.R("delSel"));
         delteSelected.setFont(delteSelected.getFont().deriveFont(Font.PLAIN));
         resultsPanel2.add(deleteAll);
         resultsPanel2.add(delteSelected);
@@ -1566,7 +1567,7 @@ public class MainWindow {
         tools.add(tools4);
         tools.add(tools5);
         tools.add(tools6);
-        JButton apply = new JButton(Translator.R("Apply"));
+        final JButton apply = new JButton(Translator.R("Apply"));
         tools.add(apply);
         d.add(tools, BorderLayout.NORTH);
         JPanel resultsPanel = new JPanel(new GridLayout(2, 1));
@@ -1609,9 +1610,63 @@ public class MainWindow {
         apply.addActionListener(new ApplyFilterListener(walls, gradesFrom, gradesTo, holdsMin, holdsMax, authorsFilter, nameFilter, dateFrom, dateTo, boulders, random));
         sp.setDividerLocation(d.getWidth() / 2);
         wallDefault.setFont(addAll.getFont().deriveFont(Font.PLAIN));
-        //delete1
-        //delete2
-        //lastFilter
+        deleteAll.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (boulders.getModel() == null || boulders.getModel().getSize() == 0) {
+                    return;
+                }
+                if (auth.isPernament()) {
+                    int y = JOptionPane.showConfirmDialog(d, Translator.R("delConf", boulders.getModel().getSize()));
+                    if (y != JOptionPane.YES_OPTION) {
+                        return;
+                    }
+                } else {
+                    try {
+                        auth.authenticate(Translator.R("delConf", boulders.getModel().getSize()));
+                    } catch (Authenticator.AuthoriseException ex) {
+                        JOptionPane.showMessageDialog(d, ex);
+                        return;
+                    }
+
+                }
+                for (int x = boulders.getModel().getSize() - 1; x >= 0; x--) {
+                    Boulder i = boulders.getModel().getElementAt(x);
+                    i.getFile().delete();
+                }
+                apply.getActionListeners()[0].actionPerformed(null);
+
+            }
+        });
+        delteSelected.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (boulders.getSelectedValuesList() == null || boulders.getSelectedValuesList().isEmpty()) {
+                    return;
+                }
+                if (auth.isPernament()) {
+                    int y = JOptionPane.showConfirmDialog(d, Translator.R("delConf", boulders.getSelectedValuesList().size()));
+                    if (y != JOptionPane.YES_OPTION) {
+                        return;
+                    }
+                } else {
+                    try {
+                        auth.authenticate(Translator.R("delConf", boulders.getSelectedValuesList().size()));
+                    } catch (Authenticator.AuthoriseException ex) {
+                        JOptionPane.showMessageDialog(d, ex);
+                        return;
+                    }
+
+                }
+                for (Boulder b : boulders.getSelectedValuesList()) {
+                    b.getFile().delete();
+                }
+                apply.getActionListeners()[0].actionPerformed(null);
+
+            }
+        });
         d.setVisible(true);
         if (boulders.getModel().getSize() == 0) {
             d.dispose();
@@ -1675,11 +1730,13 @@ public class MainWindow {
                 boolean isSelected, boolean cellHasFocus) {
             this.setFont(this.getFont().deriveFont(Font.PLAIN, new JLabel().getFont().getSize() + 2));
             String grade = b.getGrade().toString();
-            setText("<html><b>" + grade + "</b>:  <u>" + b.getName() + "</u>| <i>" + b.getAuthor() + "</i> (" + dtf.format(b.getDate()) + ")[" + b.getWall() + "]");
+            setText("<html><big><b>" + grade + "</b>:  <u>" + b.getName() + "</u>| <i>" + b.getAuthor() + "</i> (" + dtf.format(b.getDate()) + ")[" + b.getWall() + "]");
 
             if (isSelected) {
-                setBackground(list.getSelectionBackground());
+//                setBackground(list.getSelectionBackground());
                 setForeground(list.getSelectionForeground());
+                setBackground(new Color(225, 0, 0));
+
             } else {
                 int inter = 255 / Grade.currentGrades().size();
                 if (b.getGrade().toNumber() < 0) {
