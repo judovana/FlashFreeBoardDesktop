@@ -22,6 +22,7 @@ public class Files {
     private static final File homeDir = new File(System.getProperty("user.home"));
     private static final File configDir = new File(homeDir + "/.config/FlashBoard");
     private static final File repo = new File(configDir + "/repo");
+    public static final File repoGit = new File(repo + "/.git");
     public static final File wallsDir = new File(repo + "/walls");
     public static final File bouldersDir = new File(repo + "/boulders");
     private static final File lastBoard = new File(configDir + "/lastBoard");

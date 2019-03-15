@@ -58,6 +58,9 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
@@ -1650,10 +1653,34 @@ public class MainWindow {
                     }
 
                 }
-                for (Boulder b : boulders.getSelectedValuesList()) {
-                    b.getFile().delete();
+                try {
+                    for (Boulder b : boulders.getSelectedValuesList()) {
+                        if (Files.repoGit.exists()) {
+                            Repository repository = FileRepositoryBuilder.create(Files.repoGit);
+                            Git git = new Git(repository);
+                            git.rm().addFilepattern(b.getFile().getAbsolutePath()).call();
+                        } else {
+                            b.getFile().delete();
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(d, ex);
+                } finally {
+                    try {
+                        //git clone -b Flash --single-branch https://github.com/FlashFreeBoard/FreeBoard.git
+                        if (Files.repoGit.exists()) {
+                            Repository repository = FileRepositoryBuilder.create(Files.repoGit);
+                            Git git = new Git(repository);
+                            git.commit().setMessage("removed "+boulders.getSelectedValuesList().size()+" files").setAuthor("pgm", "pgm@pgm").call();
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(d, ex);
+                    } finally {
+                        apply.getActionListeners()[0].actionPerformed(null);
+                    }
                 }
-                apply.getActionListeners()[0].actionPerformed(null);
 
             }
         });
