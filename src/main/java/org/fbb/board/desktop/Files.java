@@ -20,7 +20,7 @@ import org.fbb.board.internals.Boulder;
 public class Files {
 
     private static final File homeDir = new File(System.getProperty("user.home"));
-    private static final File configDir = new File(homeDir + "/.config/FlashBoard");
+    public static final File configDir = new File(homeDir + "/.config/FlashBoard");
     private static final File repo = new File(configDir + "/repo");
     public static final File repoGit = new File(repo + "/.git");
     public static final File wallsDir = new File(repo + "/walls");

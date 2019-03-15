@@ -225,6 +225,9 @@ public class GlobalSettings implements ByteEater {
         setBrightness(Integer.valueOf(p.getProperty("SHINE", "0")), false);
         setDeviceId((p.getProperty("URL", "/dev/ttyUSB0")), false);
         setParts((p.getProperty("COMPOSITION", "0,1,0,0,0,1,1,0,0")));
+        setUrl(p.getProperty("RURL", ""), false);
+        setBranch(p.getProperty("RBRANCH", ""), false);
+        setRuser(p.getProperty("RUSER", ""), false);
     }
 
     private void save() {
@@ -241,9 +244,60 @@ public class GlobalSettings implements ByteEater {
         p.setProperty("SHINE", "" + getBrightness());
         p.setProperty("URL", getPortId());
         p.setProperty("COMPOSITION", getParts());
+        p.setProperty("RURL", getUrl());
+        p.setProperty("RBRANCH", getBranch());
+        p.setProperty("RUSER", getRuser());
         p.store(new OutputStreamWriter(new FileOutputStream(Files.settings), Charset.forName("utf-8")), "FlashFreeBoard settings " + new Date());
     }
 
+    public void setRuser(String u) {
+        setRuser(u, true);
+    }
+
+    private void setRuser(String u, boolean save) {
+        this.remoteUser = u;
+        if (save) {
+            save();
+        }
+    }
+
+    public void setBranch(String br) {
+        setBranch(br, true);
+    }
+
+    private void setBranch(String br, boolean save) {
+        this.remoteBranch = br;
+        if (save) {
+            save();
+        }
+    }
+
+    public void setUrl(String url) {
+        setUrl(url, true);
+    }
+
+    private void setUrl(String url, boolean save) {
+        this.remoteUrl = url;
+        if (save) {
+            save();
+        }
+    }
+
+    public String getUrl() {
+        return remoteUrl;
+    }
+
+    public String getBranch() {
+        return remoteBranch;
+    }
+
+    public String getRuser() {
+        return remoteUser;
+    }
+
+    private String remoteUrl;
+    private String remoteBranch;
+    private String remoteUser;
     private COMM comm = COMM.PORT;
     private String deviceId = "/dev/ttyUSB0";
     //private String deviceId = "btspp://000666C0AC62:1;authenticate=false;encrypt=false;master=true";

@@ -86,7 +86,7 @@ public class MainWindow {
     private static final JPopupMenu listJump = new JPopupMenu();
     private static final JPopupMenu historyJump = new JPopupMenu();
     private static final Authenticator auth = new Authenticator();
-    private static final DB db = new DB();
+    private static final DB db = new DB(gs);
 
     public static void main(String... s) {
         try {
@@ -734,7 +734,7 @@ public class MainWindow {
                 }
                 JDialog settingsWindow = new JDialog();
                 settingsWindow.setModal(true);
-                settingsWindow.setLayout(new GridLayout(6 + 9, 2));
+                settingsWindow.setLayout(new GridLayout(6 + 9 + 4, 2));
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 255, 1));
                 sss.addChangeListener(new ChangeListener() {
@@ -924,6 +924,102 @@ public class MainWindow {
                 redGreen.addChangeListener(new PathColorCompozitorListener(7, gp, sss, re));
                 redBlue.addChangeListener(new PathColorCompozitorListener(8, gp, sss, re));
 
+                settingsWindow.add(new JLabel(Translator.R("remoteUrl")));
+                JTextField remoteUrl = new JTextField(gs.getUrl());
+                settingsWindow.add(remoteUrl);
+                remoteUrl.getDocument().addDocumentListener(new DocumentListener() {
+                    @Override
+                    public void insertUpdate(DocumentEvent e) {
+                        gs.setUrl(remoteUrl.getText());
+                    }
+
+                    @Override
+                    public void removeUpdate(DocumentEvent e) {
+                        gs.setUrl(remoteUrl.getText());
+                    }
+
+                    @Override
+                    public void changedUpdate(DocumentEvent e) {
+                        gs.setUrl(remoteUrl.getText());
+                    }
+                });
+                settingsWindow.add(new JLabel(Translator.R("remoteBranch")));
+                JTextField remoteBranch = new JTextField(gs.getBranch());
+                settingsWindow.add(remoteBranch);
+                remoteBranch.getDocument().addDocumentListener(new DocumentListener() {
+                    @Override
+                    public void insertUpdate(DocumentEvent e) {
+                        gs.setBranch(remoteBranch.getText());
+                    }
+
+                    @Override
+                    public void removeUpdate(DocumentEvent e) {
+                        gs.setBranch(remoteBranch.getText());
+                    }
+
+                    @Override
+                    public void changedUpdate(DocumentEvent e) {
+                        gs.setBranch(remoteBranch.getText());
+                    }
+                });
+                settingsWindow.add(new JLabel(Translator.R("remoteUser")));
+                JTextField remoteUser = new JTextField(gs.getRuser());
+                settingsWindow.add(remoteUser);
+
+                remoteUser.getDocument().addDocumentListener(new DocumentListener() {
+                    @Override
+                    public void insertUpdate(DocumentEvent e) {
+                        gs.setRuser(remoteUser.getText());
+                    }
+
+                    @Override
+                    public void removeUpdate(DocumentEvent e) {
+                        gs.setRuser(remoteUser.getText());
+                    }
+
+                    @Override
+                    public void changedUpdate(DocumentEvent e) {
+                        gs.setRuser(remoteUser.getText());
+                    }
+                });
+                JButton reInit = new JButton(Translator.R("reInit"));
+                settingsWindow.add(reInit);
+                reInit.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            boolean exists = db.init(false);
+                            if (exists) {
+                                int force = JOptionPane.showConfirmDialog(null, Translator.R("reInitConfirm"));
+                                if (force == JOptionPane.YES_OPTION) {
+                                    db.init(true);
+                                }
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, ex);
+                        }
+                    }
+                });
+                JButton rdelete = new JButton(Translator.R("rdelete"));
+                settingsWindow.add(rdelete);
+                rdelete.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            boolean exists = db.unregisterRm(false);
+                            if (exists) {
+                                int force = JOptionPane.showConfirmDialog(null, Translator.R("rdeleteConfirm"));
+                                if (force == JOptionPane.YES_OPTION) {
+                                    db.unregisterRm(true);
+                                }
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(null, ex);
+                        }
+                    }
+                });
                 settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 settingsWindow.pack();
                 settingsWindow.setLocationRelativeTo(createWallWindow);
@@ -1622,11 +1718,19 @@ public class MainWindow {
                     }
 
                 }
-                for (int x = boulders.getModel().getSize() - 1; x >= 0; x--) {
-                    Boulder i = boulders.getModel().getElementAt(x);
-                    i.getFile().delete();
+                try {
+                    File[] toDelete = new File[boulders.getModel().getSize()];
+                    for (int x = boulders.getModel().getSize() - 1; x >= 0; x--) {
+                        Boulder i = boulders.getModel().getElementAt(x);
+                        toDelete[x] = i.getFile();
+                    }
+                    db.delte(toDelete);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(d, ex);
+                } finally {
+                    apply.getActionListeners()[0].actionPerformed(null);
                 }
-                apply.getActionListeners()[0].actionPerformed(null);
 
             }
         });
