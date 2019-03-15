@@ -55,17 +55,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.desktop.TextToSpeech;
 import org.fbb.board.internals.Boulder;
+import org.fbb.board.internals.DB;
 import org.fbb.board.internals.Filter;
 import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.Grid;
@@ -89,6 +86,7 @@ public class MainWindow {
     private static final JPopupMenu listJump = new JPopupMenu();
     private static final JPopupMenu historyJump = new JPopupMenu();
     private static final Authenticator auth = new Authenticator();
+    private static final DB db = new DB();
 
     public static void main(String... s) {
         try {
@@ -1654,32 +1652,17 @@ public class MainWindow {
 
                 }
                 try {
-                    for (Boulder b : boulders.getSelectedValuesList()) {
-                        if (Files.repoGit.exists()) {
-                            Repository repository = FileRepositoryBuilder.create(Files.repoGit);
-                            Git git = new Git(repository);
-                            git.rm().addFilepattern(b.getFile().getAbsolutePath()).call();
-                        } else {
-                            b.getFile().delete();
-                        }
+                    File[] toDelete = new File[boulders.getSelectedValuesList().size()];
+                    for (int i = 0; i < boulders.getSelectedValuesList().size(); i++) {
+                        Boulder get = boulders.getSelectedValuesList().get(i);
+                        toDelete[i] = get.getFile();
                     }
+                    db.delte(toDelete);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(d, ex);
                 } finally {
-                    try {
-                        //git clone -b Flash --single-branch https://github.com/FlashFreeBoard/FreeBoard.git
-                        if (Files.repoGit.exists()) {
-                            Repository repository = FileRepositoryBuilder.create(Files.repoGit);
-                            Git git = new Git(repository);
-                            git.commit().setMessage("removed "+boulders.getSelectedValuesList().size()+" files").setAuthor("pgm", "pgm@pgm").call();
-                        }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        JOptionPane.showMessageDialog(d, ex);
-                    } finally {
-                        apply.getActionListeners()[0].actionPerformed(null);
-                    }
+                    apply.getActionListeners()[0].actionPerformed(null);
                 }
 
             }
