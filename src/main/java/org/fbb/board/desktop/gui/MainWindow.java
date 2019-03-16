@@ -211,6 +211,13 @@ public class MainWindow {
     }
 
     private static void createWindowIpl(BufferedImage bis, String fname, byte[] props, JFrame... redundants) {
+        try {
+            auth.authenticate(Translator.R("wallChange"));
+        } catch (Authenticator.AuthoriseException a) {
+            a.printStackTrace();
+            JOptionPane.showMessageDialog(null, a);
+            return;
+        }
         final JFrame createWallWindow = new JFrame();
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bis, props, gs);
@@ -820,7 +827,7 @@ public class MainWindow {
                             selectPortDialog.add(title, BorderLayout.NORTH);
                             JLabel waiting = new JLabel("<html><div style='text-align: center;'>" + Translator.R("scanning") + "</div></html>");
                             selectPortDialog.add(waiting);
-                            JLabel message = new JLabel(Translator.R("click desired or close"));
+                            JLabel message = new JLabel(Translator.R("scanHelp"));
                             selectPortDialog.add(message, BorderLayout.SOUTH);
                             selectPortDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                             selectPortDialog.setSize(300, 400);
