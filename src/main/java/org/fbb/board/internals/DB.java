@@ -7,9 +7,8 @@ package org.fbb.board.internals;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.Date;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
@@ -60,7 +59,24 @@ public class DB {
                 }
             }
             git.commit().setMessage("removed " + f.length + " files").setAuthor("pgm", "pgm@pgm").call();
-            if (gs.getRuser() != null && !gs.getRuser().trim().isEmpty()) {
+            push();
+        } else {
+            for (File boulder : f) {
+                boulder.delete();
+            }
+
+        }
+
+    }
+
+    private boolean canUp() {
+        return gs.getRuser() != null && !gs.getRuser().trim().isEmpty();
+    }
+
+    public void push() throws IOException {
+        if (canUp()) {
+            Git git = getDB();
+            if (git != null) {
                 git.push().setCredentialsProvider(new CredentialsProvider() {
                     @Override
                     public boolean isInteractive() {
@@ -79,13 +95,7 @@ public class DB {
 
                 });
             }
-        } else {
-            for (File boulder : f) {
-                boulder.delete();
-            }
-
         }
-
     }
 
     public boolean init(boolean force) throws IOException, GitAPIException {
@@ -97,10 +107,7 @@ public class DB {
             git.close();
             git = null;
             db = null;
-            java.nio.file.Files.walk(Files.repoGit.toPath())
-                    .map(Path::toFile)
-                    .sorted(Comparator.comparing(File::isDirectory))
-                    .forEach(File::delete);
+            FileUtils.deleteDirectory(Files.repoGit);
         }
         File tmp = new File(Files.configDir, "" + new Date().getTime() + ".tmpGit");
         Git.cloneRepository()
@@ -108,6 +115,11 @@ public class DB {
                 .setBranch(gs.getBranch())
                 .setDirectory(tmp)
                 .call();
+        FileUtils.copyDirectory(Files.repo, tmp);
+        Files.repo.renameTo(new File(Files.repo.getParent(), "backup-" + tmp.getName()));
+        tmp.renameTo(Files.repo);
+        //if canUp -> git add all? + commit?
+        //push()?
         return false;
     }
 
@@ -120,10 +132,7 @@ public class DB {
             git.close();
             git = null;
             db = null;
-            java.nio.file.Files.walk(Files.repoGit.toPath())
-                    .map(Path::toFile)
-                    .sorted(Comparator.comparing(File::isDirectory))
-                    .forEach(File::delete);
+            FileUtils.deleteDirectory(Files.repoGit);
         }
         return false;
     }
