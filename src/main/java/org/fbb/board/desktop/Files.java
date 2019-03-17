@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.fbb.board.internals.Boulder;
+import org.fbb.board.internals.GuiLogHelper;
 
 /**
  *
@@ -156,7 +157,7 @@ public class Files {
         try {
             return getAuthFileHashImpl();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
             return null;
         }
     }

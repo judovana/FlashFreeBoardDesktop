@@ -5,13 +5,12 @@
  */
 package org.fbb.board.desktop.gui;
 
-import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.fbb.board.Translator;
+import org.fbb.board.internals.GuiLogHelper;
 
 /**
  *
@@ -135,7 +134,7 @@ class BoulderCalc {
             int secs = Integer.parseInt(ss[1].trim());
             return miuntes * 60 + secs;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
             //JOptionPane.showMessageDialog(null, Translator.R("parseTimeIssue"));
             return -1;
         }

@@ -119,7 +119,7 @@ public class GlobalSettings implements ByteEater {
                 try {
                     runImp();
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                 }
             }
         }
@@ -144,7 +144,7 @@ public class GlobalSettings implements ByteEater {
 
         public void repaintRemote(byte[][] l) {
             if (null == comm) {
-                System.err.println("Nothing mode");
+                GuiLogHelper.guiLogger.loge("Nothing mode");
             } else {
                 switch (comm) {
                     case PORT:
@@ -154,7 +154,7 @@ public class GlobalSettings implements ByteEater {
                         new BtOp().writeToDevice(deviceId, l);
                         break;
                     default:
-                        System.err.println("Nothing mode");
+                        GuiLogHelper.guiLogger.loge("Nothing mode");
                         break;
                 }
             }
@@ -214,7 +214,7 @@ public class GlobalSettings implements ByteEater {
         try {
             loadIpl();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
         }
     }
 
@@ -234,7 +234,7 @@ public class GlobalSettings implements ByteEater {
         try {
             saveImpl();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
         }
     }
 

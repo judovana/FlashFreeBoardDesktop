@@ -770,9 +770,11 @@ public class Grid {
     public void testRed(int delay) {
         test(MARK_TOP, delay);
     }
+
     public void testGreen(int delay) {
         test(MARK_START, delay);
     }
+
     public void testBlue(int delay) {
         test(MARK_PATH, delay);
     }
@@ -789,7 +791,7 @@ public class Grid {
             try {
                 Thread.sleep(delay);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                GuiLogHelper.guiLogger.loge(ex);
             }
 
         }

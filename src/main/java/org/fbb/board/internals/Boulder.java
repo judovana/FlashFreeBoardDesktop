@@ -124,7 +124,7 @@ public class Boulder implements Cloneable {
                 int y = Integer.valueOf(strXY[1]);
                 values[x * (heigt) + y] = mark;
             } catch (Exception ex) {
-                ex.printStackTrace();
+                GuiLogHelper.guiLogger.loge(ex);
             }
         }
 

@@ -150,7 +150,7 @@ public class GridPane extends JPanel implements Meassurable {
                     props.write(data, 0, nRead);
                 }
             } else {
-                System.err.println("Unknown entry: " + ze.getName());
+                GuiLogHelper.guiLogger.loge("Unknown entry: " + ze.getName());
             }
         }
         return new Preload(img.toByteArray(), props.toByteArray(), id);

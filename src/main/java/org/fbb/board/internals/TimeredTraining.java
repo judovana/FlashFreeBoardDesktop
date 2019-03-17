@@ -117,7 +117,7 @@ public class TimeredTraining implements Runnable {
                 Thread.sleep(1000);
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
         }
     }
 }

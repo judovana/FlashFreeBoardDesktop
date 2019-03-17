@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import org.fbb.board.internals.GuiLogHelper;
 
 /**
  * Utility class to provide simple methods to help localize messages
@@ -54,7 +55,7 @@ public class Translator {
         try {
             resources = ResourceBundle.getBundle(s);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
             throw new IllegalStateException("No bundles found for Locale: " + Locale.getDefault().toString()
                     + "and missing base resource bundle in jar:\\" + s + "/Messages.properties");
         }

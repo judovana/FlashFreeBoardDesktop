@@ -55,7 +55,7 @@ public class DB {
                         boulder.delete();
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                 }
             }
             git.commit().setMessage("removed " + f.length + " files").setAuthor("pgm", "pgm@pgm").call();

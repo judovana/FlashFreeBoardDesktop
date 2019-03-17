@@ -67,6 +67,7 @@ import org.fbb.board.internals.Filter;
 import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.Grid;
 import org.fbb.board.internals.GridPane;
+import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.HistoryManager;
 import org.fbb.board.internals.ListWithFilter;
 import org.fbb.board.internals.TimeredTraining;
@@ -121,7 +122,7 @@ public class MainWindow {
                 }
             } else if (Files.getLastBoulder() != null && Files.getLastBoard() == null) {
                 //warn, but load last boulder on its wall, if wall does noto exists, empty(?)
-                System.err.println("Last boulder but not lat wall!");
+                GuiLogHelper.guiLogger.loge("Last boulder but not lat wall!");
                 Boulder b = Boulder.load(Files.getBoulderFile(Files.getLastBoulder()));
                 File bWall = Files.getWallFile(b.getWall());
                 if (bWall.exists()) {
@@ -140,7 +141,7 @@ public class MainWindow {
             }
         } catch (Exception ex) {
             //do better?
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
             JOptionPane.showMessageDialog(null, ex);
         }
     }
@@ -186,9 +187,9 @@ public class MainWindow {
                 createWindow(zis, new File(r.getPath()).getName(), redundants);
                 zis.close();
             } catch (Exception exx) {
-                ex.printStackTrace();
+                GuiLogHelper.guiLogger.loge(ex);
                 JOptionPane.showMessageDialog(null, ex);
-                exx.printStackTrace();
+                GuiLogHelper.guiLogger.loge(exx);
                 JOptionPane.showMessageDialog(null, exx);
             }
         }
@@ -214,7 +215,7 @@ public class MainWindow {
         try {
             auth.authenticate(Translator.R("wallChange"));
         } catch (Authenticator.AuthoriseException a) {
-            a.printStackTrace();
+            GuiLogHelper.guiLogger.loge(a);
             JOptionPane.showMessageDialog(null, a);
             return;
         }
@@ -329,7 +330,7 @@ public class MainWindow {
                         }
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(null, ex);
                 }
             }
@@ -585,7 +586,7 @@ public class MainWindow {
                     nextInList.setEnabled(list.canFwd());
                     prevInList.setEnabled(list.canBack());
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(null, ex);
                 }
             }
@@ -597,7 +598,7 @@ public class MainWindow {
                 try {
                     createSelectOrImportWall(Files.getWallFile(preloaded.givenId).toURI().toURL().toExternalForm(), createWallWindow);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(null, ex);
                 }
             }
@@ -735,7 +736,7 @@ public class MainWindow {
                 try {
                     auth.authenticate(Translator.R("settingsAuth"));
                 } catch (Authenticator.AuthoriseException a) {
-                    a.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(a);
                     JOptionPane.showMessageDialog(null, a);
                     return;
                 }
@@ -866,7 +867,7 @@ public class MainWindow {
                                         });
                                         selectPortDialog.pack();
                                     } catch (Exception ex) {
-                                        ex.printStackTrace();
+                                        GuiLogHelper.guiLogger.loge(ex);
                                         JOptionPane.showMessageDialog(selectPortDialog, ex);
                                     }
                                 }
@@ -874,7 +875,7 @@ public class MainWindow {
                             sw.execute();
                             selectPortDialog.setVisible(true);
                         } catch (Exception ex) {
-                            ex.printStackTrace();
+                            GuiLogHelper.guiLogger.loge(ex);
                             JOptionPane.showMessageDialog(settingsWindow, ex);
                         }
                     }
@@ -1003,7 +1004,7 @@ public class MainWindow {
                                 }
                             }
                         } catch (Exception ex) {
-                            ex.printStackTrace();
+                            GuiLogHelper.guiLogger.loge(ex);
                             JOptionPane.showMessageDialog(null, ex);
                         }
                     }
@@ -1022,7 +1023,7 @@ public class MainWindow {
                                 }
                             }
                         } catch (Exception ex) {
-                            ex.printStackTrace();
+                            GuiLogHelper.guiLogger.loge(ex);
                             JOptionPane.showMessageDialog(null, ex);
                         }
                     }
@@ -1187,7 +1188,7 @@ public class MainWindow {
         try {
             return editBoulderImpl(p, b);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
             JOptionPane.showMessageDialog(null, ex);
             return null;
         }
@@ -1380,7 +1381,7 @@ public class MainWindow {
             try {
                 actionPerformedImpl(e);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                GuiLogHelper.guiLogger.loge(ex);
                 JOptionPane.showMessageDialog(parent, ex);
             }
         }
@@ -1486,7 +1487,7 @@ public class MainWindow {
         try {
             return selectListBouderImpl(wallId);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
             JOptionPane.showMessageDialog(null, ex);
             return null;
         }
@@ -1526,7 +1527,7 @@ public class MainWindow {
                         boulderPreview.validate();
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(boulders, ex);
                 }
             }
@@ -1544,7 +1545,7 @@ public class MainWindow {
                 try {
                     Files.lastUsedToLastApplied();
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(d, ex);
                 }
                 result[0] = ALL;
@@ -1561,7 +1562,7 @@ public class MainWindow {
                 try {
                     Files.lastUsedToLastApplied();
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(d, ex);
                 }
                 result[0] = SEL;
@@ -1687,7 +1688,7 @@ public class MainWindow {
                         }
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(boulders, ex);
                 }
             }
@@ -1703,7 +1704,7 @@ public class MainWindow {
                         }
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(boulders, ex);
                 }
             }
@@ -1740,7 +1741,7 @@ public class MainWindow {
                     }
                     db.delte(toDelete);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(d, ex);
                 } finally {
                     apply.getActionListeners()[0].actionPerformed(null);
@@ -1777,7 +1778,7 @@ public class MainWindow {
                     }
                     db.delte(toDelete);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(d, ex);
                 } finally {
                     apply.getActionListeners()[0].actionPerformed(null);
@@ -1921,7 +1922,7 @@ public class MainWindow {
                 lastList.getLastFilter().save(Files.getLastAppliedFilterFile());
                 boulders.setModel(new DefaultComboBoxModel<>(lastList.getHistory()));
             } catch (Exception ex) {
-                ex.printStackTrace();
+                GuiLogHelper.guiLogger.loge(ex);
                 JOptionPane.showMessageDialog(dateFrom, ex);
             }
         }

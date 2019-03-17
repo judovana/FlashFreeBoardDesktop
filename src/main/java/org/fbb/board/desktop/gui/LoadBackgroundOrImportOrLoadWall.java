@@ -21,6 +21,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
+import org.fbb.board.internals.GuiLogHelper;
 
 /**
  *
@@ -34,16 +35,14 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
     private JButton select;
     private JButton ok;
 
-  
     public static String getDefaultUrl() {
         try {
             return Files.wallsDir.toURI().toURL().toString();
         } catch (MalformedURLException ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
             return Files.wallsDir.getAbsolutePath();
         }
     }
-
 
     public void setOkAction(ActionListener l) {
         ok.addActionListener(l);
@@ -80,7 +79,7 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
                 URL u = new URL(input.getText());
                 jf = new JFileChooser(u.getPath());
             } catch (MalformedURLException ex) {
-                ex.printStackTrace();
+                GuiLogHelper.guiLogger.loge(ex);
                 jf = new JFileChooser(input.getText());
             }
             jf.setDialogType(JFileChooser.OPEN_DIALOG);
@@ -90,7 +89,7 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
                 try {
                     input.setText(jf.getSelectedFile().toURI().toURL().toExternalForm());
                 } catch (MalformedURLException ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                 }
             }
         });
@@ -161,7 +160,7 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
                 return 3;
             }
         } catch (MalformedURLException ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
             if (new File(candidate).exists()) {
                 if (new File(candidate).isDirectory()) {
                     return 11;
@@ -181,7 +180,7 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
             URL u = new URL(input.getText());
             return u;
         } catch (MalformedURLException ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
             try {
                 return new File(info.getText()).toURI().toURL();
             } catch (MalformedURLException eex) {

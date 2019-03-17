@@ -10,6 +10,7 @@ package org.fbb.board.internals.comm.wired;
 import com.fazecast.jSerialComm.SerialPort;
 import java.util.HashSet;
 import java.util.Set;
+import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.comm.ListAndWrite;
 
@@ -84,7 +85,7 @@ public class PortWork implements ListAndWrite {
             }
             System.out.println("written - end - " + b.length);
         } catch (Exception e) {
-            e.printStackTrace();
+            GuiLogHelper.guiLogger.loge(e);
         }
         comPort.closePort();
     }

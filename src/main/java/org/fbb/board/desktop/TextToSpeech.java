@@ -7,6 +7,7 @@ package org.fbb.board.desktop;
 
 import java.io.IOException;
 import org.fbb.board.Translator;
+import org.fbb.board.internals.GuiLogHelper;
 
 /**
  *
@@ -41,7 +42,7 @@ public class TextToSpeech {
         try {
             tellImpl(s, id);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
         }
     }
 
@@ -67,7 +68,7 @@ public class TextToSpeech {
                 };
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            GuiLogHelper.guiLogger.loge(ex);
             return new TextId[]{
                 new TextId(Translator.R("noEspeak"), null)
             };

@@ -47,6 +47,7 @@ import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
+import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.comm.ListAndWrite;
 
@@ -149,7 +150,7 @@ public class BtOp implements ListAndWrite {
             try {
                 Thread.sleep(250);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                GuiLogHelper.guiLogger.loge(ex);
             }
         }
         return sc.services;
@@ -191,7 +192,7 @@ public class BtOp implements ListAndWrite {
                         v.os.close();
                         v.sn.close();
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        GuiLogHelper.guiLogger.loge(ex);
                     }
                 }
             }
@@ -241,7 +242,7 @@ public class BtOp implements ListAndWrite {
                 os.sn.close();
             }
             ocache.remove(url);
-            e.printStackTrace();
+            GuiLogHelper.guiLogger.loge(e);
         }
 
     }
@@ -285,7 +286,7 @@ public class BtOp implements ListAndWrite {
                 try {
                     agent.searchServices(new int[0], uuidSet, device, this);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiLogHelper.guiLogger.loge(ex);
                 }
             }
         }
