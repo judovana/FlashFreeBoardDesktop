@@ -1042,6 +1042,15 @@ public class MainWindow {
 
             }
         });
+        JMenuItem logItem = new JMenuItem("Logs");
+        jp.add(logItem);
+        logItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new LogView().setVisible(true);
+            }
+        });
         jp.add(new JMenuItem("tips")); //highlight what save do (jsut add a leg?), higluight do not save garbage
         JPanel subtools = new JPanel(new BorderLayout());
         subtools.add(settings, BorderLayout.WEST);
