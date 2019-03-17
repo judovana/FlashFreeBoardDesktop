@@ -160,7 +160,7 @@ public class BtOp implements ListAndWrite {
         ConnectionID[] services = list();
         for (int i = 0; i < services.length; i++) {
             ConnectionID service = services[i];
-            System.out.println(service);
+            GuiLogHelper.guiLogger.logo(service.toString());
 
         }
         String url = services[0].getId();
@@ -226,15 +226,15 @@ public class BtOp implements ListAndWrite {
                 ocache.put(url, os);
                 //soft reset arduino her (send only zeros?)
                 //byte[] resert = new byte[b[0].length];
-                //System.out.println("reset send");
+                //GuiLogHelper.guiLogger.logo("reset send");
 
             }
             for (byte[] byteArray : b) {
                 sendSingleArrayBySingleByte(byteArray, os);
-                System.out.println("written -  " + byteArray.length);
+                GuiLogHelper.guiLogger.logo("written -  " + byteArray.length);
                 Thread.sleep(10);
             }
-            System.out.println("written - end - " + b.length);
+            GuiLogHelper.guiLogger.logo("written - end - " + b.length);
             Thread.sleep(1000);//time to fullyconsume? HYPER CRITICAL!
         } catch (Exception e) {
             if (os != null) {
@@ -270,9 +270,9 @@ public class BtOp implements ListAndWrite {
         @Override
         public void deviceDiscovered(RemoteDevice device, DeviceClass cod) {
             try {
-                System.out.println("Found: " + device.getBluetoothAddress() + " - " + device.getFriendlyName(false));
+                GuiLogHelper.guiLogger.logo("Found: " + device.getBluetoothAddress() + " - " + device.getFriendlyName(false));
             } catch (Exception ex) {
-                System.out.println("Found: " + device.getBluetoothAddress());
+                GuiLogHelper.guiLogger.logo("Found: " + device.getBluetoothAddress());
             }
             devices.add(device);
 
@@ -280,8 +280,8 @@ public class BtOp implements ListAndWrite {
 
         @Override
         public void inquiryCompleted(int arg0) {
-            System.out.println("device search done.");
-            System.out.println("Searching matching services.");
+            GuiLogHelper.guiLogger.logo("device search done.");
+            GuiLogHelper.guiLogger.logo("Searching matching services.");
             for (RemoteDevice device : devices) {
                 try {
                     agent.searchServices(new int[0], uuidSet, device, this);
@@ -294,8 +294,8 @@ public class BtOp implements ListAndWrite {
         @Override
         public void serviceSearchCompleted(int arg0, int arg1) {
             hit++;
-            System.out.println("Services done1: " + arg0 + "/" + arg1);
-            System.out.println("Services done2: " + hit + "/" + devices.size());
+            GuiLogHelper.guiLogger.logo("Services done1: " + arg0 + "/" + arg1);
+            GuiLogHelper.guiLogger.logo("Services done2: " + hit + "/" + devices.size());
             //if (hit >= devices.size() || arg0 >= arg1) { ??
             if (hit >= devices.size()) {
                 inquiryRunning = false;
@@ -305,7 +305,7 @@ public class BtOp implements ListAndWrite {
 
         @Override
         public void servicesDiscovered(int arg0, ServiceRecord[] srs) {
-            System.out.println("Found: " + Arrays.toString(srs));
+            GuiLogHelper.guiLogger.logo("Found: " + Arrays.toString(srs));
             for (int i = 0; i < srs.length; i++) {
                 ServiceRecord sr = srs[i];
                 services.add(sr);

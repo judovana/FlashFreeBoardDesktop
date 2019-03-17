@@ -131,7 +131,7 @@ public class Grid {
                 Point p3 = vertLines[y + 1].cross(horLines[x + 1]);
                 Point p4 = vertLines[y].cross(horLines[x + 1]);
                 if (p1 == null || p2 == null || p3 == null || p4 == null) {
-                    System.out.println("NULL: " + y + "; " + x + ";");
+                    GuiLogHelper.guiLogger.logo("NULL: " + y + "; " + x + ";");
                 } else {
                     int[] xs = new int[]{p1.x, p2.x, p3.x, p4.x};
                     int[] ys = new int[]{p1.y, p2.y, p3.y, p4.y};
@@ -174,7 +174,7 @@ public class Grid {
         }
         int style = Math.abs(holdStyle % 8);
         int alpha = 100;
-        System.out.println("" + style);
+        GuiLogHelper.guiLogger.logo("" + style);
         if (style != FILL) {
             alpha = 255;
         }
@@ -378,7 +378,7 @@ public class Grid {
         }
         this.horLines = new Line[i];
         createLines();
-        System.out.println(horLines.length + " x " + vertLines.length);
+        GuiLogHelper.guiLogger.logo(horLines.length + " x " + vertLines.length);
     }
 
     public void setVertLines(int i) {
@@ -388,7 +388,7 @@ public class Grid {
         ///no need to recalcualte selected points index!
         this.vertLines = new Line[i];
         createLines();
-        System.out.println(horLines.length + " x " + vertLines.length);
+        GuiLogHelper.guiLogger.logo(horLines.length + " x " + vertLines.length);
     }
 
     public void setPs(int absX, int absY) {
@@ -491,7 +491,7 @@ public class Grid {
 
     private int coordToIndex(int x, int y) {
         int r = x * (horLines.length - 1) + y;
-        System.out.println(x + " x " + y + " => " + r);
+        GuiLogHelper.guiLogger.logo(x + " x " + y + " => " + r);
         return r;
     }
 
@@ -755,7 +755,7 @@ public class Grid {
     void send(ByteEater consummer) {
         lastConsummer = consummer;
         int[] bb = getArrayURDR();
-        //System.out.println(Arrays.toString(bb));
+        //GuiLogHelper.guiLogger.logo(Arrays.toString(bb));
         consummer.sendBytes(bb);
 
     }

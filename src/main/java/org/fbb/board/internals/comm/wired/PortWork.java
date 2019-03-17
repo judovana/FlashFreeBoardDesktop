@@ -36,7 +36,7 @@ public class PortWork implements ListAndWrite {
     public static void main(String... s) throws Exception {
         ConnectionID[] a = list();
         for (ConnectionID a1 : a) {
-            System.out.println(a1);
+            GuiLogHelper.guiLogger.logo(a1.toString());
 
         }
         byte[] testData = new byte[]{
@@ -80,10 +80,10 @@ public class PortWork implements ListAndWrite {
             Thread.sleep(100);
             for (byte[] byteArray : b) {
                 comPort.writeBytes(byteArray, byteArray.length);
-                System.out.println("written -  " + byteArray.length);
+                GuiLogHelper.guiLogger.logo("written -  " + byteArray.length);
                 Thread.sleep(10);
             }
-            System.out.println("written - end - " + b.length);
+            GuiLogHelper.guiLogger.logo("written - end - " + b.length);
         } catch (Exception e) {
             GuiLogHelper.guiLogger.loge(e);
         }

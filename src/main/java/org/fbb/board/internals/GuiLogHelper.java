@@ -19,7 +19,7 @@ public class GuiLogHelper {
     StringBuffer serr = new StringBuffer();
 
     public void logo(String s) {
-        System.out.println(s);
+        GuiLogHelper.guiLogger.logo(s);
         sout.append(new Date().toString()).append(": ").append(s);
     }
 

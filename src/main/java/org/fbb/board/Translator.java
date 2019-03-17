@@ -13,7 +13,7 @@ public class Translator {
 
     public static String getLocale() {
         String s = getInstance().resources.getLocale().toString();
-        //System.out.println(s);
+        //GuiLogHelper.guiLogger.logo(s);
         return s;
     }
 

@@ -68,14 +68,14 @@ public class Filter implements Serializable {
     }
 
     public static void main(String... args) {
-        System.out.println(Arrays.toString(split("a b ")));
-        System.out.println(Arrays.toString(split("")));
-        System.out.println((containsAny("", split(""))));
-        System.out.println((containsAny("aa ", split(""))));
-        System.out.println(Arrays.toString(split("    xxx yyy")));
+        GuiLogHelper.guiLogger.logo(Arrays.toString(split("a b ")));
+        GuiLogHelper.guiLogger.logo(Arrays.toString(split("")));
+        GuiLogHelper.guiLogger.logo((String.valueOf(containsAny("", split("")))));
+        GuiLogHelper.guiLogger.logo((String.valueOf(containsAny("aa ", split("")))));
+        GuiLogHelper.guiLogger.logo(Arrays.toString(split("    xxx yyy")));
         Date d = new Date();
-        System.out.println((d.toString()));
-        System.out.println((new Date(d.getTime() + 61000).toString()));
+        GuiLogHelper.guiLogger.logo((d.toString()));
+        GuiLogHelper.guiLogger.logo((new Date(d.getTime() + 61000).toString()));
     }
 
     private static String[] split(String s) {
