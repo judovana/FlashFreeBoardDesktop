@@ -25,7 +25,7 @@ public class GuiLogHelper {
 
     public void loge(String s) {
         System.err.println(s);
-        sout.append(new Date().toString()).append(": ").append(s);
+        serr.append(new Date().toString()).append(": ").append(s);
     }
 
     public void loge(Throwable e) {
