@@ -742,7 +742,7 @@ public class MainWindow {
                 }
                 JDialog settingsWindow = new JDialog();
                 settingsWindow.setModal(true);
-                settingsWindow.setLayout(new GridLayout(6 + 9 + 6, 2));
+                settingsWindow.setLayout(new GridLayout(6 + 9 + 7, 2));
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 255, 1));
                 sss.addChangeListener(new ChangeListener() {
@@ -1031,10 +1031,13 @@ public class MainWindow {
                 JButton rSyncDown = new JButton(Translator.R("rSyncDown"));
                 JButton rSyncUp = new JButton(Translator.R("rSyncUp"));
                 JButton rResetHard = new JButton(Translator.R("rResetHard"));
+                JButton rAddAll = new JButton(Translator.R("rAddAll"));
                 settingsWindow.add(rSyncDown);
                 settingsWindow.add(rSyncUp);
                 settingsWindow.add(new JLabel(Translator.R("danger")));
                 settingsWindow.add(rResetHard);
+                settingsWindow.add(new JLabel(Translator.R("danger")));
+                settingsWindow.add(rAddAll);
                 settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 settingsWindow.pack();
                 settingsWindow.setLocationRelativeTo(createWallWindow);
