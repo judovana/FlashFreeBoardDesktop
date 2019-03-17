@@ -637,7 +637,7 @@ public class MainWindow {
                     }
                 });
                 timeredWindow.add(allowRandom);
-                final JCheckBox allowRegular = new JCheckBox("allowRegular", true);
+                final JCheckBox allowRegular = new JCheckBox(Translator.R("allowRegular"), true);
                 allowRegular.addActionListener(new ActionListener() {
 
                     @Override
@@ -648,7 +648,7 @@ public class MainWindow {
                     }
                 });
                 timeredWindow.add(allowRegular);
-                final JCheckBox allowJumps = new JCheckBox("allowJumps", true);
+                final JCheckBox allowJumps = new JCheckBox(Translator.R("allowJumps"), true);
                 allowJumps.addActionListener(new ActionListener() {
 
                     @Override
