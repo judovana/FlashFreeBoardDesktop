@@ -19,7 +19,7 @@ import org.fbb.board.Translator;
  */
 public class GitAuthenticator {
 
-    private char[] pernament = null;
+    private static  char[] pernament = null;
 
     public boolean isPernament() {
         return pernament != null;
