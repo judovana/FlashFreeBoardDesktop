@@ -10,8 +10,10 @@ import java.io.IOException;
 import java.util.Date;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
+import org.eclipse.jgit.lib.ProgressMonitor;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialItem;
@@ -46,7 +48,7 @@ public class DB {
     public synchronized void delte(File... f) throws IOException, GitAPIException {
         Git git = getDB();
         if (git != null) {
-            git.pull().call();
+            pull();
             for (File boulder : f) {
                 try {
                     git.rm().addFilepattern(boulder.getAbsolutePath()).call();
@@ -71,6 +73,18 @@ public class DB {
 
     private boolean canUp() {
         return gs.getRuser() != null && !gs.getRuser().trim().isEmpty();
+    }
+
+    public void pull() throws IOException, GitAPIException {
+        if (canUp()) {
+            Git git = getDB();
+            if (git != null) {
+                PullResult r = git.pull().setProgressMonitor(new ProgressMonitorImpl()).call();
+                if (!r.isSuccessful()) {
+                    throw new GitAPIException("pull failed; consult logs and fix manually") {};
+                }
+            }
+        }
     }
 
     public void push() throws IOException {
@@ -114,6 +128,7 @@ public class DB {
                 .setURI(gs.getUrl())
                 .setBranch(gs.getBranch())
                 .setDirectory(tmp)
+                .setProgressMonitor(new ProgressMonitorImpl())
                 .call();
         FileUtils.copyDirectory(Files.repo, tmp);
         Files.repo.renameTo(new File(Files.repo.getParent(), "backup-" + tmp.getName()));
@@ -135,6 +150,37 @@ public class DB {
             FileUtils.deleteDirectory(Files.repoGit);
         }
         return false;
+    }
+
+    private static class ProgressMonitorImpl implements ProgressMonitor {
+
+        String s = "unknown";
+
+        @Override
+        public void start(int i) {
+            System.out.println(s + "started");
+        }
+
+        @Override
+        public void beginTask(String string, int i) {
+            this.s = string;
+        }
+
+        @Override
+        public void update(int i) {
+            System.out.println(s + " updated");
+        }
+
+        @Override
+        public void endTask() {
+            System.out.println(s + " ended");
+        }
+
+        @Override
+        public boolean isCancelled() {
+            //System.out.println(s + " canceled");
+            return false;
+        }
     }
 
 }

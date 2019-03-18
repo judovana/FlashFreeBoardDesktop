@@ -1029,6 +1029,18 @@ public class MainWindow {
                     }
                 });
                 JButton rSyncDown = new JButton(Translator.R("rSyncDown"));
+                rSyncDown.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            db.pull();
+                        } catch (Exception ex) {
+                            GuiLogHelper.guiLogger.loge(ex);
+                            JOptionPane.showMessageDialog(null, ex);
+                        }
+                    }
+                });
                 JButton rSyncUp = new JButton(Translator.R("rSyncUp"));
                 JButton rResetHard = new JButton(Translator.R("rResetHard"));
                 JButton rAddAll = new JButton(Translator.R("rAddAll"));
