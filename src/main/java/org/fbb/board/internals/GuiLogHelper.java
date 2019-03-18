@@ -14,6 +14,15 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  */
 public class GuiLogHelper {
 
+    public GuiLogHelper() {
+        //add middleware, which catches client's application stdout/err
+        //and will submit it into console
+        System.setErr(new TeeOutputStream(System.err, true));
+        System.setOut(new TeeOutputStream(System.out, false));
+        //internal stdOut/Err are going throughs outLog/errLog
+        //when console is off, those tees are not installed
+    }
+
     public static final GuiLogHelper guiLogger = new GuiLogHelper();
 
     StringBuffer sout = new StringBuffer();
@@ -23,36 +32,32 @@ public class GuiLogHelper {
         return serr.toString();
     }
 
-    public synchronized String getSout() {
+    public String getSout() {
         return sout.toString();
     }
 
-    public synchronized void logo(String s) {
+    public void logo(String s) {
         System.out.println(s);
-        sout.append(new Date().toString()).append(": ").append(s).append("\n");
     }
 
-    public synchronized void loge(String s) {
-        System.err.println(s);
-        serr.append(new Date().toString()).append(": ").append(s).append("\n");
-    }
-
-    public synchronized void loge(Throwable e) {
-        e.printStackTrace();
-        //String s = org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace(e);
-        //loge(s);
-        Throwable[] ss = org.apache.commons.lang3.exception.ExceptionUtils.getThrowables(e);
-        boolean first = true;
-        for (Throwable s : ss) {
-            if (first) {
-                first = false;
-                serr.append(new Date().toString()).append(": ").append(ExceptionUtils.getStackTrace(s));
-            } else {
-                serr.append(ExceptionUtils.getStackTrace(s));
-            }
-
+    public synchronized void appendInternal(String s, boolean err) {
+        StringBuffer a = sout;
+        if (err) {
+            a = serr;
         }
-        serr.append("\n");
+        if (s.startsWith(" ") | s.startsWith("\t")) {
+            a.append(s);
+        } else {
+            a.append(new Date().toString()).append(": ").append(s);
+        }
+    }
+
+    public void loge(String s) {
+        System.err.println(s);
+    }
+
+    public void loge(Throwable e) {
+        e.printStackTrace(System.err);
 
     }
 
