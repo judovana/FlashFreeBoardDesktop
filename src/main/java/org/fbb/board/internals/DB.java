@@ -8,6 +8,7 @@ package org.fbb.board.internals;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
@@ -19,7 +20,9 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.URIish;
+import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
+import org.fbb.board.desktop.gui.GitAuthenticator;
 
 /**
  *
@@ -81,13 +84,14 @@ public class DB {
             if (git != null) {
                 PullResult r = git.pull().setProgressMonitor(new ProgressMonitorImpl()).call();
                 if (!r.isSuccessful()) {
-                    throw new GitAPIException("pull failed; consult logs and fix manually") {};
+                    throw new GitAPIException("pull failed; consult logs and fix manually") {
+                    };
                 }
             }
         }
     }
 
-    public void push() throws IOException {
+    public void push() throws IOException, GitAPIException {
         if (canUp()) {
             Git git = getDB();
             if (git != null) {
@@ -99,15 +103,27 @@ public class DB {
 
                     @Override
                     public boolean supports(CredentialItem... cis) {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        for (CredentialItem ci : cis) {
+                            if (ci instanceof CredentialItem.Password) {
+                                GitAuthenticator gi = new GitAuthenticator();
+                                char[] v = gi.authenticate(Translator.R("authenticateGit", gs.getRuser(), gs.getUrl(), gs.getBranch()));
+                                ((CredentialItem.Password) ci).setValue(v);
+                            } else if (ci instanceof CredentialItem.Username) {
+                                ((CredentialItem.Username) ci).setValue(gs.getRuser().trim());
+                            } else {
+                                System.err.println("Unsupported Credentialitem " + ci.getClass().getSimpleName());
+                            }
+                        }
+                        return true;
                     }
 
                     @Override
                     public boolean get(URIish uriish, CredentialItem... cis) throws UnsupportedCredentialItem {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        System.out.println(cis);
+                        return true;
                     }
 
-                });
+                }).call();
             }
         }
     }

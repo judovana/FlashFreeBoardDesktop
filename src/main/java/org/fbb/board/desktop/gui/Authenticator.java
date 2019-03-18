@@ -6,12 +6,9 @@
 package org.fbb.board.desktop.gui;
 
 import java.awt.GridLayout;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Base64;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -100,8 +97,12 @@ public class Authenticator {
 
     public static class AuthoriseException extends Exception {
 
+        public AuthoriseException(String s) {
+            super(s);
+        }
+
         public AuthoriseException() {
-            super(Translator.R("authFail"));
+            this(Translator.R("authFail"));
         }
 
         private AuthoriseException(Exception ex) {
