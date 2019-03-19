@@ -8,12 +8,12 @@ package org.fbb.board.internals;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.ProgressMonitor;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -63,7 +63,7 @@ public class DB {
                     GuiLogHelper.guiLogger.loge(ex);
                 }
             }
-            git.commit().setMessage("removed " + f.length + " files").setAuthor("pgm", "pgm@pgm").call();
+            git.commit().setMessage("removed " + f.length + " files").setAuthor(getAuthor()).call();
             push();
         } else {
             for (File boulder : f) {
@@ -166,6 +166,13 @@ public class DB {
             FileUtils.deleteDirectory(Files.repoGit);
         }
         return false;
+    }
+
+    private PersonIdent getAuthor() {
+        return new PersonIdent(
+                System.getProperty("user.name"),
+                System.getProperty("user.name").replaceAll("[^A-Za-z0-9]", ".")+"@ffb.org"
+        );
     }
 
     private static class ProgressMonitorImpl implements ProgressMonitor {
