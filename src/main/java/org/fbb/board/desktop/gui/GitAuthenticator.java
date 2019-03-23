@@ -19,10 +19,14 @@ import org.fbb.board.Translator;
  */
 public class GitAuthenticator {
 
-    private static  char[] pernament = null;
+    private static char[] pernament = null;
 
     public boolean isPernament() {
         return pernament != null;
+    }
+
+    public static void revoke() {
+        pernament = null;
     }
 
     public char[] authenticate(String message) {

@@ -171,8 +171,12 @@ public class DB {
     private PersonIdent getAuthor() {
         return new PersonIdent(
                 System.getProperty("user.name"),
-                System.getProperty("user.name").replaceAll("[^A-Za-z0-9]", ".")+"@ffb.org"
+                System.getProperty("user.name").replaceAll("[^A-Za-z0-9]", ".") + "@ffb.org"
         );
+    }
+
+    public void revoke() {
+        GitAuthenticator.revoke();
     }
 
     private static class ProgressMonitorImpl implements ProgressMonitor {

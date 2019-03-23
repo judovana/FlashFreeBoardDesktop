@@ -77,6 +77,10 @@ public class Authenticator {
         return false;
     }
 
+    void revoke() {
+        pernament = false;
+    }
+
     private static class AuthoriseDialog {
 
         public static Object[] show(String message) {

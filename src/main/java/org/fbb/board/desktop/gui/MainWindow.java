@@ -1078,6 +1078,16 @@ public class MainWindow {
                 new LogView().setVisible(true);
             }
         });
+        JMenuItem revokePermission = new JMenuItem(Translator.R("revokePP"));
+        jp.add(revokePermission);
+        revokePermission.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                auth.revoke();
+                db.revoke();
+            }
+        });
         jp.add(new JMenuItem("tips")); //highlight what save do (jsut add a leg?), higluight do not save garbage
         JPanel subtools = new JPanel(new BorderLayout());
         subtools.add(settings, BorderLayout.WEST);
