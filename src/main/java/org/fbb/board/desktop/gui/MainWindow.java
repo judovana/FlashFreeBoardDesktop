@@ -1324,7 +1324,7 @@ public class MainWindow {
 
     }
 
-    private static BoulderAndSaved editBoulderImpl(GridPane.Preload p, Boulder orig) throws IOException, CloneNotSupportedException {
+    private static BoulderAndSaved editBoulderImpl(final GridPane.Preload p, final Boulder orig) throws IOException, CloneNotSupportedException {
         //checkbox save? 
         //if not save, then what?
         //return  new BoulderAlways? - on Ok?
@@ -1357,8 +1357,28 @@ public class MainWindow {
             name.setText(orig.getName());
             grades.setSelectedItem(orig.getGrade().toString());
         }
-        JCheckBox saveOnExit = new JCheckBox(Translator.R("SaveOnExit"));
-        saveOnExit.setSelected(true);
+        final JCheckBox saveOnExit = new JCheckBox(Translator.R("SaveOnExit"));
+        if (orig == null || auth.isPernament()) {
+            saveOnExit.setSelected(true);
+        } else {
+            saveOnExit.setSelected(false);
+        }
+        saveOnExit.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (orig != null) {
+                    if (saveOnExit.isSelected()) {
+                        try {
+                            auth.authenticate(Translator.R("AllowToEditBoulder"));
+                        } catch (Authenticator.AuthoriseException ee) {
+                            GuiLogHelper.guiLogger.loge(ee);
+                            saveOnExit.setSelected(false);
+                        }
+                    }
+                }
+            }
+        });
         tools1.add(grades, BorderLayout.WEST);
         tools1.add(name);
         tools1.add(saveOnExit, BorderLayout.EAST);
