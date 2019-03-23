@@ -320,6 +320,7 @@ public class MainWindow {
                 f.getParentFile().mkdirs();
                 try {
                     gp.save(f);
+                    db.add("(wall" + f.getName() + ")", f);
                     Files.setLastBoard(n);
                     createWallWindow.dispose();
                     loadWallWithBoulder(n);
@@ -1062,6 +1063,8 @@ public class MainWindow {
                 settingsWindow.add(rResetHard);
                 settingsWindow.add(new JLabel(Translator.R("danger")));
                 settingsWindow.add(rAddAll);
+                rAddAll.setEnabled(false);
+                rResetHard.setEnabled(false);
                 settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 settingsWindow.pack();
                 settingsWindow.setLocationRelativeTo(createWallWindow);
@@ -1232,7 +1235,11 @@ public class MainWindow {
 
     private static BoulderAndSaved editBoulder(GridPane.Preload p, Boulder b) {
         try {
-            return editBoulderImpl(p, b);
+            BoulderAndSaved r = editBoulderImpl(p, b);
+            if (r.saved && r.b != null) {
+                db.add("(boulder" + r.b.getFile().getName() + ")", r.b.getFile());
+            }
+            return r;
         } catch (Exception ex) {
             GuiLogHelper.guiLogger.loge(ex);
             JOptionPane.showMessageDialog(null, ex);
@@ -1395,7 +1402,7 @@ public class MainWindow {
         tools11.add(new JLabel("Author"), BorderLayout.WEST);
         JTextField author = new JTextField();
         if (orig == null) {
-            author.setText("sign yourself");
+            author.setText(Translator.R("DefaultSign"));
         } else {
             author.setText(orig.getAuthor());
         }
@@ -1525,7 +1532,8 @@ public class MainWindow {
                 result = possibleReturnCandidate;
             } else {
                 if (possibleReturnCandidate.equals(orig)) {
-                    result = null;
+                    result = null; //????
+                    // result = possibleReturnCandidate;
                 } else {
                     result = possibleReturnCandidate;
                 }
@@ -1805,7 +1813,11 @@ public class MainWindow {
                         Boulder i = boulders.getModel().getElementAt(x);
                         toDelete[x] = i.getFile();
                     }
-                    db.delte(toDelete);
+                    String appendix = "";
+                    if (toDelete.length == 1) {
+                        appendix = toDelete[0].getName();
+                    }
+                    db.delte(appendix, toDelete);
                 } catch (Exception ex) {
                     GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(d, ex);
@@ -1842,7 +1854,11 @@ public class MainWindow {
                         Boulder get = boulders.getSelectedValuesList().get(i);
                         toDelete[i] = get.getFile();
                     }
-                    db.delte(toDelete);
+                    String appendix = "";
+                    if (toDelete.length == 1) {
+                        appendix = toDelete[0].getName();
+                    }
+                    db.delte(appendix, toDelete);
                 } catch (Exception ex) {
                     GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(d, ex);

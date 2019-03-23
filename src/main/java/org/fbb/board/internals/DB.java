@@ -12,6 +12,7 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.ProgressMonitor;
@@ -48,7 +49,7 @@ public class DB {
         return db;
     }
 
-    public synchronized void delte(File... f) throws IOException, GitAPIException {
+    public synchronized void delte(String appendix, File... f) throws IOException, GitAPIException {
         Git git = getDB();
         if (git != null) {
             pull();
@@ -63,7 +64,7 @@ public class DB {
                     GuiLogHelper.guiLogger.loge(ex);
                 }
             }
-            git.commit().setMessage("removed " + f.length + " files").setAuthor(getAuthor()).call();
+            git.commit().setMessage("removed " + f.length + " files. " + appendix).setAuthor(getAuthor()).call();
             push();
         } else {
             for (File boulder : f) {
@@ -177,6 +178,22 @@ public class DB {
 
     public void revoke() {
         GitAuthenticator.revoke();
+    }
+
+    public void add(String appendix, File... fs) throws IOException, GitAPIException {
+        Git git = getDB();
+        if (git != null) {
+            pull();
+            for (File f : fs) {
+                String toAdd = f.getAbsolutePath().replaceAll(Files.repo.getAbsolutePath(), "");
+                if (toAdd.startsWith("/") || toAdd.startsWith("\\")) {
+                    toAdd = toAdd.substring(1);
+                }
+                git.add().setUpdate(false).addFilepattern(toAdd).call();
+            }
+            git.commit().setMessage("added " + fs.length + " files. " + appendix).setAuthor(getAuthor()).call();
+            push();
+        }
     }
 
     private static class ProgressMonitorImpl implements ProgressMonitor {
