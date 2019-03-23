@@ -404,7 +404,7 @@ public class MainWindow {
         quickFilterPanel.add(a7);
         JButton a8 = new JButton("7A-8A");
         quickFilterPanel.add(a8);
-        JButton a9 = new JButton("8A-");
+        JButton a9 = new JButton("8A+");
         quickFilterPanel.add(a9);
         a5.addActionListener(new QuickFilterLIstener(0, 10, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
         a6.addActionListener(new QuickFilterLIstener(10, 13, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
