@@ -231,10 +231,10 @@ public class BtOp implements ListAndWrite {
             }
             for (byte[] byteArray : b) {
                 sendSingleArrayBySingleByte(byteArray, os);
-                GuiLogHelper.guiLogger.logo("written -  " + byteArray.length);
+                GuiLogHelper.guiLogger.logo("[bt]written -  " + byteArray.length);
                 Thread.sleep(10);
             }
-            GuiLogHelper.guiLogger.logo("written - end - " + b.length);
+            GuiLogHelper.guiLogger.logo("[bt]written - end - " + b.length);
             Thread.sleep(1000);//time to fullyconsume? HYPER CRITICAL!
         } catch (Exception e) {
             if (os != null) {

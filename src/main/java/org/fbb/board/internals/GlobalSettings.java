@@ -164,10 +164,22 @@ public class GlobalSettings implements ByteEater {
     private byte[][] last = null;
     private final Object lock = new Object();
 
+    //if arduino is in WITH_HEADER mode, 
+    private static final boolean SEND_HEADER = true;
+    //this header is for method "read known numbers of  bytes"
+    private static final int[] ALL_COLORS_HEADER = new int[]{
+        250, 50, 150, 200, 5, 139, 144, 250
+    };
+
     @Override
-    public void sendBytes(int[]... b) {
+    public void sendBytes(int[] b) {
         synchronized (lock) {
-            byte[][] m = toMessages(b);
+            byte[][] m;
+            if (SEND_HEADER) {
+                m = toMessagesWithHeader(ALL_COLORS_HEADER, b);
+            } else {
+                m = toMessages(b);
+            }
             last = m;
             lock.notify();
         }
@@ -180,11 +192,22 @@ public class GlobalSettings implements ByteEater {
         }
     }
 
-    private byte[][] toMessages(int[][] bs) {
+    private byte[][] toMessagesWithHeader(int[] header, int[]... content) {
+        byte[][] r = new byte[content.length + 1][];
+        r[0] = new byte[header.length];
+        for (int i = 0; i < header.length; i++) {
+            r[0][i] = (byte) header[i];
+        }
+        for (int i = 0; i < content.length; i++) {
+            r[i + 1] = toMessage(content[i]);
+        }
+        return r;
+    }
+
+    private byte[][] toMessages(int[]... bs) {
         byte[][] r = new byte[bs.length][];
         for (int i = 0; i < bs.length; i++) {
             r[i] = toMessage(bs[i]);
-
         }
         return r;
     }

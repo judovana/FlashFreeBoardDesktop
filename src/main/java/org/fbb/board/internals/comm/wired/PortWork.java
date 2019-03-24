@@ -79,15 +79,22 @@ public class PortWork implements ListAndWrite {
             comPort.openPort();
             Thread.sleep(100);
             for (byte[] byteArray : b) {
-                comPort.writeBytes(byteArray, byteArray.length);
-                GuiLogHelper.guiLogger.logo("written -  " + byteArray.length);
-                Thread.sleep(10);
+                writeByteByByte(byteArray, comPort);
+                GuiLogHelper.guiLogger.logo("[wired]written -  " + byteArray.length);
             }
-            GuiLogHelper.guiLogger.logo("written - end - " + b.length);
+            GuiLogHelper.guiLogger.logo("[wired]written - end - " + b.length);
         } catch (Exception e) {
             GuiLogHelper.guiLogger.loge(e);
         }
         comPort.closePort();
+    }
+
+    public static void writeByteByByte(byte[] byteArray, SerialPort comPort) throws InterruptedException {
+        for (int i = 0; i < byteArray.length; i++) {
+            byte c = byteArray[i]; //arduino have very small buffer (so no need to send byte by byte until 64bytes, but this should serve for some 400
+            comPort.writeBytes(new byte[]{c}, 1);
+            Thread.sleep(2);//we sleep 1 in arduino
+        }
     }
 
     private static Set<String> usages = new HashSet<>();
