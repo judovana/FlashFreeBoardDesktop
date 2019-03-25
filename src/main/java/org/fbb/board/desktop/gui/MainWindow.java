@@ -1091,6 +1091,15 @@ public class MainWindow {
                 db.revoke();
             }
         });
+        JMenuItem reset=new JMenuItem("remote reset"); 
+        reset.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gs.reset();
+            }
+        });
+        jp.add(reset);
         jp.add(new JMenuItem("tips")); //highlight what save do (jsut add a leg?), higluight do not save garbage
         JPanel subtools = new JPanel(new BorderLayout());
         subtools.add(settings, BorderLayout.WEST);

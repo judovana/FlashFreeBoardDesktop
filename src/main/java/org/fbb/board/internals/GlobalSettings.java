@@ -170,19 +170,32 @@ public class GlobalSettings implements ByteEater {
     private static final int[] ALL_COLORS_HEADER = new int[]{
         250, 50, 150, 200, 5, 139, 144, 250
     };
+    //currently unused in java part. However BT seems to be sending some garbage, so thi sis that garbage and reaction
+    private static final int[] RESET_HEADER = new int[]{
+        255, 255, 255, 255, 255, 255, 255, 255
+    };
 
     @Override
     public void sendBytes(int[] b) {
+        sendImpl(ALL_COLORS_HEADER, b);
+    }
+
+    public void sendImpl(int[] header, int[] b) {
         synchronized (lock) {
             byte[][] m;
             if (SEND_HEADER) {
-                m = toMessagesWithHeader(ALL_COLORS_HEADER, b);
+                m = toMessagesWithHeader(header, b);
             } else {
                 m = toMessages(b);
             }
             last = m;
             lock.notify();
         }
+    }
+
+    @Override
+    public void reset() {
+        sendImpl(RESET_HEADER, new int[0]);
     }
 
     public void stop() {

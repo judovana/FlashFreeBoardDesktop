@@ -12,5 +12,6 @@ package org.fbb.board.internals.comm;
 public interface ByteEater {
 
     public void sendBytes(int[] b);
+    public void reset();
 
 }
