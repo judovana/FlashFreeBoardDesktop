@@ -11,8 +11,8 @@ import org.fbb.board.internals.GuiLogHelper;
  */
 public class Translator {
 
-    public static String getLocale() {
-        String s = getInstance().resources.getLocale().toString();
+    public String getLocale() {
+        String s = this.resources.getLocale().toString();
         //GuiLogHelper.guiLogger.logo(s);
         return s;
     }
@@ -54,6 +54,7 @@ public class Translator {
     Translator(String s) {
         try {
             resources = ResourceBundle.getBundle(s);
+            this.reload(getLocale());
         } catch (Exception ex) {
             GuiLogHelper.guiLogger.loge(ex);
             throw new IllegalStateException("No bundles found for Locale: " + Locale.getDefault().toString()
