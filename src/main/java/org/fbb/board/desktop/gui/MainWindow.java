@@ -320,7 +320,7 @@ public class MainWindow {
                 f.getParentFile().mkdirs();
                 try {
                     gp.save(f);
-                    db.add("(wall" + f.getName() + ")", f);
+                    db.add("(wall " + f.getName() + ")", f);
                     Files.setLastBoard(n);
                     createWallWindow.dispose();
                     loadWallWithBoulder(n);
@@ -1035,7 +1035,7 @@ public class MainWindow {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
-                            db.pull();
+                            db.pullUncatched();
                         } catch (Exception ex) {
                             GuiLogHelper.guiLogger.loge(ex);
                             JOptionPane.showMessageDialog(null, ex);
@@ -1266,7 +1266,7 @@ public class MainWindow {
         try {
             BoulderAndSaved r = editBoulderImpl(p, b);
             if (r.saved && r.b != null) {
-                db.add("(boulder" + r.b.getFile().getName() + ")", r.b.getFile());
+                db.add("(boulder " + r.b.getFile().getName() + ")", r.b.getFile());
             }
             return r;
         } catch (Exception ex) {

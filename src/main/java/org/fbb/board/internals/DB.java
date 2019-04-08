@@ -44,11 +44,11 @@ public class DB {
     //git clone -b Flash --single-branch https://github.com/FlashFreeBoard/FreeBoard.git
     private Git db = null;
     private final GlobalSettings gs;
-    
+
     public DB(GlobalSettings gs) {
         this.gs = gs;
     }
-    
+
     private synchronized Git getDB() throws IOException {
         if (Files.repoGit.exists()) {
             if (db == null) {
@@ -58,11 +58,11 @@ public class DB {
         }
         return db;
     }
-    
+
     public synchronized void delte(String appendix, File... f) throws IOException, GitAPIException {
         Git git = getDB();
         if (git != null) {
-            pull();
+            pullCatched();
             for (File boulder : f) {
                 try {
                     git.rm().addFilepattern(boulder.getAbsolutePath()).call();
@@ -80,16 +80,24 @@ public class DB {
             for (File boulder : f) {
                 boulder.delete();
             }
-            
+
         }
-        
+
     }
-    
+
     private boolean canUp() {
         return gs.getRuser() != null && !gs.getRuser().trim().isEmpty();
     }
-    
-    public void pull() throws IOException, GitAPIException {
+
+    public void pullCatched() {
+        try {
+            pullUncatched();
+        } catch (Exception e) {
+            GuiLogHelper.guiLogger.loge(e);
+        }
+    }
+
+    public void pullUncatched() throws IOException, GitAPIException {
         if (canUp()) {
             Git git = getDB();
             if (git != null) {
@@ -101,7 +109,7 @@ public class DB {
             }
         }
     }
-    
+
     public void push() throws IOException, GitAPIException {
         if (canUp()) {
             Git git = getDB();
@@ -111,7 +119,7 @@ public class DB {
                     public boolean isInteractive() {
                         return false;
                     }
-                    
+
                     @Override
                     public boolean supports(CredentialItem... cis) {
                         for (CredentialItem ci : cis) {
@@ -127,18 +135,18 @@ public class DB {
                         }
                         return true;
                     }
-                    
+
                     @Override
                     public boolean get(URIish uriish, CredentialItem... cis) throws UnsupportedCredentialItem {
                         System.out.println(cis);
                         return true;
                     }
-                    
+
                 }).call();
             }
         }
     }
-    
+
     public boolean init(boolean force) throws IOException, GitAPIException {
         Git git = getDB();
         if (!force && git != null) {
@@ -164,7 +172,7 @@ public class DB {
         //push()?
         return false;
     }
-    
+
     public boolean unregisterRm(boolean force) throws IOException {
         Git git = getDB();
         if (!force && git != null) {
@@ -178,22 +186,22 @@ public class DB {
         }
         return false;
     }
-    
+
     private PersonIdent getAuthor() {
         return new PersonIdent(
                 System.getProperty("user.name"),
                 System.getProperty("user.name").replaceAll("[^A-Za-z0-9]", ".") + "@ffb.org"
         );
     }
-    
+
     public void revoke() {
         GitAuthenticator.revoke();
     }
-    
+
     public void add(String appendix, File... fs) throws IOException, GitAPIException {
         Git git = getDB();
         if (git != null) {
-            pull();
+            pullCatched();
             for (File f : fs) {
                 String toAdd = f.getAbsolutePath().replaceAll(Files.repo.getAbsolutePath(), "");
                 if (toAdd.startsWith("/") || toAdd.startsWith("\\")) {
@@ -205,7 +213,7 @@ public class DB {
             push();
         }
     }
-    
+
     public void addAll() throws IOException, GitAPIException {
         Path start = Paths.get(Files.repo.toURI());
         List<String> collect = new ArrayList<>();
@@ -217,73 +225,69 @@ public class DB {
                 }
                 return FileVisitResult.CONTINUE;
             }
-            
+
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 collect.add(file.toString());
                 return FileVisitResult.CONTINUE;
             }
-            
+
             @Override
             public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
                 return FileVisitResult.CONTINUE;
-                
+
             }
-            
+
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                 return FileVisitResult.CONTINUE;
             }
         });
-        
+
         File[] f = new File[collect.size()];
         for (int i = 0; i < collect.size(); i++) {
             f[i] = new File(collect.get(i));
         }
         add("Add all used", f);
     }
-    
+
     public void hardReset() throws IOException, GitAPIException {
         Git git = getDB();
         if (git != null) {
-            try {
-                pull();
-            } catch (Exception ex) {
-                GuiLogHelper.guiLogger.loge(ex);
-            }
+            pullCatched();
             git.reset().setMode(ResetCommand.ResetType.HARD).call();
         }
     }
-    
+
     private static class ProgressMonitorImpl implements ProgressMonitor {
-        
+
         String s = "unknown";
-        
+
         @Override
         public void start(int i) {
             System.out.println(s + "started");
         }
-        
+
         @Override
         public void beginTask(String string, int i) {
             this.s = string;
         }
-        
+
         @Override
         public void update(int i) {
             System.out.println(s + " updated");
         }
-        
+
         @Override
         public void endTask() {
             System.out.println(s + " ended");
         }
-        
+
         @Override
         public boolean isCancelled() {
             //System.out.println(s + " canceled");
             return false;
         }
     }
-    
+
 }
