@@ -92,7 +92,7 @@ public class DB {
     public void pullCatched() {
         try {
             pullUncatched();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             GuiLogHelper.guiLogger.loge(e);
         }
     }

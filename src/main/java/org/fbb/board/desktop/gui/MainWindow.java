@@ -473,6 +473,7 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                db.pullCatched();
                 BoulderListAndIndex listAndothers = selectListBouder(preloaded.givenId);
                 if (listAndothers != null) {
                     list = new ListWithFilter(listAndothers.list);
@@ -507,6 +508,7 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                db.pullCatched();
                 BoulderAndSaved bs = editBoulder(preloaded, null);
                 if (bs != null && bs.b != null) {
                     Boulder r = bs.b;
@@ -534,6 +536,7 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                db.pullCatched();
                 BoulderAndSaved bs = editBoulder(preloaded, hm.getCurrentInHistory());
                 if (bs != null && bs.b != null) {
                     Boulder r = bs.b;
@@ -563,6 +566,7 @@ public class MainWindow {
         saveBoulder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                db.pullCatched();
                 String nameNice = preloaded.givenId + " " + new Date().toString();
                 nameNice = JOptionPane.showInputDialog(null, Translator.R("MBoulderName"), nameNice);
                 if (name == null) {
@@ -597,6 +601,7 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    db.pullCatched();
                     createSelectOrImportWall(Files.getWallFile(preloaded.givenId).toURI().toURL().toExternalForm(), createWallWindow);
                 } catch (IOException ex) {
                     GuiLogHelper.guiLogger.loge(ex);
