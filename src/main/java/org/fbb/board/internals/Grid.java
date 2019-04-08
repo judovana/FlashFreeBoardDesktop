@@ -131,7 +131,7 @@ public class Grid {
                 Point p3 = vertLines[y + 1].cross(horLines[x + 1]);
                 Point p4 = vertLines[y].cross(horLines[x + 1]);
                 if (p1 == null || p2 == null || p3 == null || p4 == null) {
-                    GuiLogHelper.guiLogger.logo("NULL: " + y + "; " + x + ";");
+                    //GuiLogHelper.guiLogger.logo("NULL: " + y + "; " + x + ";");
                 } else {
                     int[] xs = new int[]{p1.x, p2.x, p3.x, p4.x};
                     int[] ys = new int[]{p1.y, p2.y, p3.y, p4.y};
@@ -174,7 +174,7 @@ public class Grid {
         }
         int style = Math.abs(holdStyle % 8);
         int alpha = 100;
-        GuiLogHelper.guiLogger.logo("" + style);
+        //GuiLogHelper.guiLogger.logo("" + style);
         if (style != FILL) {
             alpha = 255;
         }
@@ -491,7 +491,7 @@ public class Grid {
 
     private int coordToIndex(int x, int y) {
         int r = x * (horLines.length - 1) + y;
-        GuiLogHelper.guiLogger.logo(x + " x " + y + " => " + r);
+        //GuiLogHelper.guiLogger.logo(x + " x " + y + " => " + r);
         return r;
     }
 
