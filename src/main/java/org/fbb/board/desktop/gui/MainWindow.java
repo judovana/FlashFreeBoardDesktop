@@ -1063,7 +1063,6 @@ public class MainWindow {
                 settingsWindow.add(rResetHard);
                 settingsWindow.add(new JLabel(Translator.R("danger")));
                 settingsWindow.add(rAddAll);
-                rAddAll.setEnabled(true);
                 rAddAll.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -1075,7 +1074,17 @@ public class MainWindow {
                         }
                     }
                 });
-                rResetHard.setEnabled(false);
+                rResetHard.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            db.hardReset();
+                        } catch (Exception ex) {
+                            GuiLogHelper.guiLogger.loge(ex);
+                            JOptionPane.showMessageDialog(null, ex);
+                        }
+                    }
+                });
                 settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 settingsWindow.pack();
                 settingsWindow.setLocationRelativeTo(createWallWindow);
