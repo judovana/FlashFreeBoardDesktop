@@ -54,7 +54,7 @@ public class ListWithFilter extends HistoryManager {
     }
 
     public ListWithFilter(Grade from, Grade to, String wall) {
-        this(new Filter(wall, from.toNumber(), to.hashCode(), Integer.MIN_VALUE, Integer.MAX_VALUE, "", "", new Date(Long.MIN_VALUE), new Date(Long.MAX_VALUE/2/*there is + in comparsion*/), false));
+        this(new Filter(wall, from.toNumber(), to.hashCode(), Integer.MIN_VALUE, Integer.MAX_VALUE, "", "", new Date(Long.MIN_VALUE), new Date(Long.MAX_VALUE / 2/*there is + in comparsion*/), false));
     }
 
     public ListWithFilter(String givenId) {
@@ -124,6 +124,9 @@ public class ListWithFilter extends HistoryManager {
 
     private static List<Boulder> loadAll() throws IOException {
         File[] all = Files.bouldersDir.listFiles();
+        if (all == null) {
+            all = new File[0];
+        }
         List<Boulder> allbldrs = new ArrayList<>(all.length);
         for (File bfile : all) {
             Boulder b = Boulder.load(bfile);
