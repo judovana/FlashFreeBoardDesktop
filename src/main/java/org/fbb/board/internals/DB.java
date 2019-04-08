@@ -7,7 +7,16 @@ package org.fbb.board.internals;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
@@ -194,6 +203,43 @@ public class DB {
             git.commit().setMessage("added " + fs.length + " files. " + appendix).setAuthor(getAuthor()).call();
             push();
         }
+    }
+
+    public void addAll() throws IOException, GitAPIException {
+        Path start = Paths.get(Files.repo.toURI());
+        List<String> collect = new ArrayList<>();
+        java.nio.file.Files.walkFileTree(start, new FileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                if (dir.toFile().getName().equals(".git")) {
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                collect.add(file.toString());
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                return FileVisitResult.CONTINUE;
+
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
+        File[] f = new File[collect.size()];
+        for (int i = 0; i < collect.size(); i++) {
+            f[i] = new File(collect.get(i));
+        }
+        add("Add all used", f);
     }
 
     private static class ProgressMonitorImpl implements ProgressMonitor {
