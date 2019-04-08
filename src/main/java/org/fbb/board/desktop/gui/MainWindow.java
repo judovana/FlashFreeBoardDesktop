@@ -57,6 +57,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
@@ -603,7 +604,8 @@ public class MainWindow {
                 try {
                     db.pullCatched();
                     createSelectOrImportWall(Files.getWallFile(preloaded.givenId).toURI().toURL().toExternalForm(), createWallWindow);
-                } catch (IOException ex) {
+                    db.addAll();
+                } catch (IOException | GitAPIException ex) {
                     GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(null, ex);
                 }
