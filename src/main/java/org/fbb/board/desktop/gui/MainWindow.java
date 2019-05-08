@@ -71,6 +71,7 @@ import org.fbb.board.internals.GridPane;
 import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.HistoryManager;
 import org.fbb.board.internals.ListWithFilter;
+import org.fbb.board.internals.Puller;
 import org.fbb.board.internals.TimeredTraining;
 import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.grades.Grade;
@@ -89,6 +90,7 @@ public class MainWindow {
     private static final JPopupMenu historyJump = new JPopupMenu();
     private static final Authenticator auth = new Authenticator();
     private static final DB db = new DB(gs);
+    private static final Puller puller = Puller.create(gs.getPullerDelay() * 60, db);
 
     public static void main(String... s) {
         try {
@@ -750,7 +752,7 @@ public class MainWindow {
                 }
                 JDialog settingsWindow = new JDialog();
                 settingsWindow.setModal(true);
-                settingsWindow.setLayout(new GridLayout(6 + 9 + 7, 2));
+                settingsWindow.setLayout(new GridLayout(6 + 9 + 7 + 1, 2));
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 255, 1));
                 sss.addChangeListener(new ChangeListener() {
@@ -998,6 +1000,18 @@ public class MainWindow {
                         gs.setRuser(remoteUser.getText());
                     }
                 });
+                final JLabel autoPullLabel = new JLabel(Translator.R("AutoPull"));
+                final JSpinner autoPull = new JSpinner(new SpinnerNumberModel(gs.getPullerDelay(), 0, 60, 1));
+                settingsWindow.add(autoPullLabel);
+                settingsWindow.add(autoPull);
+                autoPull.addChangeListener(new ChangeListener() {
+
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        gs.setPullerDelay(((Integer) autoPull.getValue()));
+                        puller.setDelay(gs.getPullerDelay() * 60);
+                    }
+                });
                 JButton reInit = new JButton(Translator.R("reInit"));
                 settingsWindow.add(reInit);
                 reInit.addActionListener(new ActionListener() {
@@ -1105,7 +1119,7 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                new LogView().setVisible(true);
+                new LogView(db).setVisible(true);
             }
         });
         JMenuItem revokePermission = new JMenuItem(Translator.R("revokePP"));

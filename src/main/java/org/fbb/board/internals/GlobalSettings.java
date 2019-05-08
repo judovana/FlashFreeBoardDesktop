@@ -105,6 +105,21 @@ public class GlobalSettings implements ByteEater {
         return new Color(b[0], b[1], b[2]);
     }
 
+    public void setPullerDelay(int u) {
+        setPullerDelay(u, true);
+    }
+
+    private void setPullerDelay(int u, boolean save) {
+        this.pullerDelay = u;
+        if (save) {
+            save();
+        }
+    }
+
+    public int getPullerDelay() {
+        return pullerDelay;
+    }
+
     private class MessagesResender extends Thread {
 
         public MessagesResender() {
@@ -264,6 +279,7 @@ public class GlobalSettings implements ByteEater {
         setUrl(p.getProperty("RURL", ""), false);
         setBranch(p.getProperty("RBRANCH", ""), false);
         setRuser(p.getProperty("RUSER", ""), false);
+        setPullerDelay(Integer.valueOf(p.getProperty("PULLER", "1")), false);
     }
 
     private void save() {
@@ -283,6 +299,7 @@ public class GlobalSettings implements ByteEater {
         p.setProperty("RURL", getUrl());
         p.setProperty("RBRANCH", getBranch());
         p.setProperty("RUSER", getRuser());
+        p.setProperty("PULLER", "" + getPullerDelay());
         p.store(new OutputStreamWriter(new FileOutputStream(Files.settings), Charset.forName("utf-8")), "FlashFreeBoard settings " + new Date());
     }
 
@@ -338,6 +355,7 @@ public class GlobalSettings implements ByteEater {
     private String deviceId = "/dev/ttyUSB0";
     //private String deviceId = "btspp://000666C0AC62:1;authenticate=false;encrypt=false;master=true";
     private int brightness = 5;
+    private int pullerDelay = 1; //minutes
 
     public int getBrightness() {
         if (brightness <= 1) {
