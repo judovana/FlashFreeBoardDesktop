@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import org.fbb.board.internals.DB;
 import org.fbb.board.internals.GuiLogHelper;
 
 /**
@@ -26,6 +27,8 @@ import org.fbb.board.internals.GuiLogHelper;
  * @author jvanek
  */
 public class LogView extends JFrame {
+
+    private final DB db;
 
     private class Autorefrsh extends Thread {
 
@@ -59,7 +62,8 @@ public class LogView extends JFrame {
 
     }
 
-    public LogView() throws HeadlessException {
+    public LogView(DB db) throws HeadlessException {
+        this.db = db;
         this.setLayout(new BorderLayout());
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         JTextArea e = new JTextArea();
@@ -79,8 +83,18 @@ public class LogView extends JFrame {
             }
         });
         tools.add(or);
-        JCheckBox autor = new JCheckBox("autorefresh", true);
+        final JCheckBox autor = new JCheckBox("autorefresh", true);
         tools.add(autor);
+        JButton log = new JButton("db log");
+        tools.add(log);
+        log.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                autor.setSelected(false);
+                o.setText(o.getText() + "\n" + db.logCatched());
+            }
+        });
         JButton er = new JButton("refresh");
         er.addActionListener(new ActionListener() {
 

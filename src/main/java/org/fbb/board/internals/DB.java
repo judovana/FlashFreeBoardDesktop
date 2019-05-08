@@ -15,18 +15,17 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import javax.swing.JTextArea;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.ProgressMonitor;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -249,6 +248,31 @@ public class DB {
             f[i] = new File(collect.get(i));
         }
         add("Add all used", f);
+    }
+
+    public String logCatched() {
+        try {
+            return log();
+        } catch (Exception ex) {
+            GuiLogHelper.guiLogger.loge(ex);
+        }
+        return "Issue occured during log reading.";
+
+    }
+
+    public String log() throws IOException, GitAPIException {
+        StringBuilder sb = new StringBuilder("DB LOG\n");
+        Git git = getDB();
+        if (git != null) {
+            Iterable<RevCommit> r = git.log().call();
+            for (RevCommit rev : r) {
+                sb.append(" * " + rev.getAuthorIdent().getName() + ": " + rev.getAuthorIdent().getEmailAddress() + "\n"
+                        + " * " + rev.getAuthorIdent().getWhen().toString() + "\n"
+                        + "      " + rev.getShortMessage() + "\n");
+            }
+            sb.append("END\n");
+        }
+        return sb.toString();
     }
 
     public void hardReset() throws IOException, GitAPIException {
