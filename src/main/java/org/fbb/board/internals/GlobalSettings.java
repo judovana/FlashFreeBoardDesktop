@@ -248,6 +248,9 @@ public class GlobalSettings implements ByteEater {
         // send it to holdToColor
         //for info, calc (in settings where AmpsPerLed  ands ampsSourcePerXleds  are set ) total ampers of given wall
         //print it also in wall setup
+        //ampers note: acording to docs, the one rgb led have 0.06Amps (so 3x 0.02); - https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/power-topology
+        //acording to my meassuring it is 0.18 (3*0.06) AMPS
+        //thus 100 white leds is consumming 18AMPS and that is  why they work max on 50% (brightenss of 125)
         byte[] r = new byte[b.length * 3];
         for (int i = 0; i < b.length; i++) {
             byte[] rgb = holdToColor(b[i]);
