@@ -754,7 +754,7 @@ public class MainWindow {
                 settingsWindow.setModal(true);
                 settingsWindow.setLayout(new GridLayout(6 + 9 + 7 + 1, 2));
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
-                JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 255, 1));
+                JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 254, 1));
                 sss.addChangeListener(new ChangeListener() {
 
                     @Override
