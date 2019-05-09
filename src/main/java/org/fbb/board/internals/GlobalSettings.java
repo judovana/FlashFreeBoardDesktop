@@ -241,22 +241,43 @@ public class GlobalSettings implements ByteEater {
     }
 
     private byte[] toMessage(int[] b) {
-        // based on AmpsPerLed  ands ampsSourcePerXleds 
-        // calc the overvoltage (where X is number of sources or how meny diods have its own source or similar
+        // based on AmpsPerLed  and numberOfSources 
+        // calc the overvoltage (where X=totalOfleds/numberOfSOurces)
         // note that "one" led is eating its full amps only on WHITE!! (so coeficients from holdToColor have its weight use that method!?!?!)
         // calc brightnress lowerer coeficient for each  set of X (considering X is number of diods on separate power source)
         // send it to holdToColor
-        //for info, calc (in settings where AmpsPerLed  ands ampsSourcePerXleds  are set ) total ampers of given wall
+        //for info, calc (in settings where AmpsPerLed  ands numberOfSources  are set ) total ampers of given wall
         //print it also in wall setup
-        //ampers note: acording to docs, the one rgb led have 0.06Amps (so 3x 0.02); - https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/power-topology
-        //acording to my meassuring it is 0.18 (3*0.06) AMPS
+        //ampers note: acording to docs, the one rgb led have 0.06Amps (so 3*0.02); - https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/power-topology
+        //acording to my meassuring it is 0.18 (3*0.06) AMPS (maybe waires stepped in?)
         //thus 100 white leds is consumming 18AMPS and that is  why they work max on 50% (brightenss of 125)
+        double ampsPerRGBtriLed = 0.18; //from settings; disabled by zero
+        int powersources = 4; //from settings; disabled by zero
+        int powersourcesAmps = 10; //from settings; disabled by zero
+        int hunkLength = 0;
+        double singleSubLed = 0d;
+        if (powersources > 0 && ampsPerRGBtriLed > 0 && powersourcesAmps > 0) {
+            hunkLength = b.length / powersources;
+            singleSubLed = ampsPerRGBtriLed / 3d;
+        }
+        double overvoltageLoweringCoeficient = 1; //no change
         byte[] r = new byte[b.length * 3];
         for (int i = 0; i < b.length; i++) {
+            if (hunkLength > 0) {
+                if (i % hunkLength == 0) {
+                    double thisRowAmpers = getRowSumm(b, i, hunkLength, singleSubLed);
+                    if (thisRowAmpers < powersourcesAmps) {
+                        overvoltageLoweringCoeficient = 1;
+                    } else {
+                        overvoltageLoweringCoeficient = (double) powersourcesAmps / (double) thisRowAmpers;
+                        GuiLogHelper.guiLogger.loge("Warning, overvoltage detected - " + i + "-" + (i + hunkLength - 1) + " have " + thisRowAmpers + "ampers => " + overvoltageLoweringCoeficient);
+                    }
+                }
+            }
             byte[] rgb = holdToColor(b[i]);
-            r[i * 3] = rgb[0];
-            r[i * 3 + 1] = rgb[1];
-            r[i * 3 + 2] = rgb[2];
+            r[i * 3] = applyCoefToByte(rgb[0], overvoltageLoweringCoeficient);
+            r[i * 3 + 1] = applyCoefToByte(rgb[1], overvoltageLoweringCoeficient);
+            r[i * 3 + 2] = applyCoefToByte(rgb[2], overvoltageLoweringCoeficient);
         }
         return r;
     }
@@ -443,6 +464,36 @@ public class GlobalSettings implements ByteEater {
                 return new byte[]{(byte) (((double) brightness) * parts[6]), (byte) (((double) brightness) * parts[7]), (byte) (((double) brightness) * parts[8])};
         }
         return null;
+    }
+
+    private double getRowSumm(int[] b, int first, int length, double singleSubLedAmpers) {
+        double summOfAmpers = 0;
+        for (int i = first; i < Math.min(b.length, first + length); i++) {
+            int c = b[i];
+            byte[] values = holdToColor(c);
+            //max is 255+255+255==100% ==  of single  RGBled (3xsubLed)
+            for (int j = 0; j < values.length; j++) {
+                int value = values[j];
+                if (value < 0) {
+                    value = value + 128;//byte->int to get 0-255
+                }
+                summOfAmpers = summOfAmpers + ((double) value / 255d * singleSubLedAmpers);
+            }
+        }
+        return summOfAmpers;
+    }
+
+    private static byte applyCoefToByte(byte rgb, double coef) {
+        int value = rgb;
+        int valueOrig = rgb;
+        if (valueOrig < 0) {
+            value = value + 128;//byte->int to get 0-255
+        }
+        value = (int) ((double) value * coef);
+        if (valueOrig < 0) {
+            value = value - 128;//and back
+        }
+        return (byte) value;
     }
 
     public void setDeviceId(String deviceId) {
