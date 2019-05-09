@@ -241,6 +241,13 @@ public class GlobalSettings implements ByteEater {
     }
 
     private byte[] toMessage(int[] b) {
+        // based on AmpsPerLed  ands ampsSourcePerXleds 
+        // calc the overvoltage (where X is number of sources or how meny diods have its own source or similar
+        // note that "one" led is eating its full amps only on WHITE!! (so coeficients from holdToColor have its weight use that method!?!?!)
+        // calc brightnress lowerer coeficient for each  set of X (considering X is number of diods on separate power source)
+        // send it to holdToColor
+        //for info, calc (in settings where AmpsPerLed  ands ampsSourcePerXleds  are set ) total ampers of given wall
+        //print it also in wall setup
         byte[] r = new byte[b.length * 3];
         for (int i = 0; i < b.length; i++) {
             byte[] rgb = holdToColor(b[i]);
@@ -421,7 +428,7 @@ public class GlobalSettings implements ByteEater {
     //1 blue - path
     //2 green - start
     //3 red - top
-    public byte[] holdToColor(int i) {
+    private byte[] holdToColor(int i) {
         switch (i) {
             case (0):
                 return new byte[]{0, 0, 0};
