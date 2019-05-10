@@ -44,6 +44,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
@@ -65,6 +66,7 @@ import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.desktop.TextToSpeech;
 import org.fbb.board.internals.Boulder;
 import org.fbb.board.internals.DB;
+import org.fbb.board.internals.FUtils;
 import org.fbb.board.internals.Filter;
 import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.Grid;
@@ -751,10 +753,31 @@ public class MainWindow {
                     JOptionPane.showMessageDialog(null, a);
                     return;
                 }
-                JDialog settingsWindow = new JDialog();
-                settingsWindow.setModal(true);
-                settingsWindow.setLayout(new GridLayout(6 + 9 + 7 + +1 + 3 + 5, 2));
-                settingsWindow.add(new JLabel(Translator.R("brightenes")));
+                JDialog allSettingsWindow = new JDialog((JFrame) null, "FFB settings", true);
+                JTabbedPane settingsTabs = new JTabbedPane();
+                int genRows = 3;
+                int conRows = 2;
+                int colRows = 13;
+                int remRows = 9;
+                int ampRows = 6;
+                int maxRows = colRows;
+                JPanel general = new JPanel(new GridLayout(maxRows, 2));
+                general.setName(Translator.R("generalTab"));
+                JPanel connection = new JPanel(new GridLayout(maxRows, 2));
+                connection.setName(Translator.R("connectionTab"));
+                JPanel colors = new JPanel(new GridLayout(maxRows, 2));
+                colors.setName(Translator.R("colorsTab"));
+                JPanel remote = new JPanel(new GridLayout(maxRows, 2));
+                remote.setName(Translator.R("remoteTab"));
+                JPanel amps = new JPanel(new GridLayout(maxRows, 2));
+                amps.setName(Translator.R("ampsTab"));
+                settingsTabs.add(general);
+                settingsTabs.add(connection);
+                settingsTabs.add(colors);
+                settingsTabs.add(remote);
+                settingsTabs.add(amps);
+                allSettingsWindow.add(settingsTabs);
+                general.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 254, 1));
                 sss.addChangeListener(new ChangeListener() {
 
@@ -764,10 +787,24 @@ public class MainWindow {
                         gp.repaintAndSend(gs);
                     }
                 });
-                settingsWindow.add(sss);
-                settingsWindow.add(new JLabel(Translator.R("testdelay")));
+                general.add(sss);
+                JLabel securityLabel = new JLabel(Translator.R("security"));
+                general.add(securityLabel);
+                JTextField securityStatus1 = new JTextField();
+                JTextField securityStatus2 = new JTextField();
+                JTextField securityStatus3 = new JTextField();
+                securityStatus1.setEditable(false);
+                securityStatus2.setEditable(false);
+                securityStatus3.setEditable(false);
+                securityStatus1.setText(auth.getStatus()[0]);
+                securityStatus2.setText(auth.getStatus()[1]);
+                securityStatus3.setText(auth.getStatus()[2]);
+                general.add(securityStatus1);
+                general.add(securityStatus2);
+                general.add(securityStatus3);
+                colors.add(new JLabel(Translator.R("testdelay")));
                 JSpinner testDelay = new JSpinner(new SpinnerNumberModel(50, 1, 10000, 50));
-                settingsWindow.add(testDelay);
+                colors.add(testDelay);
                 final JButton re = new JButton(Translator.R("testred"));
                 re.addActionListener(new ActionListener() {
 
@@ -792,12 +829,12 @@ public class MainWindow {
                         gp.getGrid().testBlue(((Integer) testDelay.getValue()));
                     }
                 });
-                settingsWindow.add(gr);
-                settingsWindow.add(bl);
-                settingsWindow.add(re);
+                colors.add(gr);
+                colors.add(bl);
+                colors.add(re);
                 JButton snake = new JButton("snake game");
                 snake.setEnabled(false);
-                settingsWindow.add(snake);
+                colors.add(snake);
                 JComboBox<String> portType = new JComboBox<>(new String[]{"port", "bluetooth", "nothing"});
                 portType.setSelectedIndex(gs.getPortTypeIndex());
                 portType.addActionListener(new ActionListener() {
@@ -806,9 +843,9 @@ public class MainWindow {
                         gs.setPortType(portType.getSelectedIndex());
                     }
                 });
-                settingsWindow.add(portType);
+                connection.add(portType);
                 JTextField portName = new JTextField(gs.getPortId());
-                settingsWindow.add(portName);
+                connection.add(portName);
                 portName.getDocument().addDocumentListener(new DocumentListener() {
                     @Override
                     public void insertUpdate(DocumentEvent e) {
@@ -825,9 +862,9 @@ public class MainWindow {
                         gs.setDeviceId(portName.getText());
                     }
                 });
-                settingsWindow.add(new JLabel());
+                connection.add(new JLabel());
                 JButton selectPort = new JButton(Translator.R("Bselect"));
-                settingsWindow.add(selectPort);
+                connection.add(selectPort);
                 selectPort.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -843,7 +880,7 @@ public class MainWindow {
                             selectPortDialog.add(message, BorderLayout.SOUTH);
                             selectPortDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                             selectPortDialog.setSize(300, 400);
-                            selectPortDialog.setLocationRelativeTo(settingsWindow);
+                            selectPortDialog.setLocationRelativeTo(allSettingsWindow);
                             SwingWorker<JList<ConnectionID>, JList<ConnectionID>> sw = new SwingWorker() {
                                 @Override
                                 protected JList<ConnectionID> doInBackground() throws Exception {
@@ -887,7 +924,7 @@ public class MainWindow {
                             selectPortDialog.setVisible(true);
                         } catch (Exception ex) {
                             GuiLogHelper.guiLogger.loge(ex);
-                            JOptionPane.showMessageDialog(settingsWindow, ex);
+                            JOptionPane.showMessageDialog(allSettingsWindow, ex);
                         }
                     }
                 });
@@ -912,26 +949,26 @@ public class MainWindow {
                 JLabel redBlueTitle = new JLabel(Translator.R("TopCompozition", Translator.R("blue")));
                 JSpinner redBlue = new JSpinner(new SpinnerNumberModel(gs.getPart(8), 0d, 1d, 0.1));
 
-                settingsWindow.add(greenRedTitle);
-                settingsWindow.add(greenRed);
-                settingsWindow.add(greenGreenTitle);
-                settingsWindow.add(greenGreen);
-                settingsWindow.add(greenBlueTitle);
-                settingsWindow.add(greenBlue);
+                colors.add(greenRedTitle);
+                colors.add(greenRed);
+                colors.add(greenGreenTitle);
+                colors.add(greenGreen);
+                colors.add(greenBlueTitle);
+                colors.add(greenBlue);
 
-                settingsWindow.add(blueRedTitle);
-                settingsWindow.add(blueRed);
-                settingsWindow.add(blueGreenTitle);
-                settingsWindow.add(blueGreen);
-                settingsWindow.add(blueBlueTitle);
-                settingsWindow.add(blueBlue);
+                colors.add(blueRedTitle);
+                colors.add(blueRed);
+                colors.add(blueGreenTitle);
+                colors.add(blueGreen);
+                colors.add(blueBlueTitle);
+                colors.add(blueBlue);
 
-                settingsWindow.add(redRedTitle);
-                settingsWindow.add(redRed);
-                settingsWindow.add(redGreenTitle);
-                settingsWindow.add(redGreen);
-                settingsWindow.add(redBlueTitle);
-                settingsWindow.add(redBlue);
+                colors.add(redRedTitle);
+                colors.add(redRed);
+                colors.add(redGreenTitle);
+                colors.add(redGreen);
+                colors.add(redBlueTitle);
+                colors.add(redBlue);
 
                 greenRed.addChangeListener(new PathColorCompozitorListener(0, gp, sss, gr));
                 greenGreen.addChangeListener(new PathColorCompozitorListener(1, gp, sss, gr));
@@ -943,9 +980,9 @@ public class MainWindow {
                 redGreen.addChangeListener(new PathColorCompozitorListener(7, gp, sss, re));
                 redBlue.addChangeListener(new PathColorCompozitorListener(8, gp, sss, re));
 
-                settingsWindow.add(new JLabel(Translator.R("remoteUrl")));
+                remote.add(new JLabel(Translator.R("remoteUrl")));
                 JTextField remoteUrl = new JTextField(gs.getUrl());
-                settingsWindow.add(remoteUrl);
+                remote.add(remoteUrl);
                 remoteUrl.getDocument().addDocumentListener(new DocumentListener() {
                     @Override
                     public void insertUpdate(DocumentEvent e) {
@@ -962,9 +999,9 @@ public class MainWindow {
                         gs.setUrl(remoteUrl.getText());
                     }
                 });
-                settingsWindow.add(new JLabel(Translator.R("remoteBranch")));
+                remote.add(new JLabel(Translator.R("remoteBranch")));
                 JTextField remoteBranch = new JTextField(gs.getBranch());
-                settingsWindow.add(remoteBranch);
+                remote.add(remoteBranch);
                 remoteBranch.getDocument().addDocumentListener(new DocumentListener() {
                     @Override
                     public void insertUpdate(DocumentEvent e) {
@@ -981,9 +1018,9 @@ public class MainWindow {
                         gs.setBranch(remoteBranch.getText());
                     }
                 });
-                settingsWindow.add(new JLabel(Translator.R("remoteUser")));
+                remote.add(new JLabel(Translator.R("remoteUser")));
                 JTextField remoteUser = new JTextField(gs.getRuser());
-                settingsWindow.add(remoteUser);
+                remote.add(remoteUser);
 
                 remoteUser.getDocument().addDocumentListener(new DocumentListener() {
                     @Override
@@ -1003,8 +1040,8 @@ public class MainWindow {
                 });
                 final JLabel autoPullLabel = new JLabel(Translator.R("AutoPull"));
                 final JSpinner autoPull = new JSpinner(new SpinnerNumberModel(gs.getPullerDelay(), 0, 60, 1));
-                settingsWindow.add(autoPullLabel);
-                settingsWindow.add(autoPull);
+                remote.add(autoPullLabel);
+                remote.add(autoPull);
                 autoPull.addChangeListener(new ChangeListener() {
 
                     @Override
@@ -1014,7 +1051,7 @@ public class MainWindow {
                     }
                 });
                 JButton reInit = new JButton(Translator.R("reInit"));
-                settingsWindow.add(reInit);
+                remote.add(reInit);
                 reInit.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -1033,7 +1070,7 @@ public class MainWindow {
                     }
                 });
                 JButton rdelete = new JButton(Translator.R("rdelete"));
-                settingsWindow.add(rdelete);
+                remote.add(rdelete);
                 rdelete.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -1079,12 +1116,12 @@ public class MainWindow {
                 });
                 JButton rResetHard = new JButton(Translator.R("rResetHard"));
                 JButton rAddAll = new JButton(Translator.R("rAddAll"));
-                settingsWindow.add(rSyncDown);
-                settingsWindow.add(rSyncUp);
-                settingsWindow.add(new JLabel(Translator.R("danger")));
-                settingsWindow.add(rResetHard);
-                settingsWindow.add(new JLabel(Translator.R("danger")));
-                settingsWindow.add(rAddAll);
+                remote.add(rSyncDown);
+                remote.add(rSyncUp);
+                remote.add(new JLabel(Translator.R("danger")));
+                remote.add(rResetHard);
+                remote.add(new JLabel(Translator.R("danger")));
+                remote.add(rAddAll);
                 rAddAll.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -1107,26 +1144,12 @@ public class MainWindow {
                         }
                     }
                 });
-                JLabel securityLabel = new JLabel(Translator.R("security"));
-                settingsWindow.add(securityLabel);
-                JTextField securityStatus1 = new JTextField();
-                JTextField securityStatus2 = new JTextField();
-                JTextField securityStatus3 = new JTextField();
-                securityStatus1.setEditable(false);
-                securityStatus2.setEditable(false);
-                securityStatus3.setEditable(false);
-                securityStatus1.setText(auth.getStatus()[0]);
-                securityStatus2.setText(auth.getStatus()[1]);
-                securityStatus3.setText(auth.getStatus()[2]);
-                settingsWindow.add(securityStatus1);
-                settingsWindow.add(securityStatus2);
-                settingsWindow.add(securityStatus3);
                 JButton voltageHelp = new JButton("? ->");
                 voltageHelp.addActionListener(new ActionListener() {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        JOptionPane.showMessageDialog(settingsWindow, Translator.R("underAmpersDescrioption"));
+                        JOptionPane.showMessageDialog(allSettingsWindow, Translator.R("underAmpersDescrioption"));
                     }
                 });
                 JLabel voltageTitle = new JLabel(Translator.R("voltageTitle"));
@@ -1136,21 +1159,21 @@ public class MainWindow {
                 final JSpinner singleSourceAmpers = new JSpinner(new SpinnerNumberModel(gs.getSingleSourceAmpers(), 0d, 150d, 0.1));
                 JLabel numberOfSourcesLabel = new JLabel(Translator.R("numberOfSources"));
                 final JSpinner numberOfSources = new JSpinner(new SpinnerNumberModel(gs.getNumberOfSources(), 0, 100, 1));
-                settingsWindow.add(voltageHelp);
-                settingsWindow.add(voltageTitle);
-                settingsWindow.add(singleLedAmpersLabel);
-                settingsWindow.add(singleLedAmpers);
-                settingsWindow.add(singleSourceAmpersLabel);
-                settingsWindow.add(singleSourceAmpers);
-                settingsWindow.add(numberOfSourcesLabel);
-                settingsWindow.add(numberOfSources);
+                amps.add(voltageHelp);
+                amps.add(voltageTitle);
+                amps.add(singleLedAmpersLabel);
+                amps.add(singleLedAmpers);
+                amps.add(singleSourceAmpersLabel);
+                amps.add(singleSourceAmpers);
+                amps.add(numberOfSourcesLabel);
+                amps.add(numberOfSources);
                 final JLabel ampersResult1 = new JLabel(gp.getGrid().getWallAmpersSentence((double) (singleLedAmpers.getValue())));
                 final JLabel ampersResult2 = new JLabel(gp.getGrid().getSingleSourceRowAmpersSentence(
                         (double) (singleSourceAmpers.getValue()),
                         (double) (singleLedAmpers.getValue()),
                         (Integer) (numberOfSources.getValue())));
-                settingsWindow.add(ampersResult1);
-                settingsWindow.add(ampersResult2);
+                amps.add(ampersResult1);
+                amps.add(ampersResult2);
                 singleLedAmpers.addChangeListener(new ChangeListener() {
                     @Override
                     public void stateChanged(ChangeEvent e) {
@@ -1184,10 +1207,16 @@ public class MainWindow {
                                 (Integer) (numberOfSources.getValue())));
                     }
                 });
-                settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                settingsWindow.pack();
-                settingsWindow.setLocationRelativeTo(createWallWindow);
-                settingsWindow.setVisible(true);
+
+                FUtils.align(genRows, maxRows, general);
+                FUtils.align(conRows, maxRows, connection);
+                FUtils.align(colRows, maxRows, colors);
+                FUtils.align(remRows, maxRows, remote);
+                FUtils.align(ampRows, maxRows, amps);
+                allSettingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                allSettingsWindow.pack();
+                allSettingsWindow.setLocationRelativeTo(null);
+                allSettingsWindow.setVisible(true);
 
             }
         });
