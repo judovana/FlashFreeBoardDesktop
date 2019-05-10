@@ -752,7 +752,7 @@ public class MainWindow {
                 }
                 JDialog settingsWindow = new JDialog();
                 settingsWindow.setModal(true);
-                settingsWindow.setLayout(new GridLayout(6 + 9 + 7 + 1, 2));
+                settingsWindow.setLayout(new GridLayout(6 + 9 + 7 + 1 + 5, 2));
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 254, 1));
                 sss.addChangeListener(new ChangeListener() {
@@ -765,7 +765,7 @@ public class MainWindow {
                 });
                 settingsWindow.add(sss);
                 settingsWindow.add(new JLabel(Translator.R("testdelay")));
-                JSpinner testDelay = new JSpinner(new SpinnerNumberModel(250, 1, 10000, 50));
+                JSpinner testDelay = new JSpinner(new SpinnerNumberModel(50, 1, 10000, 50));
                 settingsWindow.add(testDelay);
                 final JButton re = new JButton(Translator.R("testred"));
                 re.addActionListener(new ActionListener() {
@@ -1104,6 +1104,69 @@ public class MainWindow {
                             GuiLogHelper.guiLogger.loge(ex);
                             JOptionPane.showMessageDialog(null, ex);
                         }
+                    }
+                });
+                JButton voltageHelp = new JButton("? ->");
+                voltageHelp.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        JOptionPane.showMessageDialog(settingsWindow, Translator.R("underAmpersDescrioption"));
+                    }
+                });
+                JLabel voltageTitle = new JLabel(Translator.R("voltageTitle"));
+                JLabel singleLedAmpersLabel = new JLabel(Translator.R("singleLedAmpers"));
+                final JSpinner singleLedAmpers = new JSpinner(new SpinnerNumberModel(gs.getSingleRgbLedAmpers(), 0.d, 10d, 0.01));
+                JLabel singleSourceAmpersLabel = new JLabel(Translator.R("singleSourceAmpers"));
+                final JSpinner singleSourceAmpers = new JSpinner(new SpinnerNumberModel(gs.getSingleSourceAmpers(), 0d, 150d, 0.1));
+                JLabel numberOfSourcesLabel = new JLabel(Translator.R("numberOfSources"));
+                final JSpinner numberOfSources = new JSpinner(new SpinnerNumberModel(gs.getNumberOfSources(), 0, 100, 1));
+                settingsWindow.add(voltageHelp);
+                settingsWindow.add(voltageTitle);
+                settingsWindow.add(singleLedAmpersLabel);
+                settingsWindow.add(singleLedAmpers);
+                settingsWindow.add(singleSourceAmpersLabel);
+                settingsWindow.add(singleSourceAmpers);
+                settingsWindow.add(numberOfSourcesLabel);
+                settingsWindow.add(numberOfSources);
+                final JLabel ampersResult1 = new JLabel(gp.getGrid().getWallAmpersSentence((double) (singleLedAmpers.getValue())));
+                final JLabel ampersResult2 = new JLabel(gp.getGrid().getSingleSourceRowAmpersSentence(
+                        (double) (singleSourceAmpers.getValue()),
+                        (double) (singleLedAmpers.getValue()),
+                        (Integer) (numberOfSources.getValue())));
+                settingsWindow.add(ampersResult1);
+                settingsWindow.add(ampersResult2);
+                singleLedAmpers.addChangeListener(new ChangeListener() {
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        gs.setSingleRgbLedAmpers((Double) (singleLedAmpers.getValue()));
+                        ampersResult1.setText(gp.getGrid().getWallAmpersSentence((double) (singleLedAmpers.getValue())));
+                        ampersResult2.setText(gp.getGrid().getSingleSourceRowAmpersSentence(
+                                (double) (singleSourceAmpers.getValue()),
+                                (double) (singleLedAmpers.getValue()),
+                                (Integer) (numberOfSources.getValue())));
+                    }
+                });
+                singleSourceAmpers.addChangeListener(new ChangeListener() {
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        gs.setSingleSourceAmpers((Double) (singleSourceAmpers.getValue()));
+                        ampersResult1.setText(gp.getGrid().getWallAmpersSentence((double) (singleLedAmpers.getValue())));
+                        ampersResult2.setText(gp.getGrid().getSingleSourceRowAmpersSentence(
+                                (double) (singleSourceAmpers.getValue()),
+                                (double) (singleLedAmpers.getValue()),
+                                (Integer) (numberOfSources.getValue())));
+                    }
+                });
+                numberOfSources.addChangeListener(new ChangeListener() {
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        gs.setNumberOfSources((Integer) (numberOfSources.getValue()));
+                        ampersResult1.setText(gp.getGrid().getWallAmpersSentence((double) (singleLedAmpers.getValue())));
+                        ampersResult2.setText(gp.getGrid().getSingleSourceRowAmpersSentence(
+                                (double) (singleSourceAmpers.getValue()),
+                                (double) (singleLedAmpers.getValue()),
+                                (Integer) (numberOfSources.getValue())));
                     }
                 });
                 settingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

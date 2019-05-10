@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import org.fbb.board.Translator;
 import org.fbb.board.internals.comm.ByteEater;
 import org.fbb.board.internals.grades.Grade;
 
@@ -795,5 +796,27 @@ public class Grid {
             }
 
         }
+    }
+
+    public int countLeds() {
+        return (getHorLines() - 1) * (getVertLines() - 1);
+    }
+
+    public String getWallAmpersSentence(double singleLedAmpers) {
+        return Translator.R("wallA", countLeds(), getWallAmpers(singleLedAmpers));
+    }
+
+    public double getWallAmpers(double singleLedAmpers) {
+        return (double) countLeds() * (double) (singleLedAmpers);
+    }
+
+    public String getSingleSourceRowAmpersSentence(double singleSourceAmpers, double singleLedAmpers, int numberOfSources) {
+        return Translator.R("rowA",
+                singleSourceAmpers / getSingleSourceRowAmpers(singleLedAmpers, numberOfSources) * 100,
+                getSingleSourceRowAmpers(singleLedAmpers, numberOfSources));
+    }
+
+    public double getSingleSourceRowAmpers(double singleLedAmpers, int numberOfSources) {
+        return getWallAmpers(singleLedAmpers) / (double) (numberOfSources);
     }
 }

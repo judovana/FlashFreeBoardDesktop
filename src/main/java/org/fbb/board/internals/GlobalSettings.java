@@ -25,7 +25,7 @@ import org.fbb.board.internals.comm.wired.PortWork;
  */
 public class GlobalSettings implements ByteEater {
 
-    private MessagesResender resender;
+    private final MessagesResender resender;
 
     public GlobalSettings() {
         resender = new MessagesResender();
@@ -118,6 +118,51 @@ public class GlobalSettings implements ByteEater {
 
     public int getPullerDelay() {
         return pullerDelay;
+    }
+
+    public double getSingleRgbLedAmpers() {
+        return singleLed;
+    }
+
+    public double getSingleSourceAmpers() {
+        return singleSource;
+    }
+
+    public int getNumberOfSources() {
+        return numberOfSources;
+    }
+
+    public void setSingleRgbLedAmpers(double i) {
+        setSingleRgbLedAmpers(i, true);
+    }
+
+    public void setSingleSourceAmpers(double i) {
+        setSingleSourceAmpers(i, true);
+    }
+
+    public void setNumberOfSources(int i) {
+        setNumberOfSources(i, true);
+    }
+
+    private void setSingleRgbLedAmpers(double i, boolean save) {
+        singleLed = i;
+        if (save) {
+            save();
+        }
+    }
+
+    private void setSingleSourceAmpers(double i, boolean save) {
+        singleSource = i;
+        if (save) {
+            save();
+        }
+    }
+
+    private void setNumberOfSources(int i, boolean save) {
+        numberOfSources = i;
+        if (save) {
+            save();
+        }
     }
 
     private class MessagesResender extends Thread {
@@ -251,9 +296,9 @@ public class GlobalSettings implements ByteEater {
         //ampers note: acording to docs, the one rgb led have 0.06Amps (so 3*0.02); - https://learn.adafruit.com/1500-neopixel-led-curtain-with-raspberry-pi-fadecandy/power-topology
         //acording to my meassuring it is 0.18 (3*0.06) AMPS (maybe waires stepped in?)
         //thus 100 white leds is consumming 18AMPS and that is  why they work max on 50% (brightenss of 125)
-        double ampsPerRGBtriLed = 0.18; //from settings; disabled by zero
-        int powersources = 4; //from settings; disabled by zero
-        int powersourcesAmps = 10; //from settings; disabled by zero
+        double ampsPerRGBtriLed = singleLed; //from settings; disabled by zero
+        int powersources = numberOfSources; //from settings; disabled by zero
+        double powersourcesAmps = singleSource; //from settings; disabled by zero
         int hunkLength = 0;
         double singleSubLed = 0d;
         if (powersources > 0 && ampsPerRGBtriLed > 0 && powersourcesAmps > 0) {
@@ -269,7 +314,7 @@ public class GlobalSettings implements ByteEater {
                     if (thisRowAmpers < powersourcesAmps) {
                         overvoltageLoweringCoeficient = 1;
                     } else {
-                        overvoltageLoweringCoeficient = (double) powersourcesAmps / (double) thisRowAmpers;
+                        overvoltageLoweringCoeficient = powersourcesAmps / thisRowAmpers;
                         GuiLogHelper.guiLogger.loge("Warning, overvoltage detected - " + i + "-" + (i + hunkLength - 1) + " have " + thisRowAmpers + "ampers => " + overvoltageLoweringCoeficient);
                     }
                 }
@@ -311,6 +356,9 @@ public class GlobalSettings implements ByteEater {
         setBranch(p.getProperty("RBRANCH", ""), false);
         setRuser(p.getProperty("RUSER", ""), false);
         setPullerDelay(Integer.valueOf(p.getProperty("PULLER", "1")), false);
+        setSingleRgbLedAmpers(Double.valueOf(p.getProperty("SINGLE_LED", "0.18")), false);
+        setSingleSourceAmpers(Double.valueOf(p.getProperty("SINGLE_SOURCE", "2")), false);
+        setNumberOfSources(Integer.valueOf(p.getProperty("COUNT_SOURCES", "1")), false);
     }
 
     private void save() {
@@ -331,6 +379,9 @@ public class GlobalSettings implements ByteEater {
         p.setProperty("RBRANCH", getBranch());
         p.setProperty("RUSER", getRuser());
         p.setProperty("PULLER", "" + getPullerDelay());
+        p.setProperty("SINGLE_LED", "" + getSingleRgbLedAmpers());
+        p.setProperty("SINGLE_SOURCE", "" + getSingleSourceAmpers());
+        p.setProperty("COUNT_SOURCES", "" + getNumberOfSources());
         p.store(new OutputStreamWriter(new FileOutputStream(Files.settings), Charset.forName("utf-8")), "FlashFreeBoard settings " + new Date());
     }
 
@@ -387,6 +438,9 @@ public class GlobalSettings implements ByteEater {
     //private String deviceId = "btspp://000666C0AC62:1;authenticate=false;encrypt=false;master=true";
     private int brightness = 5;
     private int pullerDelay = 1; //minutes
+    private double singleLed = 0.18d;
+    private double singleSource = 2.00d;
+    private int numberOfSources = 1;
 
     public int getBrightness() {
         if (brightness <= 1) {
@@ -475,7 +529,7 @@ public class GlobalSettings implements ByteEater {
             for (int j = 0; j < values.length; j++) {
                 int value = values[j];
                 if (value < 0) {
-                    value = value + 128;//byte->int to get 0-255
+                    value = value + 255;//byte->int to get 0-255
                 }
                 summOfAmpers = summOfAmpers + ((double) value / 255d * singleSubLedAmpers);
             }
@@ -487,11 +541,11 @@ public class GlobalSettings implements ByteEater {
         int value = rgb;
         int valueOrig = rgb;
         if (valueOrig < 0) {
-            value = value + 128;//byte->int to get 0-255
+            value = value + 255;//byte->int to get 0-255
         }
         value = (int) ((double) value * coef);
         if (valueOrig < 0) {
-            value = value - 128;//and back
+            value = value - 255;//and back
         }
         return (byte) value;
     }
