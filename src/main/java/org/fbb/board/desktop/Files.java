@@ -29,8 +29,8 @@ public class Files {
     private static final File lastBoard = new File(configDir + "/lastBoard");
     private static final File lastBoulder = new File(configDir + "/lastBoulder");
     public static final File settings = new File(configDir + "/settings");
-    private static final File masterAuth = new File("/etc/FFB.auth");
-    private static final File localAuth = new File(configDir + "/FFB.auth");
+    public static final File masterAuth = new File("/etc/FFB.auth");
+    public static final File localAuth = new File(configDir + "/FFB.auth");
 
     public static final List<Character> INVALID_PATH = Arrays.asList(new Character[]{':', '*', '?', '"', '<', '>', '|', '[', ']', '\'', ';', '=', ','});
     public static final List<Character> INVALID_NAME = new ArrayList<>(INVALID_PATH);

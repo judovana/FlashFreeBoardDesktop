@@ -44,6 +44,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
@@ -752,7 +753,7 @@ public class MainWindow {
                 }
                 JDialog settingsWindow = new JDialog();
                 settingsWindow.setModal(true);
-                settingsWindow.setLayout(new GridLayout(6 + 9 + 7 + 1 + 5, 2));
+                settingsWindow.setLayout(new GridLayout(6 + 9 + 7 + +1 + 3 + 5, 2));
                 settingsWindow.add(new JLabel(Translator.R("brightenes")));
                 JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 254, 1));
                 sss.addChangeListener(new ChangeListener() {
@@ -1106,6 +1107,20 @@ public class MainWindow {
                         }
                     }
                 });
+                JLabel securityLabel = new JLabel(Translator.R("security"));
+                settingsWindow.add(securityLabel);
+                JTextField securityStatus1 = new JTextField();
+                JTextField securityStatus2 = new JTextField();
+                JTextField securityStatus3 = new JTextField();
+                securityStatus1.setEditable(false);
+                securityStatus2.setEditable(false);
+                securityStatus3.setEditable(false);
+                securityStatus1.setText(auth.getStatus()[0]);
+                securityStatus2.setText(auth.getStatus()[1]);
+                securityStatus3.setText(auth.getStatus()[2]);
+                settingsWindow.add(securityStatus1);
+                settingsWindow.add(securityStatus2);
+                settingsWindow.add(securityStatus3);
                 JButton voltageHelp = new JButton("? ->");
                 voltageHelp.addActionListener(new ActionListener() {
 

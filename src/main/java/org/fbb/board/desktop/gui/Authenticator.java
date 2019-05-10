@@ -46,6 +46,7 @@ public class Authenticator {
             //if the file do not exists, app is not "secured" at all
             //note, that all the config files are plain an readable in ~/.config anyway
             //to secure them, encrypt them with locekd pass
+            //if app is run as limited user, then the security should be ok
             return true;
         }
         if (pernament) {
@@ -79,6 +80,22 @@ public class Authenticator {
 
     void revoke() {
         pernament = false;
+    }
+
+    public String[] getStatus() {
+        if (Files.getAuthFileHash() == null) {
+            return new String[]{
+                Translator.R("secNone"),
+                "use `su " + System.getProperty("user.name") + "; echo -n  your_pass | sha256sum  > " + Files.localAuth,
+                " or `su ; echo -n  your_pass | sha256sum  > " + Files.masterAuth};
+        }
+        if (isPernament()) {
+            return new String[]{
+                Translator.R("secUnlocked"),
+                "To lock, again, use: ",
+                Translator.R("revokePP")};
+        }
+        return new String[]{Translator.R("secOk"), "", ""};
     }
 
     private static class AuthoriseDialog {
