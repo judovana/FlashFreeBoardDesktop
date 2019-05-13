@@ -11,7 +11,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.internals.comm.ConnectionID;
@@ -165,6 +168,44 @@ public class GlobalSettings implements ByteEater {
         }
     }
 
+    private boolean shouldCompress(int[] b) {
+        int nonzeros = 0;
+        for (int c : b) {
+            if (isHold(c)) {
+                nonzeros++;
+            }
+        }
+        //in seqential send, we send R1 G1 B1 R2 G2 B2 ...  Rn Gn Bn includeing 0 0 0 
+        //in ordered sent we sent X1a X1b R1 G1 B1 ...  Xn Xn Rn Gn Bn considering all unsent as 0 0 0
+        //considering board of max size  255*255+255 (firs byte is count of 255, second byte is the final alignment. eg 5 will be encoed as 0 5; eg 300 will be endocded as 1 45, max is 255 255
+        //thus in sequential we sent 3x length of bytes
+        //in worst ordered we sent 5x length of bytes [one byte per coord]
+        //however in best ordered we sent 0
+        //thus the compression have sense only until length 3/5 of length
+        //example length = 100 => 300 x 0-500;  3/5of100 == 60 => 60*5=300
+        // arriving 50 colors => 250 if 70 would be allowed then 350 => sewquential
+        //example2 length = 400 => 1200 x 0-1500;  3/5of400 == 240 
+        // arriving 50 colors => 250 if 70 would be allowed then 350 => sewquential
+        // arriving 100 colors => 500 arriving 250 colors that would be 1250, thus sequential
+        //the compress mode is sending 5 trailing zeroes to finish its contnet, thus -5 bytes at the end (-2 holds) [max of 2*3 and 2*5)
+        return nonzeros < (((b.length * 3) / 5) - 2);
+    }
+
+    private static byte[] toArray(List<Byte> l) {
+        byte[] array = new byte[l.size()];
+        for (int i = 0; i < l.size(); i++) {
+            array[i] = l.get(i);
+        }
+        return array;
+    }
+
+    private static byte[] coordToBytes(int i) {
+        byte[] r = new byte[2];
+        r[0] = (byte) (i / 255);
+        r[1] = (byte) (i % 255);
+        return r;
+    }
+
     private class MessagesResender extends Thread {
 
         public MessagesResender() {
@@ -230,6 +271,10 @@ public class GlobalSettings implements ByteEater {
     private static final int[] ALL_COLORS_HEADER = new int[]{
         250, 50, 150, 200, 5, 139, 144, 250
     };
+    //this header is for method "read coord and color untill you reach zero color", 
+    private static final int[] COLORS_WITH_COORD_HEADER = new int[]{
+        255, 0, 255, 255, 255, 0, 112, 124
+    };
     //currently unused in java part. However BT seems to be sending some garbage, so thi sis that garbage and reaction
     private static final int[] RESET_HEADER = new int[]{
         255, 255, 255, 255, 255, 255, 255, 255
@@ -237,14 +282,19 @@ public class GlobalSettings implements ByteEater {
 
     @Override
     public void sendBytes(int[] b) {
-        sendImpl(ALL_COLORS_HEADER, b);
+        boolean compress = shouldCompress(b);
+        if (!compress) {
+            sendImpl(ALL_COLORS_HEADER, b, false);
+        } else {
+            sendImpl(COLORS_WITH_COORD_HEADER, b, true);
+        }
     }
 
-    public void sendImpl(int[] header, int[] b) {
+    public void sendImpl(int[] header, int[] b, boolean compress) {
         synchronized (lock) {
             byte[][] m;
             if (SEND_HEADER) {
-                m = toMessagesWithHeader(header, b);
+                m = toMessagesWithHeader(compress, header, b);
             } else {
                 m = toMessages(b);
             }
@@ -255,7 +305,7 @@ public class GlobalSettings implements ByteEater {
 
     @Override
     public void reset() {
-        sendImpl(RESET_HEADER, new int[0]);
+        sendImpl(RESET_HEADER, new int[0], false);
     }
 
     public void stop() {
@@ -265,14 +315,22 @@ public class GlobalSettings implements ByteEater {
         }
     }
 
-    private byte[][] toMessagesWithHeader(int[] header, int[]... content) {
-        byte[][] r = new byte[content.length + 1][];
+    private byte[][] toMessagesWithHeader(boolean compress, int[] header, int[]... content) {
+        int headerArrays = 1;
+        int tailArrays = 0;
+        if (compress) {
+            tailArrays = 1;
+        }
+        byte[][] r = new byte[content.length + headerArrays + tailArrays][];
         r[0] = new byte[header.length];
         for (int i = 0; i < header.length; i++) {
             r[0][i] = (byte) header[i];
         }
         for (int i = 0; i < content.length; i++) {
-            r[i + 1] = toMessage(content[i]);
+            r[i + 1] = toMessage(compress, content[i]);
+        }
+        if (compress) {
+            r[r.length - 1] = new byte[]{0, 0, 0, 0, 0};
         }
         return r;
     }
@@ -280,12 +338,12 @@ public class GlobalSettings implements ByteEater {
     private byte[][] toMessages(int[]... bs) {
         byte[][] r = new byte[bs.length][];
         for (int i = 0; i < bs.length; i++) {
-            r[i] = toMessage(bs[i]);
+            r[i] = toMessage(false, bs[i]);
         }
         return r;
     }
 
-    private byte[] toMessage(int[] b) {
+    private byte[] toMessage(boolean compress, int[] b) {
         // based on AmpsPerLed  and numberOfSources 
         // calc the overvoltage (where X=totalOfleds/numberOfSOurces)
         // note that "one" led is eating its full amps only on WHITE!! (so coeficients from holdToColor have its weight use that method!?!?!)
@@ -306,7 +364,7 @@ public class GlobalSettings implements ByteEater {
             singleSubLed = ampsPerRGBtriLed / 3d;
         }
         double overvoltageLoweringCoeficient = 1; //no change
-        byte[] r = new byte[b.length * 3];
+        List<Byte> r = new ArrayList(b.length * 3);
         for (int i = 0; i < b.length; i++) {
             if (hunkLength > 0) {
                 if (i % hunkLength == 0) {
@@ -320,11 +378,23 @@ public class GlobalSettings implements ByteEater {
                 }
             }
             byte[] rgb = holdToColor(b[i]);
-            r[i * 3] = applyCoefToByte(rgb[0], overvoltageLoweringCoeficient);
-            r[i * 3 + 1] = applyCoefToByte(rgb[1], overvoltageLoweringCoeficient);
-            r[i * 3 + 2] = applyCoefToByte(rgb[2], overvoltageLoweringCoeficient);
+            //record every member in uncompressed mode
+            //record only hold member in compressed mode
+            if (!compress || isHold(b[i])) {
+                if (compress) {
+                    //coords only for compressed mode
+                    r.add(coordToBytes(i)[0]);
+                    r.add(coordToBytes(i)[1]);
+                }
+                r.add(applyCoefToByte(rgb[0], overvoltageLoweringCoeficient));
+                r.add(applyCoefToByte(rgb[1], overvoltageLoweringCoeficient));
+                r.add(applyCoefToByte(rgb[2], overvoltageLoweringCoeficient));
+            }
         }
-        return r;
+        if (compress) {
+            GuiLogHelper.guiLogger.logo("Compressed " + (b.length * 3) + " -> " + r.size());
+        }
+        return toArray(r);
     }
 
     public static enum COMM {
@@ -500,6 +570,10 @@ public class GlobalSettings implements ByteEater {
 
         }
         return sb.toString();
+    }
+
+    private static boolean isHold(int i) {
+        return i != 0;
     }
 
     //0 nothing
