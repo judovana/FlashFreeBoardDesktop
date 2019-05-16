@@ -424,6 +424,8 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         setSingleRgbLedAmpers(Double.valueOf(p.getProperty("SINGLE_LED", "0.18")), false);
         setSingleSourceAmpers(Double.valueOf(p.getProperty("SINGLE_SOURCE", "2")), false);
         setNumberOfSources(Integer.valueOf(p.getProperty("COUNT_SOURCES", "1")), false);
+        setHoldMarkerOapcity(Float.valueOf(p.getProperty("HOLD_OPACITY", "0.75")), false);
+        setDefaultStyle(Integer.valueOf(p.getProperty("HOLD_STYLE", "0")), false);
     }
 
     private void save() {
@@ -447,6 +449,8 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         p.setProperty("SINGLE_LED", "" + getSingleRgbLedAmpers());
         p.setProperty("SINGLE_SOURCE", "" + getSingleSourceAmpers());
         p.setProperty("COUNT_SOURCES", "" + getNumberOfSources());
+        p.setProperty("HOLD_OPACITY", "" + getHoldMarkerOapcity());
+        p.setProperty("HOLD_STYLE", "" + getDefaultStyle());
         p.store(new OutputStreamWriter(new FileOutputStream(Files.settings), Charset.forName("utf-8")), "FlashFreeBoard settings " + new Date());
     }
 
@@ -630,7 +634,8 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         }
     }
 
-//color provider
+    //color provider
+    //todo - allow overwrite? To allow set nicer ones once leds needs to be different?
     @Override
     public float getStartRed() {
         return (float) parts[0];
@@ -676,27 +681,48 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         return (float) parts[8];
     }
 
+    private float holdOpacity = 0.75f;
+
     @Override
     public float getHoldMarkerOapcity() {
-        //todo set and save
-        return 0.75f;
+        return holdOpacity;
+    }
+
+    public void setHoldMarkerOapcity(float f) {
+        setHoldMarkerOapcity(f, true);
+    }
+
+    private void setHoldMarkerOapcity(float f, boolean save) {
+        this.holdOpacity = f;
+        if (save) {
+            save();
+        }
     }
 
     @Override
     public Color getGridColor() {
-        //todo set and save
+        //todo set and save?
         return Color.black;
     }
 
+    private int defaultStyle = 0;
+
     @Override
     public int getDefaultStyle() {
-        //todo set and save
-        return 0;
+        return defaultStyle;
     }
 
     @Override
     public void setDefaultStyle(int a) {
-        //todo set and save
+        setDefaultStyle(a, true);
+    }
+
+    public void setDefaultStyle(int a, boolean save) {
+        defaultStyle = a;
+        currentStyle = a + 800;//nasty hack to avoid runnign around zero
+        if (save) {
+            save();
+        }
     }
 
     private int currentStyle = 800;//nasty hack to avoid runnign around zero

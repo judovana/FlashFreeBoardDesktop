@@ -489,10 +489,10 @@ public class MainWindow {
         jp.add(timered);
         JMenu sub1 = new JMenu(Translator.R("Admin"));
         jp.add(sub1);
-        JMenuItem newEditWall = new JMenuItem(Translator.R("MEditWall"));
-        sub1.add(newEditWall);
         JMenuItem management = new JMenuItem(Translator.R("management"));
         sub1.add(management);
+        JMenuItem newEditWall = new JMenuItem(Translator.R("MEditWall"));
+        sub1.add(newEditWall);
         JMenu sub2 = new JMenu(Translator.R("Special"));
         jp.add(sub2);
         JMenuItem logItem = new JMenuItem("Logs");
@@ -765,7 +765,7 @@ public class MainWindow {
                 }
                 JDialog allSettingsWindow = new JDialog((JFrame) null, "FFB settings", true);
                 JTabbedPane settingsTabs = new JTabbedPane();
-                int genRows = 3;
+                int genRows = 5;
                 int conRows = 2;
                 int colRows = 13;
                 int remRows = 9;
@@ -812,6 +812,37 @@ public class MainWindow {
                 general.add(securityStatus1);
                 general.add(securityStatus2);
                 general.add(securityStatus3);
+                general.add(new JLabel(Translator.R("HOLD_OPACITY")));
+                JSpinner holdOpacity = new JSpinner(new SpinnerNumberModel((double) gs.getHoldMarkerOapcity(), 0, 1, 0.05));
+                holdOpacity.addChangeListener(new ChangeListener() {
+
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        gs.setHoldMarkerOapcity((((Double) holdOpacity.getValue()).floatValue()));
+                        gp.repaint();
+                    }
+                });
+                general.add(holdOpacity);
+                general.add(new JLabel(Translator.R("STYLE")));
+                JComboBox<String> holdStyle = new JComboBox<>(new String[]{
+                    Translator.R("FILL_0"),
+                    Translator.R("C_BIG_1"),
+                    Translator.R("C_SMALL_2"),
+                    Translator.R("C_BOTH_3"),
+                    Translator.R("E_BIG_4"),
+                    Translator.R("E_SMALL_5"),
+                    Translator.R("E_BOTH_6"),
+                    Translator.R("RECT_7")
+                });
+                holdStyle.setSelectedIndex(gs.getDefaultStyle());
+                holdStyle.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        gs.setDefaultStyle(holdStyle.getSelectedIndex());
+                        gp.repaint();
+                    }
+                });
+                general.add(holdStyle);
                 colors.add(new JLabel(Translator.R("testdelay")));
                 JSpinner testDelay = new JSpinner(new SpinnerNumberModel(50, 1, 10000, 50));
                 colors.add(testDelay);

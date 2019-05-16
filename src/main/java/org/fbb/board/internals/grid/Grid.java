@@ -812,7 +812,7 @@ public class Grid {
     private int backupHoldStyle = 800;//nasty hack to avoid runnign around zero
 
     private int getHoldStyle() {
-        if (colorProvider != null) {
+        if (colorProvider != null && colorProvider.getHoldMarkerOapcity() > 0) {
             return colorProvider.getCurrentStyle();
         } else {
             return backupHoldStyle;
@@ -820,7 +820,7 @@ public class Grid {
     }
 
     private void setHoldStyle(int i) {
-        if (colorProvider != null) {
+        if (colorProvider != null && colorProvider.getHoldMarkerOapcity() > 0) {
             colorProvider.setCurrentStyle(i);
         } else {
             backupHoldStyle = i;
@@ -828,7 +828,7 @@ public class Grid {
     }
 
     private Color getTopColorFull() {
-        if (colorProvider != null) {
+        if (colorProvider != null && colorProvider.getHoldMarkerOapcity() > 0) {
             return new Color(
                     colorProvider.getTopRed(),
                     colorProvider.getTopGreen(),
@@ -840,7 +840,7 @@ public class Grid {
     }
 
     private Color getTopColor() {
-        if (colorProvider != null) {
+        if (colorProvider != null && colorProvider.getHoldMarkerOapcity() > 0) {
             return new Color(
                     colorProvider.getTopRed(),
                     colorProvider.getTopGreen(),
@@ -853,7 +853,7 @@ public class Grid {
     }
 
     private Color getPathColor() {
-        if (colorProvider != null) {
+        if (colorProvider != null && colorProvider.getHoldMarkerOapcity() > 0) {
             return new Color(
                     colorProvider.getPathRed(),
                     colorProvider.getPathGreen(),
@@ -866,7 +866,7 @@ public class Grid {
     }
 
     private Color getStartColor() {
-        if (colorProvider != null) {
+        if (colorProvider != null && colorProvider.getHoldMarkerOapcity() > 0) {
             return new Color(
                     colorProvider.getStartRed(),
                     colorProvider.getStartGreen(),
@@ -879,7 +879,7 @@ public class Grid {
     }
 
     private Color getGridColor() {
-        if (colorProvider != null) {
+        if (colorProvider != null && colorProvider.getHoldMarkerOapcity() > 0) {
             return colorProvider.getGridColor();
         } else {
             return Color.black;
@@ -887,7 +887,7 @@ public class Grid {
     }
 
     private Color getErrorColor() {
-        if (colorProvider != null) {
+        if (colorProvider != null && colorProvider.getHoldMarkerOapcity() > 0) {
             return colorProvider.getGridColor();
         } else {
             return new Color(0, 0, 0, getAlpha());
@@ -895,7 +895,7 @@ public class Grid {
     }
 
     private float getAlpha() {
-        if (colorProvider != null) {
+        if (colorProvider != null && colorProvider.getHoldMarkerOapcity() > 0) {
             return colorProvider.getHoldMarkerOapcity();
         } else {
             float alpha = 0.4f;
