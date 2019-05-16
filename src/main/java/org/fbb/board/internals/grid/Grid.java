@@ -809,7 +809,7 @@ public class Grid {
         return getWallAmpers(singleLedAmpers) / (double) (numberOfSources);
     }
 
-    private Integer backupHoldStyle = 800;//nasty hack to avoid runnign around zero
+    private int backupHoldStyle = 800;//nasty hack to avoid runnign around zero
 
     private int getHoldStyle() {
         if (colorProvider != null) {

@@ -98,6 +98,7 @@ public class MainWindow {
 
     public static void main(String... s) {
         try {
+            Grid.colorProvider = gs;
             list = new ListWithFilter();
             Grade.loadConversiontable();
             if (Files.getLastBoard() != null && Files.getLastBoulder() != null) {

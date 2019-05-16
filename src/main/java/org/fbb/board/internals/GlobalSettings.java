@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.fbb.board.internals;
 
 import java.awt.Color;
@@ -12,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -21,12 +15,13 @@ import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.comm.bt.BtOp;
 import org.fbb.board.internals.comm.ByteEater;
 import org.fbb.board.internals.comm.wired.PortWork;
+import org.fbb.board.internals.grid.HoldMarkerProvider;
 
 /**
  *
  * @author jvanek
  */
-public class GlobalSettings implements ByteEater {
+public class GlobalSettings implements ByteEater, HoldMarkerProvider {
 
     private final MessagesResender resender;
 
@@ -633,6 +628,87 @@ public class GlobalSettings implements ByteEater {
         if (save) {
             save();
         }
+    }
+
+//color provider
+    @Override
+    public float getStartRed() {
+        return (float) parts[0];
+    }
+
+    @Override
+    public float getStartGreen() {
+        return (float) parts[1];
+    }
+
+    @Override
+    public float getStartBlue() {
+        return (float) parts[2];
+    }
+
+    @Override
+    public float getPathRed() {
+        return (float) parts[3];
+    }
+
+    @Override
+    public float getPathGreen() {
+        return (float) parts[4];
+    }
+
+    @Override
+    public float getPathBlue() {
+        return (float) parts[5];
+    }
+
+    @Override
+    public float getTopRed() {
+        return (float) parts[6];
+    }
+
+    @Override
+    public float getTopGreen() {
+        return (float) parts[7];
+    }
+
+    @Override
+    public float getTopBlue() {
+        return (float) parts[8];
+    }
+
+    @Override
+    public float getHoldMarkerOapcity() {
+        //todo set and save
+        return 0.75f;
+    }
+
+    @Override
+    public Color getGridColor() {
+        //todo set and save
+        return Color.black;
+    }
+
+    @Override
+    public int getDefaultStyle() {
+        //todo set and save
+        return 0;
+    }
+
+    @Override
+    public void setDefaultStyle(int a) {
+        //todo set and save
+    }
+
+    private int currentStyle = 800;//nasty hack to avoid runnign around zero
+
+    @Override
+    public int getCurrentStyle() {
+        return currentStyle;
+    }
+
+    @Override
+    public void setCurrentStyle(int a) {
+        currentStyle = a;
     }
 
 }
