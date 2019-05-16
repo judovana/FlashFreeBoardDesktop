@@ -58,14 +58,6 @@ public class Grid {
     private RelativePoint selected;
     private boolean showGrid = true;
     private int holdStyle = 800;//nasty hack to avoid runnign around zero
-    private static final int FILL = 0;
-    private static final int C_BIG = 1;
-    private static final int C_SMALL = 2;
-    private static final int C_BOTH = 3;
-    private static final int E_BIG = 4;
-    private static final int E_SMALL = 5;
-    private static final int E_BOTH = 6;
-    private static final int RECT = 7;
 
     public Grid(Meassurable parent, byte[] load) {
         ul = new RelativePoint(0, 0, parent, new Rectangle2D.Double(0, 0, 0.5, 0.5));
@@ -177,7 +169,7 @@ public class Grid {
         int style = Math.abs(holdStyle % 8);
         int alpha = 100;
         //GuiLogHelper.guiLogger.logo("" + style);
-        if (style != FILL) {
+        if (style != HoldMarkerProvider.FILL) {
             alpha = 255;
         }
         for (int i = 0; i < ps.size(); i++) {
@@ -200,7 +192,7 @@ public class Grid {
                         break;
                 }
                 g.setColor(c);
-                if (style >= C_BIG && style <= C_BOTH) {
+                if (style >= HoldMarkerProvider.C_BIG && style <= HoldMarkerProvider.C_BOTH) {
                     int x = (get.xpoints[0] + get.xpoints[1] + get.xpoints[2] + get.xpoints[3]) / 4;
                     int y = (get.ypoints[0] + get.ypoints[1] + get.ypoints[2] + get.ypoints[3]) / 4;
                     int dmin = Integer.MAX_VALUE;
@@ -216,19 +208,19 @@ public class Grid {
                     }
                     int width = 4;
                     for (int j = -width / 2; j <= width; j++) {
-                        if (style == C_SMALL || style == C_BOTH) {
+                        if (style == HoldMarkerProvider.C_SMALL || style == HoldMarkerProvider.C_BOTH) {
                             int ulx = x - dmin / 2 - j;
                             int uly = y - dmin / 2 - j;
                             g.drawOval(ulx, uly, dmin + j * 2, dmin + j * 2);
                         }
-                        if (style == C_BIG || style == C_BOTH) {
+                        if (style == HoldMarkerProvider.C_BIG || style == HoldMarkerProvider.C_BOTH) {
                             int ulx = x - dmax / 2 - j;
                             int uly = y - dmax / 2 - j;
                             g.drawOval(ulx, uly, dmax + j * 2, dmax + j * 2);
                         }
 
                     }
-                } else if (style >= E_BIG && style <= E_BOTH) {
+                } else if (style >= HoldMarkerProvider.E_BIG && style <= HoldMarkerProvider.E_BOTH) {
                     int x1max = Math.max(get.xpoints[0], get.xpoints[3]);
                     int x1min = Math.min(get.xpoints[0], get.xpoints[3]);
                     int y1max = Math.max(get.ypoints[0], get.ypoints[1]);
@@ -243,15 +235,15 @@ public class Grid {
                     int hmin = y2min - y1max;
                     int width = 4;
                     for (int j = -width / 2; j <= width; j++) {
-                        if (style == E_BOTH || style == E_BIG) {
+                        if (style == HoldMarkerProvider.E_BOTH || style == HoldMarkerProvider.E_BIG) {
                             g.drawOval(x1min - j, y1min - j, wmax + j * 2, hmax + j * 2);
                         }
-                        if (style == E_BOTH || style == E_SMALL) {
+                        if (style == HoldMarkerProvider.E_BOTH || style == HoldMarkerProvider.E_SMALL) {
                             g.drawOval(x1max - j, y1max - j, wmin + j * 2, hmin + j * 2);
                         }
 
                     }
-                } else if (style == RECT) {
+                } else if (style == HoldMarkerProvider.RECT) {
                     int width = 4;
                     int[] xs = new int[get.xpoints.length];
                     int[] ys = new int[get.ypoints.length];
