@@ -38,6 +38,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
+import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -474,7 +475,32 @@ public class MainWindow {
             }
         });
         JMenuItem selectListBoulders = new JMenuItem(Translator.R("SelectListBoulders"));
-        jp.add(selectListBoulders); //also return boudler and current filter
+        jp.add(selectListBoulders);
+        JMenuItem newBoulder = new JMenuItem(Translator.R("MNewBoulder"));
+        jp.add(newBoulder);
+        JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
+        jp.add(editBoulder);
+        //with edit bolder his looks like redundant
+        JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
+        saveBoulder.setEnabled(false);
+        jp.add(saveBoulder);
+        JMenuItem timered = new JMenuItem(Translator.R("timered"));
+        jp.add(timered);
+        JMenu sub1 = new JMenu(Translator.R("Admin"));
+        jp.add(sub1);
+        JMenuItem newEditWall = new JMenuItem(Translator.R("MEditWall"));
+        sub1.add(newEditWall);
+        JMenuItem management = new JMenuItem(Translator.R("management"));
+        sub1.add(management);
+        JMenu sub2 = new JMenu(Translator.R("Special"));
+        jp.add(sub2);
+        JMenuItem logItem = new JMenuItem("Logs");
+        sub2.add(logItem);
+        JMenuItem revokePermission = new JMenuItem(Translator.R("revokePP"));
+        sub2.add(revokePermission);
+        JMenuItem reset = new JMenuItem("remote reset");
+        sub2.add(reset);
+
         selectListBoulders.addActionListener(new ActionListener() {
 
             @Override
@@ -507,9 +533,6 @@ public class MainWindow {
             }
 
         });
-        //for new/edit bolulder a pro new/edit wall - add changed/document listeners  to check if name, author and dificulty was edited
-        JMenuItem newBoulder = new JMenuItem(Translator.R("MNewBoulder"));
-        jp.add(newBoulder);
         newBoulder.addActionListener(new ActionListener() {
 
             @Override
@@ -536,8 +559,6 @@ public class MainWindow {
                 }
             }
         });
-        JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
-        jp.add(editBoulder);
         editBoulder.addActionListener(new ActionListener() {
 
             @Override
@@ -565,10 +586,6 @@ public class MainWindow {
             }
 
         });
-        //with edit bolder his looks like redundant
-        JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
-        saveBoulder.setEnabled(false);
-        jp.add(saveBoulder);
         saveBoulder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -602,7 +619,6 @@ public class MainWindow {
                 }
             }
         });
-        JMenuItem newEditWall = new JMenuItem(Translator.R("MEditWall"));
         newEditWall.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -616,9 +632,6 @@ public class MainWindow {
                 }
             }
         });
-        jp.add(newEditWall);
-        JMenuItem timered = new JMenuItem(Translator.R("timered"));
-        jp.add(timered);
         timered.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -738,10 +751,6 @@ public class MainWindow {
                 timeredWindow.setVisible(true);
             }
         });
-        //basic settings + ADMINISTRATOR tasks - delete boudlers, manage walls, deault grades, default higlight. new/edit wall management only too?
-        //new password?
-        JMenuItem management = new JMenuItem(Translator.R("management"));
-        jp.add(management);
         management.addActionListener(new ActionListener() {
 
             @Override
@@ -1220,8 +1229,6 @@ public class MainWindow {
 
             }
         });
-        JMenuItem logItem = new JMenuItem("Logs");
-        jp.add(logItem);
         logItem.addActionListener(new ActionListener() {
 
             @Override
@@ -1229,8 +1236,6 @@ public class MainWindow {
                 new LogView(db).setVisible(true);
             }
         });
-        JMenuItem revokePermission = new JMenuItem(Translator.R("revokePP"));
-        jp.add(revokePermission);
         revokePermission.addActionListener(new ActionListener() {
 
             @Override
@@ -1239,7 +1244,6 @@ public class MainWindow {
                 db.revoke();
             }
         });
-        JMenuItem reset = new JMenuItem("remote reset");
         reset.addActionListener(new ActionListener() {
 
             @Override
@@ -1247,8 +1251,6 @@ public class MainWindow {
                 gs.reset();
             }
         });
-        jp.add(reset);
-        jp.add(new JMenuItem("tips")); //highlight what save do (jsut add a leg?), higluight do not save garbage
         JPanel subtools = new JPanel(new BorderLayout());
         subtools.add(settings, BorderLayout.WEST);
         subtools.add(name);
