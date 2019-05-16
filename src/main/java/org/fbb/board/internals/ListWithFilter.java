@@ -5,6 +5,7 @@
  */
 package org.fbb.board.internals;
 
+import org.fbb.board.internals.grid.Boulder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

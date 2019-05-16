@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fbb.board.internals;
+package org.fbb.board.internals.grid;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Properties;
+import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.grades.Grade;
 
 /**
@@ -211,7 +212,7 @@ public class Boulder implements Cloneable {
                 + getAuthor();
     }
 
-    int getPathLength() {
+    public int getPathLength() {
         String compressedValue = map.getProperty(PATH);
         if (compressedValue == null || compressedValue.trim().isEmpty()) {
             return 0;

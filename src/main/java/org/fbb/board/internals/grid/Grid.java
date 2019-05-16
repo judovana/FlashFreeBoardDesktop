@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fbb.board.internals;
+package org.fbb.board.internals.grid;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import org.fbb.board.Translator;
+import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.comm.ByteEater;
 import org.fbb.board.internals.grades.Grade;
 

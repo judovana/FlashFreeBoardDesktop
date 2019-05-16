@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fbb.board.internals;
+package org.fbb.board.internals.grid;
 
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
@@ -25,6 +25,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.comm.ByteEater;
 
 /**

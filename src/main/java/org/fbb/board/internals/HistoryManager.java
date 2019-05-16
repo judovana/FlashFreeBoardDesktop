@@ -5,6 +5,7 @@
  */
 package org.fbb.board.internals;
 
+import org.fbb.board.internals.grid.Boulder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;

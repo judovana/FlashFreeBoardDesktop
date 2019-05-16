@@ -5,6 +5,7 @@
  */
 package org.fbb.board.internals;
 
+import org.fbb.board.internals.grid.Boulder;
 import java.awt.event.ActionListener;
 import java.util.Random;
 import javax.swing.JLabel;
