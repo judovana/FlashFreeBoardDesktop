@@ -166,7 +166,7 @@ public class GridPane extends JPanel implements Meassurable {
         public void mouseWheelMoved(MouseWheelEvent e) {
             String message;
             int notches = e.getWheelRotation();
-            grid.setHoldStyle(notches);
+            grid.adjustTmpHoldStyle(notches);
             repaint();
         }
     }

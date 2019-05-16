@@ -45,6 +45,8 @@ public class Grid {
     private static final int hyperRedundantArray = 1000 * 1000;
     //cuurenly by COLUMN. see setHorLines and bottom of createLines
     private final int[] psStatus = new int[hyperRedundantArray];
+
+    public static HoldMarkerProvider colorProvider;
     //=>
     //0 3 6
     //1 4 6
@@ -57,7 +59,6 @@ public class Grid {
      */
     private RelativePoint selected;
     private boolean showGrid = true;
-    private int holdStyle = 800;//nasty hack to avoid runnign around zero
 
     public Grid(Meassurable parent, byte[] load) {
         ul = new RelativePoint(0, 0, parent, new Rectangle2D.Double(0, 0, 0.5, 0.5));
@@ -148,7 +149,7 @@ public class Grid {
         //        br.draw(g);
         createLines();//really?
         if (showGrid) {
-            g.setColor(Color.black);
+            g.setColor(getGridColor());
             for (int i = 0; i < horLines.length; i++) {
                 Line horLine = horLines[i];
                 horLine.draw(g);
@@ -161,34 +162,29 @@ public class Grid {
             }
         }
         if (getHolds(MARK_TOP).trim().isEmpty() && (getHolds(MARK_PATH).trim().length() > 0 || getHolds(MARK_START).trim().length() > 0)) {
-            g.setColor(Color.red);
+            g.setColor(getTopColorFull());
             horLines[0].draw(g);
             horLines[0].draw(g, 0, 1);
             horLines[0].draw(g, 0, -1);
         }
-        int style = Math.abs(holdStyle % 8);
-        int alpha = 100;
-        //GuiLogHelper.guiLogger.logo("" + style);
-        if (style != HoldMarkerProvider.FILL) {
-            alpha = 255;
-        }
+        int style = getUnifiedStyle();
         for (int i = 0; i < ps.size(); i++) {
             if (psStatus[i] > 0) {
                 Polygon get = ps.get(i);
                 Color c;
 
                 switch (psStatus[i]) {
-                    case MARK_START://green start
-                        c = new Color(0, 200, 0, alpha);
+                    case MARK_START:
+                        c = getStartColor();
                         break;
-                    case MARK_PATH: //blue, climb
-                        c = new Color(0, 0, 200, alpha);
+                    case MARK_PATH:
+                        c = getPathColor();
                         break;
-                    case MARK_TOP: //top red
-                        c = new Color(200, 0, 0, alpha);
+                    case MARK_TOP:
+                        c = getTopColor();
                         break;
                     default:
-                        c = new Color(0, 0, 0, alpha);
+                        c = getErrorColor();
                         break;
                 }
                 g.setColor(c);
@@ -263,7 +259,7 @@ public class Grid {
                 } else {
                     g.fillPolygon(get);
                 }
-                //g.setColor(Color.black);
+                //g.setColor(getGridColor());
                 //g.drawString("" + i, get.xpoints[3], get.ypoints[3]);
             }
         }
@@ -407,8 +403,8 @@ public class Grid {
         return showGrid;
     }
 
-    public void setHoldStyle(int change) {
-        this.holdStyle = this.holdStyle + change;
+    public void adjustTmpHoldStyle(int change) {
+        this.setHoldStyle(this.getHoldStyle() + change);
     }
 
     public Boulder randomBoulder(String wallId) {
@@ -811,5 +807,106 @@ public class Grid {
 
     public double getSingleSourceRowAmpers(double singleLedAmpers, int numberOfSources) {
         return getWallAmpers(singleLedAmpers) / (double) (numberOfSources);
+    }
+
+    private Integer backupHoldStyle = 800;//nasty hack to avoid runnign around zero
+
+    private int getHoldStyle() {
+        if (colorProvider != null) {
+            return colorProvider.getCurrentStyle();
+        } else {
+            return backupHoldStyle;
+        }
+    }
+
+    private void setHoldStyle(int i) {
+        if (colorProvider != null) {
+            colorProvider.setCurrentStyle(i);
+        } else {
+            backupHoldStyle = i;
+        }
+    }
+
+    private Color getTopColorFull() {
+        if (colorProvider != null) {
+            return new Color(
+                    colorProvider.getTopRed(),
+                    colorProvider.getTopGreen(),
+                    colorProvider.getTopBlue()
+            );
+        } else {
+            return new Color(0.75f, 0, 0);
+        }
+    }
+
+    private Color getTopColor() {
+        if (colorProvider != null) {
+            return new Color(
+                    colorProvider.getTopRed(),
+                    colorProvider.getTopGreen(),
+                    colorProvider.getTopBlue(),
+                    getAlpha()
+            );
+        } else {
+            return new Color(0.75f, 0, 0, getAlpha());
+        }
+    }
+
+    private Color getPathColor() {
+        if (colorProvider != null) {
+            return new Color(
+                    colorProvider.getPathRed(),
+                    colorProvider.getPathGreen(),
+                    colorProvider.getPathBlue(),
+                    getAlpha()
+            );
+        } else {
+            return new Color(0, 0, 0.75f, getAlpha());
+        }
+    }
+
+    private Color getStartColor() {
+        if (colorProvider != null) {
+            return new Color(
+                    colorProvider.getStartRed(),
+                    colorProvider.getStartGreen(),
+                    colorProvider.getStartBlue(),
+                    getAlpha()
+            );
+        } else {
+            return new Color(0, 0.75f, 0, getAlpha());
+        }
+    }
+
+    private Color getGridColor() {
+        if (colorProvider != null) {
+            return colorProvider.getGridColor();
+        } else {
+            return Color.black;
+        }
+    }
+
+    private Color getErrorColor() {
+        if (colorProvider != null) {
+            return colorProvider.getGridColor();
+        } else {
+            return new Color(0, 0, 0, getAlpha());
+        }
+    }
+
+    private float getAlpha() {
+        if (colorProvider != null) {
+            return colorProvider.getHoldMarkerOapcity();
+        } else {
+            float alpha = 0.4f;
+            if (getUnifiedStyle() != HoldMarkerProvider.FILL) {
+                alpha = 1f;
+            }
+            return alpha;
+        }
+    }
+
+    private int getUnifiedStyle() {
+        return Math.abs(getHoldStyle() % HoldMarkerProvider.COUNT_OF_STYLES);
     }
 }

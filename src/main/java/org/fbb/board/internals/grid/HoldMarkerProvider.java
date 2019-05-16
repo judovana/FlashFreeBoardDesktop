@@ -5,12 +5,15 @@
  */
 package org.fbb.board.internals.grid;
 
+import java.awt.Color;
+
 /**
  *
  * @author jvanek
  */
 public interface HoldMarkerProvider {
 
+    //known styles
     public static final int FILL = 0;
     public static final int C_BIG = 1;
     public static final int C_SMALL = 2;
@@ -19,25 +22,37 @@ public interface HoldMarkerProvider {
     public static final int E_SMALL = 5;
     public static final int E_BOTH = 6;
     public static final int RECT = 7;
+    //there is 8 of them
+    public static int COUNT_OF_STYLES = 8;
 
-    public int getStartRed();
+    public float getStartRed();
 
-    public int getStartGreen();
+    public float getStartGreen();
 
-    public int getStartBlue();
+    public float getStartBlue();
 
-    public int getPathRed();
+    public float getPathRed();
 
-    public int getPathGreen();
+    public float getPathGreen();
 
-    public int getPathBlue();
+    public float getPathBlue();
 
-    public int getTopRed();
+    public float getTopRed();
 
-    public int getTopGreen();
+    public float getTopGreen();
 
-    public int getTopBlue();
+    public float getTopBlue();
 
-    public int getStyle();
+    public float getHoldMarkerOapcity();
+
+    public Color getGridColor();
+
+    public int getDefaultStyle();
+
+    public void setDefaultStyle(int a);
+
+    public int getCurrentStyle();
+
+    public void setCurrentStyle(int a);
 
 }
