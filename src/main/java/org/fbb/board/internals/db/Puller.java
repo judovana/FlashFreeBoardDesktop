@@ -46,7 +46,7 @@ public class Puller implements Runnable {
 
     public void pull() {
        //GuiLogHelper.guiLogger.logo("Auto pull!!!");
-        db.pullCatched();
+        db.pullCatched(new ExceptionHandler.LoggingEater());
     }
 
     public static Puller create(int seconds, DB db) {

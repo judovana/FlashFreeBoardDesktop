@@ -63,7 +63,7 @@ public class DB {
     public synchronized void delte(String appendix, File... f) throws IOException, GitAPIException {
         Git git = getDB();
         if (git != null) {
-            pullCatched();
+            pullCatched(new ExceptionHandler.LoggingEater());
             for (File boulder : f) {
                 try {
                     git.rm().addFilepattern(boulder.getAbsolutePath()).call();
@@ -90,15 +90,15 @@ public class DB {
         return gs.getRuser() != null && !gs.getRuser().trim().isEmpty();
     }
 
-    public void pullCatched() {
+    public void pullCatched(ExceptionHandler<Throwable> t) {
         try {
             pullUncatched();
         } catch (Throwable e) {
-            GuiLogHelper.guiLogger.loge(e);
+            t.handleCleanly(e);
         }
     }
 
-    public void pullUncatched() throws IOException, GitAPIException {
+    private void pullUncatched() throws IOException, GitAPIException {
         if (canUp()) {
             Git git = getDB();
             if (git != null) {
@@ -111,7 +111,15 @@ public class DB {
         }
     }
 
-    public void push() throws IOException, GitAPIException {
+    public void pushCatched(ExceptionHandler x) {
+        try {
+            push();
+        } catch (Exception e) {
+            x.handleCleanly(e);
+        }
+    }
+
+    private void push() throws IOException, GitAPIException {
         if (canUp()) {
             Git git = getDB();
             if (git != null) {
@@ -199,10 +207,19 @@ public class DB {
         GitAuthenticator.revoke();
     }
 
-    public void add(String appendix, File... fs) throws IOException, GitAPIException {
+    public void add(ExceptionHandler x, String appendix, File... fs) {
+        try {
+            add(appendix, fs);
+        } catch (IOException | GitAPIException a) {
+            x.handleCleanly(a);
+        }
+
+    }
+
+    private void add(String appendix, File... fs) throws IOException, GitAPIException {
         Git git = getDB();
         if (git != null) {
-            pullCatched();
+            pullCatched(new ExceptionHandler.LoggingEater());
             for (File f : fs) {
                 String toAdd = f.getAbsolutePath().replaceAll(Files.repo.getAbsolutePath(), "");
                 if (toAdd.startsWith("/") || toAdd.startsWith("\\")) {
@@ -262,7 +279,7 @@ public class DB {
 
     }
 
-    public String log() throws IOException, GitAPIException {
+    private String log() throws IOException, GitAPIException {
         StringBuilder sb = new StringBuilder("DB LOG\n");
         Git git = getDB();
         if (git != null) {
@@ -280,7 +297,7 @@ public class DB {
     public void hardReset() throws IOException, GitAPIException {
         Git git = getDB();
         if (git != null) {
-            pullCatched();
+            pullCatched(new ExceptionHandler.LoggingEater());
             git.reset().setMode(ResetCommand.ResetType.HARD).call();
         }
     }

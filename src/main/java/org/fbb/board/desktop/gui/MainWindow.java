@@ -79,6 +79,8 @@ import org.fbb.board.internals.db.Puller;
 import org.fbb.board.internals.TimeredTraining;
 import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.grades.Grade;
+import org.fbb.board.internals.db.GuiExceptionHandler;
+import org.fbb.board.internals.db.ExceptionHandler;
 
 /**
  *
@@ -328,7 +330,7 @@ public class MainWindow {
                 f.getParentFile().mkdirs();
                 try {
                     gp.save(f);
-                    db.add("(wall " + f.getName() + ")", f);
+                    db.add(new GuiExceptionHandler(), "(wall " + f.getName() + ")", f);
                     Files.setLastBoard(n);
                     createWallWindow.dispose();
                     loadWallWithBoulder(n);
@@ -506,7 +508,7 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                db.pullCatched();
+                db.pullCatched(new ExceptionHandler.LoggingEater());
                 BoulderListAndIndex listAndothers = selectListBouder(preloaded.givenId);
                 if (listAndothers != null) {
                     list = new ListWithFilter(listAndothers.list);
@@ -538,7 +540,7 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                db.pullCatched();
+                db.pullCatched(new ExceptionHandler.LoggingEater());
                 BoulderAndSaved bs = editBoulder(preloaded, null);
                 if (bs != null && bs.b != null) {
                     Boulder r = bs.b;
@@ -564,7 +566,7 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                db.pullCatched();
+                db.pullCatched(new ExceptionHandler.LoggingEater());
                 BoulderAndSaved bs = editBoulder(preloaded, hm.getCurrentInHistory());
                 if (bs != null && bs.b != null) {
                     Boulder r = bs.b;
@@ -590,7 +592,7 @@ public class MainWindow {
         saveBoulder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                db.pullCatched();
+                db.pullCatched(new ExceptionHandler.LoggingEater());
                 String nameNice = preloaded.givenId + " " + new Date().toString();
                 nameNice = JOptionPane.showInputDialog(null, Translator.R("MBoulderName"), nameNice);
                 if (name == null) {
@@ -624,7 +626,7 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    db.pullCatched();
+                    db.pullCatched(new ExceptionHandler.LoggingEater());
                     createSelectOrImportWall(Files.getWallFile(preloaded.givenId).toURI().toURL().toExternalForm(), createWallWindow);
                     db.addAll();
                 } catch (IOException | GitAPIException ex) {
@@ -1134,12 +1136,7 @@ public class MainWindow {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        try {
-                            db.pullUncatched();
-                        } catch (Exception ex) {
-                            GuiLogHelper.guiLogger.loge(ex);
-                            JOptionPane.showMessageDialog(null, ex);
-                        }
+                        db.pullCatched(new GuiExceptionHandler());
                     }
                 });
                 JButton rSyncUp = new JButton(Translator.R("rSyncUp"));
@@ -1147,12 +1144,8 @@ public class MainWindow {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        try {
-                            db.push();
-                        } catch (Exception ex) {
-                            GuiLogHelper.guiLogger.loge(ex);
-                            JOptionPane.showMessageDialog(null, ex);
-                        }
+                        db.pushCatched(new GuiExceptionHandler());
+
                     }
                 });
                 JButton rResetHard = new JButton(Translator.R("rResetHard"));
@@ -1428,7 +1421,7 @@ public class MainWindow {
         try {
             BoulderAndSaved r = editBoulderImpl(p, b);
             if (r.saved && r.b != null) {
-                db.add("(boulder " + r.b.getFile().getName() + ")", r.b.getFile());
+                db.add(new GuiExceptionHandler(), "(boulder " + r.b.getFile().getName() + ")", r.b.getFile());
             }
             return r;
         } catch (Exception ex) {
