@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
-import org.fbb.board.internals.DB;
+import org.fbb.board.internals.db.DB;
 import org.fbb.board.internals.GuiLogHelper;
 
 /**

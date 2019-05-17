@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fbb.board.internals;
+package org.fbb.board.internals.db;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +33,8 @@ import org.eclipse.jgit.transport.URIish;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.gui.GitAuthenticator;
+import org.fbb.board.internals.GlobalSettings;
+import org.fbb.board.internals.GuiLogHelper;
 
 /**
  *
