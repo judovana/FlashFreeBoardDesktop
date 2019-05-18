@@ -53,13 +53,15 @@ class SettingsListener implements ActionListener {
     private final GlobalSettings gs;
     private final Authenticator auth;
     private final Puller puller;
+    private final int selectedTab;
 
-    public SettingsListener(GridPane gp, Authenticator auth, GlobalSettings gs, Puller puller, DB db) {
+    public SettingsListener(GridPane gp, Authenticator auth, GlobalSettings gs, Puller puller, DB db, int selectedTab) {
         this.gp = gp;
         this.auth = auth;
         this.gs = gs;
         this.puller = puller;
         this.db = db;
+        this.selectedTab = selectedTab;
     }
 
     @Override
@@ -94,17 +96,20 @@ class SettingsListener implements ActionListener {
         settingsTabs.add(colors);
         settingsTabs.add(remote);
         settingsTabs.add(amps);
+        settingsTabs.setSelectedIndex(selectedTab);
         allSettingsWindow.add(settingsTabs);
         general.add(new JLabel(Translator.R("brightenes")));
-        JSpinner sss = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 254, 1));
-        sss.addChangeListener(new ChangeListener() {
+        JSpinner brigthtnessSpinner = new JSpinner(new SpinnerNumberModel(gs.getBrightness(), 1, 254, 1));
+        brigthtnessSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                gs.setBrightness((Integer) sss.getValue());
-                gp.repaintAndSend(gs);
+                gs.setBrightness((Integer) brigthtnessSpinner.getValue());
+                if (gp != null) {
+                    gp.repaintAndSend(gs);
+                }
             }
         });
-        general.add(sss);
+        general.add(brigthtnessSpinner);
         JLabel securityLabel = new JLabel(Translator.R("security"));
         general.add(securityLabel);
         JTextField securityStatus1 = new JTextField();
@@ -125,7 +130,9 @@ class SettingsListener implements ActionListener {
             @Override
             public void stateChanged(ChangeEvent e) {
                 gs.setHoldMarkerOapcity(((Double) holdOpacity.getValue()).floatValue());
-                gp.repaint();
+                if (gp != null) {
+                    gp.repaint();
+                }
             }
         });
         general.add(holdOpacity);
@@ -136,7 +143,9 @@ class SettingsListener implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gs.setDefaultStyle(holdStyle.getSelectedIndex());
-                gp.repaint();
+                if (gp != null) {
+                    gp.repaint();
+                }
             }
         });
         general.add(holdStyle);
@@ -147,21 +156,27 @@ class SettingsListener implements ActionListener {
         re.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gp.getGrid().testRed((Integer) testDelay.getValue());
+                if (gp != null) {
+                    gp.getGrid().testRed((Integer) testDelay.getValue());
+                }
             }
         });
         final JButton gr = new JButton(Translator.R("testgreen"));
         gr.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gp.getGrid().testGreen((Integer) testDelay.getValue());
+                if (gp != null) {
+                    gp.getGrid().testGreen((Integer) testDelay.getValue());
+                }
             }
         });
         final JButton bl = new JButton(Translator.R("testblue"));
         bl.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gp.getGrid().testBlue((Integer) testDelay.getValue());
+                if (gp != null) {
+                    gp.getGrid().testBlue((Integer) testDelay.getValue());
+                }
             }
         });
         colors.add(gr);
@@ -298,15 +313,33 @@ class SettingsListener implements ActionListener {
         colors.add(redGreen);
         colors.add(redBlueTitle);
         colors.add(redBlue);
-        greenRed.addChangeListener(new PathColorCompozitorListener(0, gp, sss, gr));
-        greenGreen.addChangeListener(new PathColorCompozitorListener(1, gp, sss, gr));
-        greenBlue.addChangeListener(new PathColorCompozitorListener(2, gp, sss, gr));
-        blueRed.addChangeListener(new PathColorCompozitorListener(3, gp, sss, bl));
-        blueGreen.addChangeListener(new PathColorCompozitorListener(4, gp, sss, bl));
-        blueBlue.addChangeListener(new PathColorCompozitorListener(5, gp, sss, bl));
-        redRed.addChangeListener(new PathColorCompozitorListener(6, gp, sss, re));
-        redGreen.addChangeListener(new PathColorCompozitorListener(7, gp, sss, re));
-        redBlue.addChangeListener(new PathColorCompozitorListener(8, gp, sss, re));
+        if (gp != null) {
+            greenRed.addChangeListener(new PathColorCompozitorListener(0, gp, brigthtnessSpinner, gr));
+            greenGreen.addChangeListener(new PathColorCompozitorListener(1, gp, brigthtnessSpinner, gr));
+            greenBlue.addChangeListener(new PathColorCompozitorListener(2, gp, brigthtnessSpinner, gr));
+            blueRed.addChangeListener(new PathColorCompozitorListener(3, gp, brigthtnessSpinner, bl));
+            blueGreen.addChangeListener(new PathColorCompozitorListener(4, gp, brigthtnessSpinner, bl));
+            blueBlue.addChangeListener(new PathColorCompozitorListener(5, gp, brigthtnessSpinner, bl));
+            redRed.addChangeListener(new PathColorCompozitorListener(6, gp, brigthtnessSpinner, re));
+            redGreen.addChangeListener(new PathColorCompozitorListener(7, gp, brigthtnessSpinner, re));
+            redBlue.addChangeListener(new PathColorCompozitorListener(8, gp, brigthtnessSpinner, re));
+        } else {
+            greenRed.setEnabled(false);
+            greenGreen.setEnabled(false);
+            greenBlue.setEnabled(false);
+            blueRed.setEnabled(false);
+            blueGreen.setEnabled(false);
+            blueBlue.setEnabled(false);
+            redRed.setEnabled(false);
+            redGreen.setEnabled(false);
+            redBlue.setEnabled(false);
+            brigthtnessSpinner.setEnabled(false);
+            holdOpacity.setEnabled(false);
+            holdStyle.setEnabled(false);
+            re.setEnabled(false);
+            gr.setEnabled(false);
+            bl.setEnabled(false);
+        }
         remote.add(new JLabel(Translator.R("remoteUrl")));
         JTextField remoteUrl = new JTextField(gs.getUrl());
         remote.add(remoteUrl);
@@ -479,32 +512,31 @@ class SettingsListener implements ActionListener {
         amps.add(singleSourceAmpers);
         amps.add(numberOfSourcesLabel);
         amps.add(numberOfSources);
-        final JLabel ampersResult1 = new JLabel(gp.getGrid().getWallAmpersSentence((double) (singleLedAmpers.getValue())));
-        final JLabel ampersResult2 = new JLabel(gp.getGrid().getSingleSourceRowAmpersSentence((double) (singleSourceAmpers.getValue()), (double) (singleLedAmpers.getValue()), (Integer) (numberOfSources.getValue())));
+        final JLabel ampersResult1 = new JLabel();
+        final JLabel ampersResult2 = new JLabel();
+        adjustAmperLabels(ampersResult1, ampersResult2, singleLedAmpers, singleSourceAmpers, numberOfSources);
         amps.add(ampersResult1);
         amps.add(ampersResult2);
         singleLedAmpers.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 gs.setSingleRgbLedAmpers((Double) (singleLedAmpers.getValue()));
-                ampersResult1.setText(gp.getGrid().getWallAmpersSentence((double) (singleLedAmpers.getValue())));
-                ampersResult2.setText(gp.getGrid().getSingleSourceRowAmpersSentence((double) (singleSourceAmpers.getValue()), (double) (singleLedAmpers.getValue()), (Integer) (numberOfSources.getValue())));
+                adjustAmperLabels(ampersResult1, ampersResult2, singleLedAmpers, singleSourceAmpers, numberOfSources);
             }
+
         });
         singleSourceAmpers.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 gs.setSingleSourceAmpers((Double) (singleSourceAmpers.getValue()));
-                ampersResult1.setText(gp.getGrid().getWallAmpersSentence((double) (singleLedAmpers.getValue())));
-                ampersResult2.setText(gp.getGrid().getSingleSourceRowAmpersSentence((double) (singleSourceAmpers.getValue()), (double) (singleLedAmpers.getValue()), (Integer) (numberOfSources.getValue())));
+                adjustAmperLabels(ampersResult1, ampersResult2, singleLedAmpers, singleSourceAmpers, numberOfSources);
             }
         });
         numberOfSources.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 gs.setNumberOfSources((Integer) (numberOfSources.getValue()));
-                ampersResult1.setText(gp.getGrid().getWallAmpersSentence((double) (singleLedAmpers.getValue())));
-                ampersResult2.setText(gp.getGrid().getSingleSourceRowAmpersSentence((double) (singleSourceAmpers.getValue()), (double) (singleLedAmpers.getValue()), (Integer) (numberOfSources.getValue())));
+                adjustAmperLabels(ampersResult1, ampersResult2, singleLedAmpers, singleSourceAmpers, numberOfSources);
             }
         });
         FUtils.align(genRows, maxRows, general);
@@ -516,6 +548,16 @@ class SettingsListener implements ActionListener {
         allSettingsWindow.pack();
         allSettingsWindow.setLocationRelativeTo(null);
         allSettingsWindow.setVisible(true);
+    }
+
+    public void adjustAmperLabels(JLabel ampersResult1, JLabel ampersResult2, JSpinner singleLedAmpers, JSpinner singleSourceAmpers, JSpinner numberOfSources) {
+        if (gp != null) {
+            ampersResult1.setText(gp.getGrid().getWallAmpersSentence((double) (singleLedAmpers.getValue())));
+            ampersResult2.setText(gp.getGrid().getSingleSourceRowAmpersSentence((double) (singleSourceAmpers.getValue()), (double) (singleLedAmpers.getValue()), (Integer) (numberOfSources.getValue())));
+        } else {
+            ampersResult1.setText(Translator.R("BnoWall"));
+            ampersResult2.setText(Translator.R("BnoWall"));
+        }
     }
 
     private class PathColorCompozitorListener implements ChangeListener {

@@ -174,8 +174,10 @@ public class DB {
                 .setDirectory(tmp)
                 .setProgressMonitor(new ProgressMonitorImpl())
                 .call();
-        FileUtils.copyDirectory(Files.repo, tmp);
-        Files.repo.renameTo(new File(Files.repo.getParent(), "backup-" + tmp.getName()));
+        if (Files.repo.exists()) {
+            FileUtils.copyDirectory(Files.repo, tmp);
+            Files.repo.renameTo(new File(Files.repo.getParent(), "backup-" + tmp.getName()));
+        }
         tmp.renameTo(Files.repo);
         //if canUp -> git add all? + commit?
         //push()?

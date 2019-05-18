@@ -154,7 +154,7 @@ public class MainWindow {
     private static void createSelectOrImportWall(String urlorFile, final JFrame... redundants) throws IOException {
         JDialog f = new JDialog((JFrame) null, Translator.R("MainWindowSetWall"), true);
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        LoadBackgroundOrImportOrLoadWall panel = new LoadBackgroundOrImportOrLoadWall(urlorFile);
+        LoadBackgroundOrImportOrLoadWall panel = new LoadBackgroundOrImportOrLoadWall(urlorFile, auth, db, gs, puller);
         f.add(panel);
         final boolean[] ok = new boolean[]{false};
         panel.setOkAction(new ActionListener() {
@@ -749,7 +749,7 @@ public class MainWindow {
                 timeredWindow.setVisible(true);
             }
         });
-        management.addActionListener(new SettingsListener(gp, auth, gs, puller, db));
+        management.addActionListener(new SettingsListener(gp, auth, gs, puller, db, 0));
         logItem.addActionListener(new ActionListener() {
 
             @Override

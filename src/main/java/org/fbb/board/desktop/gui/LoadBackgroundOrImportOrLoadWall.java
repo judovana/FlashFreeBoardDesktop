@@ -21,7 +21,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
+import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.GuiLogHelper;
+import org.fbb.board.internals.db.DB;
+import org.fbb.board.internals.db.Puller;
 
 /**
  *
@@ -34,6 +37,12 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
     private JLabel valid;
     private JButton select;
     private JButton ok;
+    private JButton settings;
+
+    private final DB db;
+    private final GlobalSettings gs;
+    private final Authenticator auth;
+    private final Puller puller;
 
     public static String getDefaultUrl() {
         try {
@@ -48,7 +57,12 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
         ok.addActionListener(l);
     }
 
-    LoadBackgroundOrImportOrLoadWall(String defaultPath) {
+    LoadBackgroundOrImportOrLoadWall(String defaultPath, Authenticator auth, DB db, GlobalSettings gs, Puller puller) {
+        this.auth = auth;
+        this.db = db;
+        this.gs = gs;
+        this.puller = puller;
+
         input = new JTextField(defaultPath);
         valid = new JLabel();
         input.getDocument().addDocumentListener(new DocumentListener() {
@@ -72,6 +86,12 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
         //password?
         info = new JLabel(Translator.R("MainWindowSetWallInfo"));
         ok = new JButton(Translator.R("Bfinish"));
+        if (Files.repoGit.exists()) {
+            settings = new JButton(Translator.R("Settings"));
+        } else {
+            settings = new JButton(Translator.R("BinitialInit"));
+        }
+        settings.addActionListener(new SettingsListener(null, auth, gs, puller, db, 3));
         select = new JButton(Translator.R("Bselect"));
         select.addActionListener((ActionEvent e) -> {
             JFileChooser jf;
@@ -94,12 +114,13 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
             }
         });
         this.setLayout(new GridLayout(4, 1));
-        JPanel p = new JPanel(new GridLayout(1, 2));
+        JPanel p = new JPanel(new GridLayout(1, 3));
         this.add(info);
         this.add(input);
         this.add(valid);
         p.add(ok);
         p.add(select);
+        p.add(settings);
         this.add(p);
     }
 
