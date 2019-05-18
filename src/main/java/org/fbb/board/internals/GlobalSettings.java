@@ -325,7 +325,8 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
             r[i + 1] = toMessage(compress, content[i]);
         }
         if (compress) {
-            r[r.length - 1] = new byte[]{0, 0, 0, 0, 0};
+            r[r.length - 1] = new byte[]{(byte) 255, (byte) 254, (byte) 0, (byte) 255, (byte) 0};
+
         }
         return r;
     }
