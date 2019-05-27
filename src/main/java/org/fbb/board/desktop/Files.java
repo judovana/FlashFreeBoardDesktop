@@ -25,6 +25,8 @@ public class Files {
     public static final File repo = new File(configDir + "/repo");
     public static final File repoGit = new File(repo + "/.git");
     public static final File wallsDir = new File(repo + "/walls");
+    public static final File trainingsDir = new File(repo + "/trainings/single");
+    public static final File listDir = new File(repo + "/trainings/");
     public static final File bouldersDir = new File(repo + "/boulders");
     private static final File lastBoard = new File(configDir + "/lastBoard");
     private static final File lastBoulder = new File(configDir + "/lastBoulder");
@@ -71,6 +73,11 @@ public class Files {
     public static File getLastAppliedFilterFile() {
         configDir.mkdirs();
         return new File(configDir, "lastAppliedFilter");
+    }
+
+    public static File getTraining(String name) {
+        trainingsDir.mkdirs();
+        return new File(trainingsDir, name + ".sitr");
     }
 
     public static File getLastUsedFilterFile() {

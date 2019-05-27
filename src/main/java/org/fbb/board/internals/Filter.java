@@ -5,6 +5,7 @@
  */
 package org.fbb.board.internals;
 
+import java.io.ByteArrayOutputStream;
 import org.fbb.board.internals.grid.Boulder;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
@@ -84,10 +86,15 @@ public class Filter implements Serializable {
     }
 
     public void save(File f) throws IOException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f))) {
-            oos.writeObject(this);
-            oos.flush();
+        try (FileOutputStream oo = new FileOutputStream(f)) {
+            write(oo);
         }
+    }
+
+    public void write(OutputStream os) throws IOException {
+        ObjectOutputStream oos = new ObjectOutputStream(os);
+        oos.writeObject(this);
+        oos.flush();
     }
 
     public static Filter load(File f) throws IOException, ClassNotFoundException {

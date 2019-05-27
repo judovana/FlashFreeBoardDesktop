@@ -62,6 +62,19 @@ public class ListWithFilter extends HistoryManager {
         return new Filter(wall, from.toNumber(), to.hashCode(), Integer.MIN_VALUE, Integer.MAX_VALUE, "", "", new Date(Long.MIN_VALUE), new Date(Long.MAX_VALUE / 2/*there is + in comparsion*/), false);
     }
 
+    private static Filter getQuickFilterOf(String wall, List<Boulder> l) {
+        StringBuilder sb = new StringBuilder();
+        for (Boulder b : l) {
+            sb.append(b.getName());
+            sb.append(" ");
+        }
+        String names = sb.toString();
+        if (names.endsWith(" ")) {
+            names = names.substring(0, names.length() - 1);
+        }
+        return new Filter(wall, 0, 100, Integer.MIN_VALUE, Integer.MAX_VALUE, "", names, new Date(Long.MIN_VALUE), new Date(Long.MAX_VALUE / 2/*there is + in comparsion*/), false);
+    }
+
     public ListWithFilter(String givenId) {
         try {
             this.lastFilter = null;
@@ -241,6 +254,10 @@ public class ListWithFilter extends HistoryManager {
     public Filter getLastFilter() {
         //may be null!
         return lastFilter;
+    }
+
+    public Filter enumerate() {
+        return getQuickFilterOf(lastFilter.wall, history);
     }
 
 }
