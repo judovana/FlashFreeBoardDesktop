@@ -46,6 +46,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.SpinnerNumberModel;
@@ -368,6 +369,7 @@ public class MainWindow {
     }
 
     private static void loadWallWithBoulder(GridPane.Preload preloaded, final Boulder possiblebOulder) throws IOException {
+        final JToggleButton[] quickFilters = new JToggleButton[5];
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         final JFrame createWallWindow = new JFrame();
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -402,21 +404,26 @@ public class MainWindow {
         JPanel tools = new JPanel(new GridLayout(2, 1));
         JPanel quickFilterPanel = new JPanel(new GridLayout(1, 4));
         JPanel tools2 = new JPanel(new GridLayout(1, 4));
-        JButton a5 = new JButton("-5A");
+        JToggleButton a5 = new JToggleButton("-5A");
         quickFilterPanel.add(a5);
-        JButton a6 = new JButton("5A-6A");
+        JToggleButton a6 = new JToggleButton("5A-6A");
         quickFilterPanel.add(a6);
-        JButton a7 = new JButton("6A-7A");
+        JToggleButton a7 = new JToggleButton("6A-7A");
         quickFilterPanel.add(a7);
-        JButton a8 = new JButton("7A-8A");
+        JToggleButton a8 = new JToggleButton("7A-8A");
         quickFilterPanel.add(a8);
-        JButton a9 = new JButton("8A+");
+        JToggleButton a9 = new JToggleButton("8A+");
         quickFilterPanel.add(a9);
-        a5.addActionListener(new QuickFilterLIstener(0, 10, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
-        a6.addActionListener(new QuickFilterLIstener(10, 13, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
-        a7.addActionListener(new QuickFilterLIstener(13, 19, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
-        a8.addActionListener(new QuickFilterLIstener(19, 26, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
-        a9.addActionListener(new QuickFilterLIstener(26, 35, preloaded.givenId, nextInList, prevInList, gp, name, next, previous));
+        quickFilters[0] = a5;
+        quickFilters[1] = a6;
+        quickFilters[2] = a7;
+        quickFilters[3] = a8;
+        quickFilters[4] = a9;
+        a5.addActionListener(new QuickFilterLIstener(0, 10, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
+        a6.addActionListener(new QuickFilterLIstener(10, 13, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
+        a7.addActionListener(new QuickFilterLIstener(13, 19, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
+        a8.addActionListener(new QuickFilterLIstener(19, 26, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
+        a9.addActionListener(new QuickFilterLIstener(26, 35, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
         name.setToolTipText(b.getStandardTooltip());
         name.addMouseListener(new MouseAdapter() {
             @Override
@@ -506,6 +513,9 @@ public class MainWindow {
                 db.pullCatched(new ExceptionHandler.LoggingEater());
                 BoulderListAndIndex listAndothers = selectListBouder(preloaded.givenId);
                 if (listAndothers != null) {
+                    for (JToggleButton quickFilter : quickFilters) {
+                        quickFilter.setSelected(false);
+                    }
                     list = new ListWithFilter(listAndothers.list);
                     if (!list.getHistory().isEmpty()) {
                         Boulder r;
@@ -1701,8 +1711,10 @@ public class MainWindow {
         private final JButton next;
         private final JButton previous;
         private final JLabel name;
+        private final JToggleButton[] toogles;
 
-        public QuickFilterLIstener(int gradeFrom, int gradeTo, String wall, JButton nextInRow, JButton prevInRow, GridPane gp, JLabel name, JButton next, JButton prev) {
+        public QuickFilterLIstener(int gradeFrom, int gradeTo, String wall, JButton nextInRow, JButton prevInRow, GridPane gp, JLabel name, JButton next, JButton prev, JToggleButton[] all) {
+            this.toogles = all;
             this.from = new Grade(gradeFrom);
             this.to = new Grade(gradeTo);
             this.wall = wall;
@@ -1718,6 +1730,13 @@ public class MainWindow {
         @Override
         public void actionPerformed(ActionEvent e) {
             list = new ListWithFilter(from, to, wall);
+            for (JToggleButton toogle : toogles) {
+                if (toogle != e.getSource()){
+                    toogle.setSelected(false);
+                } else {
+                    toogle.setSelected(true);
+                }
+            }
             next.setEnabled(list.canFwd());
             previous.setEnabled(list.canBack());
             if (list.getSize() > 0) {
