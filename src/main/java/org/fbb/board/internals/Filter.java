@@ -5,7 +5,6 @@
  */
 package org.fbb.board.internals;
 
-import java.io.ByteArrayOutputStream;
 import org.fbb.board.internals.grid.Boulder;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +16,10 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -29,8 +32,8 @@ public class Filter implements Serializable {
     public final int gradeTo;
     public final int pathMin;
     public final int pathTo;
-    public final String[] authorLike;
-    public final String[] nameLike;
+    private final String[] authorLike;
+    private final String[] nameLike;
     public final long ageFrom;
     public final long ageTo;
     public final boolean random;
@@ -62,6 +65,9 @@ public class Filter implements Serializable {
     }
 
     private static boolean containsAny(String source, String[] candidates) {
+        if (candidates.length == 0 || (candidates.length == 1 && candidates[0].trim().isEmpty())) {
+            return true;
+        }
         for (String candidate : candidates) {
             if (source.contains(candidate)) {
                 return true;
@@ -79,10 +85,25 @@ public class Filter implements Serializable {
         Date d = new Date();
         GuiLogHelper.guiLogger.logo((d.toString()));
         GuiLogHelper.guiLogger.logo((new Date(d.getTime() + 61000).toString()));
+        GuiLogHelper.guiLogger.logo(Arrays.toString(split(" a   \" b c \" \" d\"   e")));
+        GuiLogHelper.guiLogger.logo(Arrays.toString(split(" a   \" b c    e"))); //simply ignoring the quote
+        GuiLogHelper.guiLogger.logo(Arrays.toString(split(" a   \" b c \"\" d\"   e"))); //wrong!!! cornercase causing fail
     }
 
+    //https://stackoverflow.com/questions/10695143/split-a-quoted-string-with-a-delimiter
+    private static final Pattern p = Pattern.compile("((?<=(\"))[\\w ]*(?=(\"(\\s|$))))|((?<!\")\\w+(?!\"))");
+    //https://regex101.com/r/wM6yT9/1
+
     private static String[] split(String s) {
-        return s.trim().split("\\s+");
+        Matcher m = p.matcher(s.trim());
+        List<String> l = new LinkedList<>();
+        while (m.find()) {
+            String ss = m.group();
+            if (!ss.trim().isEmpty()) {
+                l.add(ss);
+            }
+        }
+        return l.toArray(new String[0]);
     }
 
     public void save(File f) throws IOException {
@@ -104,6 +125,31 @@ public class Filter implements Serializable {
 
         }
         return (Filter) read;
+    }
+
+    public String getAuthorsString() {
+        return arrayToQuotedString(this.authorLike);
+    }
+
+    public String getNamesString() {
+        return arrayToQuotedString(this.nameLike);
+    }
+
+    private static String arrayToQuotedString(String[] candidates) {
+        if (candidates.length == 0 || (candidates.length == 1 && candidates[0].trim().isEmpty())) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String candidate : candidates) {
+            sb.append("\"");
+            sb.append(candidate);
+            sb.append("\" ");
+        }
+        String names = sb.toString();
+        if (names.endsWith(" ")) {
+            names = names.substring(0, names.length() - 1);
+        }
+        return names;
     }
 
 }

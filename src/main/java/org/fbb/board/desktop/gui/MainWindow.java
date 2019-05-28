@@ -21,10 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1675,8 +1672,8 @@ public class MainWindow {
         dateTo.setText(dtf.format(new Date(f.ageTo)));
         gradesFrom.setSelectedItem(new Grade(f.gradeFrom).toString());
         gradesTo.setSelectedItem(new Grade(f.gradeTo).toString());
-        author.setText(String.join(" ", f.authorLike));
-        name.setText(String.join(" ", f.nameLike));
+        author.setText(f.getAuthorsString());
+        name.setText(f.getNamesString());
         random.setSelected(f.random);
     }
     

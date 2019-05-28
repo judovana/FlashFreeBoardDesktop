@@ -65,8 +65,9 @@ public class ListWithFilter extends HistoryManager {
     private static Filter getQuickFilterOf(String wall, List<Boulder> l) {
         StringBuilder sb = new StringBuilder();
         for (Boulder b : l) {
+            sb.append("\"");
             sb.append(b.getName());
-            sb.append(" ");
+            sb.append("\" ");
         }
         String names = sb.toString();
         if (names.endsWith(" ")) {
