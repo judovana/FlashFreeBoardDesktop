@@ -91,7 +91,7 @@ import org.fbb.board.internals.db.ExceptionHandler;
  */
 //filters - by grade, by date, by number of holds
 public class MainWindow {
-    
+
     private static final GlobalSettings gs = new GlobalSettings();
     public static final HistoryManager hm = new HistoryManager();
     public static ListWithFilter list;
@@ -100,7 +100,7 @@ public class MainWindow {
     private static final Authenticator auth = new Authenticator();
     private static final DB db = new DB(gs);
     private static final Puller puller = Puller.create(gs.getPullerDelay() * 60, db);
-    
+
     public static void main(String... s) {
         try {
             Grid.colorProvider = gs;
@@ -158,7 +158,7 @@ public class MainWindow {
             JOptionPane.showMessageDialog(null, ex);
         }
     }
-    
+
     private static void createSelectOrImportWall(String urlorFile, final JFrame... redundants) throws IOException {
         JDialog f = new JDialog((JFrame) null, Translator.R("MainWindowSetWall"), true);
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -206,9 +206,9 @@ public class MainWindow {
                 JOptionPane.showMessageDialog(null, exx);
             }
         }
-        
+
     }
-    
+
     private static void createWindow(BufferedImage bis, String name, JFrame... redundants) {
         //get rid of transaprency
         BufferedImage newBufferedImage = new BufferedImage(bis.getWidth(),
@@ -216,14 +216,14 @@ public class MainWindow {
         newBufferedImage.createGraphics().drawImage(bis, 0, 0, Color.WHITE, null);
         createWindowIpl(newBufferedImage, Files.sanitizeFileName(name + " " + new Date().toString()), null, redundants);
     }
-    
+
     private static void createWindow(ZipInputStream zis, String name, JFrame... redundants) throws IOException {
         GridPane.Preload preloaded = GridPane.preload(zis, name);
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         createWindowIpl(bi, name, preloaded.props, redundants);
-        
+
     }
-    
+
     private static void createWindowIpl(BufferedImage bis, String fname, byte[] props, JFrame... redundants) {
         try {
             auth.authenticate(Translator.R("wallChange"));
@@ -300,7 +300,7 @@ public class MainWindow {
                 gp.repaintAndSend(gs);
             }
         });
-        
+
         grid.setSelected(true);
         createWallWindow.add(tools, BorderLayout.SOUTH);
         tools.add(name);
@@ -340,7 +340,7 @@ public class MainWindow {
                     if (redundants != null) {
                         for (int i = 0; i < redundants.length; i++) {
                             redundants[i].dispose();
-                            
+
                         }
                     }
                 } catch (Exception ex) {
@@ -348,7 +348,7 @@ public class MainWindow {
                     JOptionPane.showMessageDialog(null, ex);
                 }
             }
-            
+
         });
         createWallWindow.pack();
         createWallWindow.setSize((int) nw, (int) nh + tools.getHeight());
@@ -359,7 +359,7 @@ public class MainWindow {
             }
         });
     }
-    
+
     private static double getIdealWindowSizw(BufferedImage bis) {
         Rectangle size = ScreenFinder.getCurrentScreenSizeWithoutBounds();
         double dw = (double) size.width / (double) bis.getWidth();
@@ -368,13 +368,13 @@ public class MainWindow {
         ratio = ratio * 0.8;//do not cover all screen
         return ratio;
     }
-    
+
     private static void loadWallWithBoulder(String lastBoard) throws IOException {
         File f = Files.getWallFile(lastBoard);
         GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)), f.getName());
         loadWallWithBoulder(preloaded, null);
     }
-    
+
     private static void loadWallWithBoulder(GridPane.Preload preloaded, final Boulder possiblebOulder) throws IOException {
         final JToggleButton[] quickFilters = new JToggleButton[5];
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
@@ -426,18 +426,18 @@ public class MainWindow {
         quickFilters[2] = a7;
         quickFilters[3] = a8;
         quickFilters[4] = a9;
-        a5.addActionListener(new QuickFilterLIstener(0, 10, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
+        a5.addActionListener(new QuickFilterLIstener(Grade.getMinGrade(), 10, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
         a6.addActionListener(new QuickFilterLIstener(10, 13, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
         a7.addActionListener(new QuickFilterLIstener(13, 19, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
         a8.addActionListener(new QuickFilterLIstener(19, 26, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
-        a9.addActionListener(new QuickFilterLIstener(26, 35, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
+        a9.addActionListener(new QuickFilterLIstener(26, Grade.getMaxGrade(), preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
         name.setToolTipText(b.getStandardTooltip());
         name.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 JOptionPane.showMessageDialog(createWallWindow, name.getToolTipText());
             }
-            
+
         });
         nextInList.addMouseListener(new MouseAdapter() {
             @Override
@@ -447,7 +447,7 @@ public class MainWindow {
                     listJump.show((JButton) e.getSource(), 0, 0);
                 }
             }
-            
+
         });
         prevInList.addMouseListener(new MouseAdapter() {
             @Override
@@ -457,9 +457,9 @@ public class MainWindow {
                     listJump.show((JButton) e.getSource(), 0, 0);
                 }
             }
-            
+
         });
-        
+
         next.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -468,7 +468,7 @@ public class MainWindow {
                     historyJump.show((JButton) e.getSource(), 0, 0);
                 }
             }
-            
+
         });
         previous.addMouseListener(new MouseAdapter() {
             @Override
@@ -478,7 +478,7 @@ public class MainWindow {
                     historyJump.show((JButton) e.getSource(), 0, 0);
                 }
             }
-            
+
         });
         settings.addActionListener(new ActionListener() {
             @Override
@@ -512,9 +512,9 @@ public class MainWindow {
         sub2.add(revokePermission);
         JMenuItem reset = new JMenuItem("remote reset");
         sub2.add(reset);
-        
+
         selectListBoulders.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 db.pullCatched(new ExceptionHandler.LoggingEater());
@@ -546,10 +546,10 @@ public class MainWindow {
                     prevInList.setEnabled(list.canBack());
                 }
             }
-            
+
         });
         newBoulder.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 db.pullCatched(new ExceptionHandler.LoggingEater());
@@ -575,7 +575,7 @@ public class MainWindow {
             }
         });
         editBoulder.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 db.pullCatched(new ExceptionHandler.LoggingEater());
@@ -599,7 +599,7 @@ public class MainWindow {
                     previous.setEnabled(hm.canBack());
                 }
             }
-            
+
         });
         saveBoulder.addActionListener(new ActionListener() {
             @Override
@@ -669,7 +669,7 @@ public class MainWindow {
                 final BoulderCalc boulderCalc = new BoulderCalc(timeOfBoulder, timeOfTraining, numBoulders);
                 final JCheckBox allowRandom = new JCheckBox(Translator.R("allowRandom"), true);
                 allowRandom.addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (trainig[0] != null) {
@@ -680,7 +680,7 @@ public class MainWindow {
                 timeredWindow.add(allowRandom);
                 final JCheckBox allowRegular = new JCheckBox(Translator.R("allowRegular"), true);
                 allowRegular.addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (trainig[0] != null) {
@@ -691,7 +691,7 @@ public class MainWindow {
                 timeredWindow.add(allowRegular);
                 final JCheckBox allowJumps = new JCheckBox(Translator.R("allowJumps"), true);
                 allowJumps.addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (trainig[0] != null) {
@@ -702,7 +702,7 @@ public class MainWindow {
                 timeredWindow.add(allowJumps);
                 final JComboBox<TextToSpeech.TextId> reader = new JComboBox(TextToSpeech.getLangs());
                 reader.addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (trainig[0] != null) {
@@ -749,7 +749,7 @@ public class MainWindow {
                     }
                 });
                 pause.addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (trainig[0] != null) {
@@ -757,9 +757,9 @@ public class MainWindow {
                         }
                     }
                 });
-                
+
                 save1.addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (list.getCurrentInHistory() != null) {
@@ -775,9 +775,9 @@ public class MainWindow {
                         }
                     }
                 });
-                
+
                 save2.addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         saveSingleTraining(
@@ -791,9 +791,9 @@ public class MainWindow {
                                 list.getCurrentInHistory().getName());
                     }
                 });
-                
+
                 load.addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         for (JToggleButton b : quickFilters) {
@@ -807,35 +807,35 @@ public class MainWindow {
                 timeredWindow.pack();
                 timeredWindow.setLocationRelativeTo(createWallWindow);
                 timeredWindow.addWindowListener(new WindowAdapter() {
-                    
+
                     @Override
                     public void windowClosed(WindowEvent e) {
                         if (trainig[0] != null) {
                             trainig[0].stop();
                         }
                     }
-                    
+
                     @Override
                     public void windowClosing(WindowEvent e) {
                         if (trainig[0] != null) {
                             trainig[0].stop();
                         }
                     }
-                    
+
                 });
                 timeredWindow.setVisible(true);
             }
         });
         management.addActionListener(new SettingsListener(gp, auth, gs, puller, db, 0));
         logItem.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 new LogView(db).setVisible(true);
             }
         });
         revokePermission.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 auth.revoke();
@@ -843,7 +843,7 @@ public class MainWindow {
             }
         });
         reset.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 gs.reset();
@@ -898,7 +898,7 @@ public class MainWindow {
         nextInList.setEnabled(list.canFwd());
         prevInList.setEnabled(list.canBack());
         nextRandom.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder b = list.getRandom();
@@ -918,7 +918,7 @@ public class MainWindow {
             }
         });
         nextInList.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder b = list.forward();
@@ -938,7 +938,7 @@ public class MainWindow {
             }
         });
         prevInList.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 Boulder b = list.back();
@@ -989,7 +989,7 @@ public class MainWindow {
             }
         });
     }
-    
+
     private static BoulderAndSaved editBoulder(GridPane.Preload p, Boulder b) {
         try {
             BoulderAndSaved r = editBoulderImpl(p, b);
@@ -1003,7 +1003,7 @@ public class MainWindow {
             return null;
         }
     }
-    
+
     private static List<Boulder> getAll(ListModel<Boulder> model) {
         ArrayList<Boulder> r = new ArrayList(model.getSize());
         for (int i = 0; i < model.getSize(); i++) {
@@ -1011,7 +1011,7 @@ public class MainWindow {
         }
         return r;
     }
-    
+
     private static void generateListJumper(GridPane gp, JLabel name, JButton next, JButton previous, JButton nextInList, JButton prevInList) {
         listJump.removeAll();
         Vector<Boulder> v = list.getHistory();
@@ -1049,7 +1049,7 @@ public class MainWindow {
             listJump.add(i);
         }
     }
-    
+
     private static void generateHistoryJumper(GridPane gp, JLabel name, JButton next, JButton previous, JButton nextInList, JButton prevInList) {
         historyJump.removeAll();
         Vector<Boulder> v = hm.getHistory();
@@ -1085,19 +1085,19 @@ public class MainWindow {
             historyJump.add(i);
         }
     }
-    
+
     private static class BoulderAndSaved {
-        
+
         private final Boulder b;
         private final boolean saved;
-        
+
         public BoulderAndSaved(Boulder b, boolean saved) {
             this.b = b;
             this.saved = saved;
         }
-        
+
     }
-    
+
     private static BoulderAndSaved editBoulderImpl(final GridPane.Preload p, final Boulder orig) throws IOException, CloneNotSupportedException {
         //checkbox save? 
         //if not save, then what?
@@ -1138,7 +1138,7 @@ public class MainWindow {
             saveOnExit.setSelected(false);
         }
         saveOnExit.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (orig != null) {
@@ -1185,7 +1185,7 @@ public class MainWindow {
         name.getDocument().addDocumentListener(dl1);
         author.getDocument().addDocumentListener(dl2);
         grades.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 change[0] = true;
@@ -1201,11 +1201,11 @@ public class MainWindow {
         operateBoulder.setVisible(true);
         return new BoulderAndSaved(done.getResult(), saveOnExit.isSelected());
     }
-    
+
     private static class DoneEditingBoulderListener implements ActionListener {
-        
+
         private final String wallId;
-        
+
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
@@ -1215,11 +1215,11 @@ public class MainWindow {
                 JOptionPane.showMessageDialog(parent, ex);
             }
         }
-        
+
         public Boulder getResult() {
             return result;
         }
-        
+
         private Boulder result;
         private final Boulder orig;
         private final JCheckBox saveOnExit;
@@ -1229,7 +1229,7 @@ public class MainWindow {
         private final JTextField nwAuthorProvider;
         private final JComboBox<String> grades;
         private final boolean[] changed;
-        
+
         public DoneEditingBoulderListener(Boulder orig, JCheckBox saveOnExit, JDialog parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId, JTextField nwAuthorProvider, boolean[] changed) {
             this.orig = orig;
             this.saveOnExit = saveOnExit;
@@ -1241,7 +1241,7 @@ public class MainWindow {
             this.nwAuthorProvider = nwAuthorProvider;
             this.changed = changed;
         }
-        
+
         public void actionPerformedImpl(ActionEvent e) throws IOException {
             //0=grade; 1=name, 2=author
             if (/*saveOnExit.isSelected() && ?*/(!changed[0] || !changed[1] || !changed[2])) {
@@ -1299,21 +1299,21 @@ public class MainWindow {
             parent.dispose();
         }
     }
-    
+
     private static class BoulderListAndIndex {
-        
+
         private final int seelctedIndex;
         private final Boulder selctedValue;
         private final List<Boulder> list;
-        
+
         public BoulderListAndIndex(int seelctedIndex, Boulder selctedValue, List<Boulder> list) {
             this.seelctedIndex = seelctedIndex;
             this.selctedValue = selctedValue;
             this.list = list;
         }
-        
+
     }
-    
+
     private static BoulderListAndIndex selectListBouder(String wallId) {
         try {
             return selectListBouderImpl(wallId);
@@ -1323,9 +1323,9 @@ public class MainWindow {
             return null;
         }
     }
-    
+
     private static final SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-    
+
     private static BoulderListAndIndex selectListBouderImpl(String wallID) throws IOException {
         final int[] result = new int[]{0};
         final int ALL = 1;
@@ -1339,7 +1339,7 @@ public class MainWindow {
         JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(boulders), boulderPreview);
         d.add(sp);
         boulders.addListSelectionListener(new ListSelectionListener() {
-            
+
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 try {
@@ -1370,7 +1370,7 @@ public class MainWindow {
         addAll.setFont(addAll.getFont().deriveFont(Font.BOLD | Font.ITALIC));
         resultsPanel1.add(addAll);
         addAll.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -1387,7 +1387,7 @@ public class MainWindow {
         addSeelcted.setFont(addSeelcted.getFont().deriveFont(Font.BOLD));
         resultsPanel1.add(addSeelcted);
         addSeelcted.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -1467,12 +1467,12 @@ public class MainWindow {
         tools3.add(nameFilter);
         final JLabel authorLabel = new JLabel(Translator.R("AuthorFilter"));
         authorLabel.addMouseListener(new MouseAdapter() {
-            
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 JOptionPane.showMessageDialog(d, authorLabel.getToolTipText());
             }
-            
+
         });
         tools5.add(authorLabel, BorderLayout.WEST);
         final JTextField authorsFilter = new JTextField();
@@ -1482,16 +1482,16 @@ public class MainWindow {
         tools4.add(dateFrom);
         final JTextField dateTo = new JTextField();
         tools4.add(dateTo);
-        
+
         wallDefault.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter, random);
             }
         });
         resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter, random);
-        
+
         JPanel tools = new JPanel(new GridLayout(8, 1));
         tools.add(tools0);
         tools.add(tools1);
@@ -1544,7 +1544,7 @@ public class MainWindow {
         sp.setDividerLocation(d.getWidth() / 2);
         wallDefault.setFont(addAll.getFont().deriveFont(Font.PLAIN));
         deleteAll.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (boulders.getModel() == null || boulders.getModel().getSize() == 0) {
@@ -1562,7 +1562,7 @@ public class MainWindow {
                         JOptionPane.showMessageDialog(d, ex);
                         return;
                     }
-                    
+
                 }
                 try {
                     File[] toDelete = new File[boulders.getModel().getSize()];
@@ -1581,11 +1581,11 @@ public class MainWindow {
                 } finally {
                     apply.getActionListeners()[0].actionPerformed(null);
                 }
-                
+
             }
         });
         delteSelected.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (boulders.getSelectedValuesList() == null || boulders.getSelectedValuesList().isEmpty()) {
@@ -1603,7 +1603,7 @@ public class MainWindow {
                         JOptionPane.showMessageDialog(d, ex);
                         return;
                     }
-                    
+
                 }
                 try {
                     File[] toDelete = new File[boulders.getSelectedValuesList().size()];
@@ -1622,7 +1622,7 @@ public class MainWindow {
                 } finally {
                     apply.getActionListeners()[0].actionPerformed(null);
                 }
-                
+
             }
         });
         d.setVisible(true);
@@ -1646,7 +1646,7 @@ public class MainWindow {
                 return null;
         }
     }
-    
+
     public static ListWithFilter resetDefaults(String wallID, final JComboBox<String> walls, final JList<Boulder> boulders, final JSpinner holdsMin, final JSpinner holdsMax, final JLabel authorLabel, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name, JCheckBox random) {
         ListWithFilter currentList = new ListWithFilter(wallID);
         walls.setSelectedItem(wallID);
@@ -1663,7 +1663,7 @@ public class MainWindow {
         random.setSelected(true);
         return currentList;
     }
-    
+
     public static void applyFilter(Filter f, String wallID, final JComboBox<String> walls, final JSpinner holdsMin, final JSpinner holdsMax, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name, JCheckBox random) {
         walls.setSelectedItem(f.wall);
         holdsMin.setValue(f.pathMin);
@@ -1676,25 +1676,25 @@ public class MainWindow {
         name.setText(f.getNamesString());
         random.setSelected(f.random);
     }
-    
+
     private static class BoulderListRenderer extends JLabel implements ListCellRenderer<Boulder> {
-        
+
         public BoulderListRenderer() {
             setOpaque(true);
         }
-        
+
         @Override
         public Component getListCellRendererComponent(JList<? extends Boulder> list, Boulder b, int index,
                 boolean isSelected, boolean cellHasFocus) {
             this.setFont(this.getFont().deriveFont(Font.PLAIN, new JLabel().getFont().getSize() + 2));
             String grade = b.getGrade().toString();
             setText("<html><big><b>" + grade + "</b>:  <u>" + b.getName() + "</u>| <i>" + b.getAuthor() + "</i> (" + dtf.format(b.getDate()) + ")[" + b.getWall() + "]");
-            
+
             if (isSelected) {
 //                setBackground(list.getSelectionBackground());
                 setForeground(list.getSelectionForeground());
                 setBackground(new Color(225, 0, 0));
-                
+
             } else {
                 int inter = 255 / Grade.currentGrades().size();
                 if (b.getGrade().toNumber() < 0) {
@@ -1704,13 +1704,13 @@ public class MainWindow {
                 }
                 setForeground(list.getForeground());
             }
-            
+
             return this;
         }
     }
-    
+
     private static class ApplyFilterListener implements ActionListener {
-        
+
         private final JComboBox<String> walls;
         private final JComboBox<String> gradesFrom;
         private final JComboBox<String> gradesTo;
@@ -1723,11 +1723,11 @@ public class MainWindow {
         private final JList<Boulder> boulders;
         private ListWithFilter lastList;
         private final JCheckBox random;
-        
+
         public ListWithFilter getLastList() {
             return lastList;
         }
-        
+
         public ApplyFilterListener(JComboBox<String> walls, JComboBox<String> gradesFrom, JComboBox<String> gradesTo, JSpinner holdsMin, JSpinner holdsMax, JTextField authorsFilter, JTextField nameFilter, JTextField dateFrom, JTextField dateTo, JList<Boulder> boulders, JCheckBox random) {
             this.walls = walls;
             this.gradesFrom = gradesFrom;
@@ -1741,7 +1741,7 @@ public class MainWindow {
             this.boulders = boulders;
             this.random = random;
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
@@ -1766,9 +1766,9 @@ public class MainWindow {
             }
         }
     }
-    
+
     private static class QuickFilterLIstener implements ActionListener {
-        
+
         private final Grade from;
         private final Grade to;
         private final String wall;
@@ -1779,7 +1779,7 @@ public class MainWindow {
         private final JButton previous;
         private final JLabel name;
         private final JToggleButton[] toogles;
-        
+
         public QuickFilterLIstener(int gradeFrom, int gradeTo, String wall, JButton nextInRow, JButton prevInRow, GridPane gp, JLabel name, JButton next, JButton prev, JToggleButton[] all) {
             this.toogles = all;
             this.from = new Grade(gradeFrom);
@@ -1791,9 +1791,9 @@ public class MainWindow {
             this.previous = prev;
             this.gp = gp;
             this.name = name;
-            
+
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent e) {
             list = new ListWithFilter(from, to, wall);
@@ -1824,34 +1824,34 @@ public class MainWindow {
             }
         }
     }
-    
+
     private static class ChangeRecodingDocumentListener implements DocumentListener {
-        
+
         private final boolean[] change;
         private final int index;
-        
+
         public ChangeRecodingDocumentListener(boolean[] change, int index) {
             this.change = change;
             this.index = index;
         }
-        
+
         @Override
         public void insertUpdate(DocumentEvent e) {
             change[index] = true;
         }
-        
+
         @Override
         public void removeUpdate(DocumentEvent e) {
             change[index] = true;
         }
-        
+
         @Override
         public void changedUpdate(DocumentEvent e) {
             change[index] = true;
-            
+
         }
     }
-    
+
     private static void setNameTextAndGrade(JLabel n, Boulder b) {
         n.setText(b.getGradeAndName());
         n.setToolTipText(b.getStandardTooltip());
@@ -1860,9 +1860,9 @@ public class MainWindow {
         } else {
             n.setHorizontalAlignment(SwingConstants.CENTER);
         }
-        
+
     }
-    
+
     private static void loadSavedTraining(File f) {
         try {
             ZipFile zipFile = new ZipFile(f);
@@ -1896,7 +1896,7 @@ public class MainWindow {
             JOptionPane.showMessageDialog(null, ex);
         }
     }
-    
+
     private static void saveSingleTraining(boolean random,
             boolean regular,
             boolean jumps,
@@ -1931,5 +1931,5 @@ public class MainWindow {
             JOptionPane.showMessageDialog(null, ex);
         }
     }
-    
+
 }

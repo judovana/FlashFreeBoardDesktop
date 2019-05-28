@@ -97,6 +97,7 @@ public class Grade {
         return sbs.toString();
     }
 
+    @Override
     public String toString() {
         if (artificialValue <= RANDOM) {
             return Translator.R("RandomUnknown");
@@ -120,6 +121,14 @@ public class Grade {
 
     public static String getStandardTooltip(int i) {
         return "<b>" + new Grade(i).toAllValues("<br/>") + "</b>";
+    }
+
+    public static int getMinGrade() {
+        return 0;
+    }
+
+    public static int getMaxGrade() {
+        return valuesPerGrade.size() - 1;
     }
 
 }
