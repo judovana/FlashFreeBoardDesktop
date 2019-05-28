@@ -257,8 +257,12 @@ public class ListWithFilter extends HistoryManager {
         return lastFilter;
     }
 
-    public Filter enumerate() {
-        return getQuickFilterOf(lastFilter.wall, history);
+    public Filter enumerate(String backupWall) {
+        if (lastFilter == null || lastFilter.wall == null) {
+            return getQuickFilterOf(backupWall, history);
+        } else {
+            return getQuickFilterOf(lastFilter.wall, history);
+        }
     }
 
 }

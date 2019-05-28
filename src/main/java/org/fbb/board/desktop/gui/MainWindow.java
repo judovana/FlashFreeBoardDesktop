@@ -20,9 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -763,15 +761,20 @@ public class MainWindow {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (list.getCurrentInHistory() != null) {
-                            saveSingleTraining(
-                                    allowRandom.isSelected(),
-                                    allowRegular.isSelected(),
-                                    allowJumps.isSelected(),
-                                    timeOfBoulder.getText(),
-                                    timeOfTraining.getText(),
-                                    (Integer) (numBoulders.getValue()),
-                                    list.enumerate(),
-                                    list.getCurrentInHistory().getFile().getName());
+                            try {
+                                saveSingleTraining(
+                                        allowRandom.isSelected(),
+                                        allowRegular.isSelected(),
+                                        allowJumps.isSelected(),
+                                        timeOfBoulder.getText(),
+                                        timeOfTraining.getText(),
+                                        (Integer) (numBoulders.getValue()),
+                                        list.enumerate(preloaded.givenId),
+                                        list.getCurrentInHistory().getFile().getName());
+                            } catch (Exception ex) {
+                                GuiLogHelper.guiLogger.loge(ex);
+                                JOptionPane.showMessageDialog(null, ex);
+                            }
                         }
                     }
                 });
@@ -780,15 +783,20 @@ public class MainWindow {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        saveSingleTraining(
-                                allowRandom.isSelected(),
-                                allowRegular.isSelected(),
-                                allowJumps.isSelected(),
-                                timeOfBoulder.getText(),
-                                timeOfTraining.getText(),
-                                (Integer) (numBoulders.getValue()),
-                                list.getLastFilter(),
-                                list.getCurrentInHistory().getName());
+                        try {
+                            saveSingleTraining(
+                                    allowRandom.isSelected(),
+                                    allowRegular.isSelected(),
+                                    allowJumps.isSelected(),
+                                    timeOfBoulder.getText(),
+                                    timeOfTraining.getText(),
+                                    (Integer) (numBoulders.getValue()),
+                                    list.getLastFilter() == null ? Filter.getAllMatching(preloaded.givenId) : list.getLastFilter(),
+                                    list.getCurrentInHistory().getName());
+                        } catch (Exception ex) {
+                            GuiLogHelper.guiLogger.loge(ex);
+                            JOptionPane.showMessageDialog(null, ex);
+                        }
                     }
                 });
 
@@ -801,6 +809,25 @@ public class MainWindow {
                         }
                         loadSavedTraining(Files.getTraining("list"));
                         loadSavedTraining(Files.getTraining("filter"));
+                        if (list.getSize() > 0) {
+                            for (JToggleButton b : quickFilters) {
+                                b.setSelected(false);
+                            }
+                            list.setIndex(list.getSize() - 1);
+                            Boulder b = list.getCurrentInHistory();
+                            gp.getGrid().setBouler(b);
+                            hm.addToBoulderHistory(b);
+                            gp.getGrid().setBouler(b);
+                            setNameTextAndGrade(name, b);
+                            gp.repaintAndSend(gs);
+                            Files.setLastBoulder(b);
+                            next.setEnabled(hm.canFwd());
+                            previous.setEnabled(hm.canBack());
+                            nextInList.setEnabled(list.canFwd());
+                            prevInList.setEnabled(list.canBack());
+                            nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                            prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                        }
                     }
                 });
                 timeredWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -1165,9 +1192,9 @@ public class MainWindow {
         }
         tools11.add(author);
         if (orig == null) {
-            tools11.add(new JLabel(dtf.format(new Date())), BorderLayout.EAST);
+            tools11.add(new JLabel(Filter.dtf.format(new Date())), BorderLayout.EAST);
         } else {
-            tools11.add(new JLabel(dtf.format(orig.getDate())), BorderLayout.EAST);
+            tools11.add(new JLabel(Filter.dtf.format(orig.getDate())), BorderLayout.EAST);
         }
         tools1.add(tools11, BorderLayout.SOUTH);
         operateBoulder.add(tools1, BorderLayout.NORTH);
@@ -1323,8 +1350,6 @@ public class MainWindow {
             return null;
         }
     }
-
-    private static final SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     private static BoulderListAndIndex selectListBouderImpl(String wallID) throws IOException {
         final int[] result = new int[]{0};
@@ -1654,8 +1679,8 @@ public class MainWindow {
         holdsMin.setValue(currentList.getShortest());
         holdsMax.setValue(currentList.getLongest());
         authorLabel.setToolTipText(currentList.getAuthors());
-        dateFrom.setText(dtf.format(currentList.getOldest()));
-        dateTo.setText(dtf.format(currentList.getYoungest()));
+        dateFrom.setText(Filter.dtf.format(currentList.getOldest()));
+        dateTo.setText(Filter.dtf.format(currentList.getYoungest()));
         gradesFrom.setSelectedItem(currentList.getEasiest().toString());
         gradesTo.setSelectedItem(currentList.getHardest().toString());
         author.setText("");
@@ -1668,8 +1693,8 @@ public class MainWindow {
         walls.setSelectedItem(f.wall);
         holdsMin.setValue(f.pathMin);
         holdsMax.setValue(f.pathTo);
-        dateFrom.setText(dtf.format(new Date(f.ageFrom)));
-        dateTo.setText(dtf.format(new Date(f.ageTo)));
+        dateFrom.setText(Filter.dtf.format(new Date(f.ageFrom)));
+        dateTo.setText(Filter.dtf.format(new Date(f.ageTo)));
         gradesFrom.setSelectedItem(new Grade(f.gradeFrom).toString());
         gradesTo.setSelectedItem(new Grade(f.gradeTo).toString());
         author.setText(f.getAuthorsString());
@@ -1688,7 +1713,7 @@ public class MainWindow {
                 boolean isSelected, boolean cellHasFocus) {
             this.setFont(this.getFont().deriveFont(Font.PLAIN, new JLabel().getFont().getSize() + 2));
             String grade = b.getGrade().toString();
-            setText("<html><big><b>" + grade + "</b>:  <u>" + b.getName() + "</u>| <i>" + b.getAuthor() + "</i> (" + dtf.format(b.getDate()) + ")[" + b.getWall() + "]");
+            setText("<html><big><b>" + grade + "</b>:  <u>" + b.getName() + "</u>| <i>" + b.getAuthor() + "</i> (" + Filter.dtf.format(b.getDate()) + ")[" + b.getWall() + "]");
 
             if (isSelected) {
 //                setBackground(list.getSelectionBackground());
@@ -1754,8 +1779,8 @@ public class MainWindow {
                                 (Integer) (holdsMax.getValue()),
                                 authorsFilter.getText(),
                                 nameFilter.getText(),
-                                dtf.parse(dateFrom.getText()),
-                                dtf.parse(dateTo.getText()),
+                                Filter.dtf.parse(dateFrom.getText()),
+                                Filter.dtf.parse(dateTo.getText()),
                                 random.isSelected())
                 );
                 lastList.getLastFilter().save(Files.getLastAppliedFilterFile());
@@ -1868,7 +1893,7 @@ public class MainWindow {
             ZipFile zipFile = new ZipFile(f);
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             String current = null;
-            Properties p = null;
+            Properties setup = null;
             Filter filter = null;
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
@@ -1882,11 +1907,10 @@ public class MainWindow {
                     }
                     current = result.toString("UTF-8");
                 } else if (entry.getName().equals("setup")) {
-                    p = new Properties();
-                    p.load(stream);
+                    setup = new Properties();
+                    setup.load(stream);
                 } else if (entry.getName().equals("filter")) {
-                    ObjectInputStream ois = new ObjectInputStream(stream);
-                    filter = (Filter) ois.readObject();
+                    filter = Filter.load(stream);
                 }
             }
             list = new ListWithFilter(filter);
@@ -1904,32 +1928,28 @@ public class MainWindow {
             String tOfTraining,
             int numOfBoulders,
             Filter filter,
-            String currentName) {
-        try {
-            File out = Files.getTraining("test");
-            ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(out));
-            zos.putNextEntry(new ZipEntry("filter"));
-            filter.write(zos);
-            zos.closeEntry();
-            zos.putNextEntry(new ZipEntry("last.current"));
-            zos.write(currentName.getBytes("utf-8"));
-            zos.closeEntry();
-            zos.putNextEntry(new ZipEntry("setup.prop"));
-            Properties p = new Properties();
-            p.setProperty("RANDOM", "" + random);
-            p.setProperty("REGULAR", "" + regular);
-            p.setProperty("JUMPS", "" + jumps);
-            p.setProperty("TIME_TRAIN", tOfTraining);
-            p.setProperty("TIME_BOULD", tOfBoulder);
-            p.setProperty("BOULDERS", "" + numOfBoulders);
-            p.store(zos, "FlashFreeBoard single timered training" + new Date());
-            zos.closeEntry();
-            zos.flush();
-            zos.close();
-        } catch (Exception ex) {
-            GuiLogHelper.guiLogger.loge(ex);
-            JOptionPane.showMessageDialog(null, ex);
-        }
+            String currentName) throws IOException {
+        File out = Files.getTraining("test");
+        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(out));
+        zos.putNextEntry(new ZipEntry("filter"));
+        filter.write(zos);
+        zos.closeEntry();
+        zos.putNextEntry(new ZipEntry("last.current"));
+        zos.write(currentName.getBytes("utf-8"));
+        zos.closeEntry();
+        zos.putNextEntry(new ZipEntry("setup.prop"));
+        Properties p = new Properties();
+        p.setProperty("RANDOM", "" + random);
+        p.setProperty("REGULAR", "" + regular);
+        p.setProperty("JUMPS", "" + jumps);
+        p.setProperty("TIME_TRAIN", tOfTraining);
+        p.setProperty("TIME_BOULD", tOfBoulder);
+        p.setProperty("BOULDERS", "" + numOfBoulders);
+        p.store(zos, "FlashFreeBoard single timered training" + new Date());
+        zos.closeEntry();
+        zos.flush();
+        zos.close();
+
     }
 
 }

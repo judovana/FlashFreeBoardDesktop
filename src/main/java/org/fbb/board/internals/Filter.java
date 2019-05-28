@@ -10,22 +10,30 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.fbb.board.internals.grades.Grade;
 
 /**
  *
  * @author jvanek
  */
 public class Filter implements Serializable {
+
+    public static final SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+    public static Filter getAllMatching(String wall) {
+        return new Filter(wall, Grade.getMinGrade(), Grade.getMaxGrade(), Integer.MIN_VALUE, Integer.MAX_VALUE, "", "", new Date(Long.MIN_VALUE), new Date(Long.MAX_VALUE / 2/*there is + in comparsion*/), true);
+    }
 
     public final String wall;
     public final int gradeFrom;
@@ -37,6 +45,16 @@ public class Filter implements Serializable {
     public final long ageFrom;
     public final long ageTo;
     public final boolean random;
+
+    @Override
+    public String toString() {
+        return wall + "\n"
+                + "Grade : " + new Grade(gradeFrom) + "-" + new Grade(gradeTo) + " [" + random + "]\n"
+                + "Date  : " + dtf.format(new Date(ageFrom)) + "-" + dtf.format(new Date(ageTo)) + "\n"
+                + "Length: " + pathMin + "-" + pathTo + "\n"
+                + "Author: " + Arrays.toString(authorLike) + "\n"
+                + "Name  : " + Arrays.toString(nameLike) + "\n";
+    }
 
     public Filter(String wall, int gradeFrom, int gradeTo, int pathMin, int pathTo, String authorLike, String nameLike, Date ageFrom, Date ageTo, boolean random) {
         this.wall = wall;
@@ -90,9 +108,9 @@ public class Filter implements Serializable {
         GuiLogHelper.guiLogger.logo(Arrays.toString(split(" a   \" b c \"\" d\"   e"))); //wrong!!! cornercase causing fail
     }
 
-    //https://stackoverflow.com/questions/10695143/split-a-quoted-string-with-a-delimiter
-    private static final Pattern p = Pattern.compile("((?<=(\"))[\\w ]*(?=(\"(\\s|$))))|((?<!\")\\w+(?!\"))");
-    //https://regex101.com/r/wM6yT9/1
+    //https://stackoverflow.com/questions/366202/regex-for-splitting-a-string-using-space-when-not-surrounded-by-single-or-double
+    private static final Pattern p = Pattern.compile("[^\\s\"]+|\"([^\"]*)\"");
+    //
 
     private static String[] split(String s) {
         Matcher m = p.matcher(s.trim());
@@ -100,6 +118,9 @@ public class Filter implements Serializable {
         while (m.find()) {
             String ss = m.group();
             if (!ss.trim().isEmpty()) {
+                if (ss.startsWith("\"") && ss.endsWith("\"")){
+                    ss=ss.substring(1,ss.length()-1);
+                }
                 l.add(ss);
             }
         }
@@ -113,18 +134,39 @@ public class Filter implements Serializable {
     }
 
     public void write(OutputStream os) throws IOException {
-        ObjectOutputStream oos = new ObjectOutputStream(os);
-        oos.writeObject(this);
-        oos.flush();
+        Properties p = new Properties();
+        p.put("wall", "" + wall);
+        p.put("gradeFrom", "" + gradeFrom);
+        p.put("gradeTo", "" + gradeTo);
+        p.put("pathMin", "" + pathMin);
+        p.put("pathTo", "" + pathTo);
+        p.put("authorLike", "" + arrayToQuotedString(authorLike));
+        p.put("nameLike", "" + arrayToQuotedString(nameLike));
+        p.put("ageFrom", "" + ageFrom);
+        p.put("ageTo", "" + ageTo);
+        p.put("random", "" + random);
+        p.store(os, "FlashFreeBoard filter " + new Date());;
     }
 
     public static Filter load(File f) throws IOException, ClassNotFoundException {
-        Object read = null;
-        try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream(f))) {
-            read = oos.readObject();
-
+        try (FileInputStream fis = new FileInputStream(f)) {
+            return load(fis);
         }
-        return (Filter) read;
+    }
+
+    public static Filter load(InputStream f) throws IOException, ClassNotFoundException {
+        Properties p = new Properties();
+        p.load(f);
+        return new Filter(p.getProperty("wall"),
+                Integer.valueOf(p.getProperty("gradeFrom", "" + Grade.getMinGrade())),
+                Integer.valueOf(p.getProperty("gradeTo", "" + Grade.getMinGrade())),
+                Integer.valueOf(p.getProperty("pathMin", "" + Grade.getMinGrade())),
+                Integer.valueOf(p.getProperty("pathTo", "" + Grade.getMinGrade())),
+                p.getProperty("authorLike", ""),
+                p.getProperty("nameLike", ""),
+                new Date(Long.valueOf(p.getProperty("ageFrom", "" + Long.MIN_VALUE))),
+                new Date(Long.valueOf(p.getProperty("ageTo", "" + Long.MAX_VALUE / 2))),
+                Boolean.valueOf(p.getProperty("random", "false")));
     }
 
     public String getAuthorsString() {
