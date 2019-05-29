@@ -79,6 +79,7 @@ import org.fbb.board.internals.HistoryManager;
 import org.fbb.board.internals.ListWithFilter;
 import org.fbb.board.internals.db.Puller;
 import org.fbb.board.internals.TimeredTraining;
+import org.fbb.board.internals.Training;
 import org.fbb.board.internals.grades.Grade;
 import org.fbb.board.internals.db.GuiExceptionHandler;
 import org.fbb.board.internals.db.ExceptionHandler;
@@ -762,15 +763,14 @@ public class MainWindow {
                     public void actionPerformed(ActionEvent e) {
                         if (list.getCurrentInHistory() != null) {
                             try {
-                                saveSingleTraining(
-                                        allowRandom.isSelected(),
+                                new Training(allowRandom.isSelected(),
                                         allowRegular.isSelected(),
                                         allowJumps.isSelected(),
                                         timeOfBoulder.getText(),
                                         timeOfTraining.getText(),
                                         (Integer) (numBoulders.getValue()),
                                         list.enumerate(preloaded.givenId),
-                                        list.getCurrentInHistory().getFile().getName());
+                                        list.getCurrentInHistory().getFile().getName()).saveSingleTraining();
                             } catch (Exception ex) {
                                 GuiLogHelper.guiLogger.loge(ex);
                                 JOptionPane.showMessageDialog(null, ex);
@@ -784,15 +784,14 @@ public class MainWindow {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
-                            saveSingleTraining(
-                                    allowRandom.isSelected(),
+                            new Training(allowRandom.isSelected(),
                                     allowRegular.isSelected(),
                                     allowJumps.isSelected(),
                                     timeOfBoulder.getText(),
                                     timeOfTraining.getText(),
                                     (Integer) (numBoulders.getValue()),
                                     list.getLastFilter() == null ? Filter.getAllMatching(preloaded.givenId) : list.getLastFilter(),
-                                    list.getCurrentInHistory().getName());
+                                    list.getCurrentInHistory().getName()).saveSingleTraining();
                         } catch (Exception ex) {
                             GuiLogHelper.guiLogger.loge(ex);
                             JOptionPane.showMessageDialog(null, ex);
@@ -804,31 +803,37 @@ public class MainWindow {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        for (JToggleButton b : quickFilters) {
-                            b.setSelected(false);
-                        }
-                        loadSavedTraining(Files.getTraining("list"));
-                        loadSavedTraining(Files.getTraining("filter"));
-                        if (list.getSize() > 0) {
+                        try {
                             for (JToggleButton b : quickFilters) {
                                 b.setSelected(false);
                             }
-                            list.setIndex(list.getSize() - 1);
-                            Boulder b = list.getCurrentInHistory();
-                            gp.getGrid().setBouler(b);
-                            hm.addToBoulderHistory(b);
-                            gp.getGrid().setBouler(b);
-                            setNameTextAndGrade(name, b);
-                            gp.repaintAndSend(gs);
-                            Files.setLastBoulder(b);
-                            next.setEnabled(hm.canFwd());
-                            previous.setEnabled(hm.canBack());
-                            nextInList.setEnabled(list.canFwd());
-                            prevInList.setEnabled(list.canBack());
-                            nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                            prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                            Training t1 = Training.loadSavedTraining(Files.getTraining("list"));
+                            list = new ListWithFilter(t1.filter);
+                            if (list.getSize() > 0) {
+                                for (JToggleButton b : quickFilters) {
+                                    b.setSelected(false);
+                                }
+                                list.setIndex(t1.currentName);
+                                Boulder b = list.getCurrentInHistory();
+                                gp.getGrid().setBouler(b);
+                                hm.addToBoulderHistory(b);
+                                gp.getGrid().setBouler(b);
+                                setNameTextAndGrade(name, b);
+                                gp.repaintAndSend(gs);
+                                Files.setLastBoulder(b);
+                                next.setEnabled(hm.canFwd());
+                                previous.setEnabled(hm.canBack());
+                                nextInList.setEnabled(list.canFwd());
+                                prevInList.setEnabled(list.canBack());
+                                nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                                prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                            }
+                        } catch (Exception ex) {
+                            GuiLogHelper.guiLogger.loge(ex);
+                            JOptionPane.showMessageDialog(null, ex);
                         }
                     }
+
                 });
                 timeredWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 timeredWindow.pack();
@@ -1885,70 +1890,6 @@ public class MainWindow {
         } else {
             n.setHorizontalAlignment(SwingConstants.CENTER);
         }
-
-    }
-
-    private static void loadSavedTraining(File f) {
-        try {
-            ZipFile zipFile = new ZipFile(f);
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            String current = null;
-            Properties setup = null;
-            Filter filter = null;
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                InputStream stream = zipFile.getInputStream(entry);
-                if (entry.getName().equals("last.current")) {
-                    ByteArrayOutputStream result = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = stream.read(buffer)) != -1) {
-                        result.write(buffer, 0, length);
-                    }
-                    current = result.toString("UTF-8");
-                } else if (entry.getName().equals("setup")) {
-                    setup = new Properties();
-                    setup.load(stream);
-                } else if (entry.getName().equals("filter")) {
-                    filter = Filter.load(stream);
-                }
-            }
-            list = new ListWithFilter(filter);
-            list.setIndex(current);
-        } catch (Exception ex) {
-            GuiLogHelper.guiLogger.loge(ex);
-            JOptionPane.showMessageDialog(null, ex);
-        }
-    }
-
-    private static void saveSingleTraining(boolean random,
-            boolean regular,
-            boolean jumps,
-            String tOfBoulder,
-            String tOfTraining,
-            int numOfBoulders,
-            Filter filter,
-            String currentName) throws IOException {
-        File out = Files.getTraining("test");
-        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(out));
-        zos.putNextEntry(new ZipEntry("filter"));
-        filter.write(zos);
-        zos.closeEntry();
-        zos.putNextEntry(new ZipEntry("last.current"));
-        zos.write(currentName.getBytes("utf-8"));
-        zos.closeEntry();
-        zos.putNextEntry(new ZipEntry("setup.prop"));
-        Properties p = new Properties();
-        p.setProperty("RANDOM", "" + random);
-        p.setProperty("REGULAR", "" + regular);
-        p.setProperty("JUMPS", "" + jumps);
-        p.setProperty("TIME_TRAIN", tOfTraining);
-        p.setProperty("TIME_BOULD", tOfBoulder);
-        p.setProperty("BOULDERS", "" + numOfBoulders);
-        p.store(zos, "FlashFreeBoard single timered training" + new Date());
-        zos.closeEntry();
-        zos.flush();
-        zos.close();
 
     }
 

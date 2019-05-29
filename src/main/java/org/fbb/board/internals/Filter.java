@@ -53,7 +53,7 @@ public class Filter implements Serializable {
                 + "Date  : " + dtf.format(new Date(ageFrom)) + "-" + dtf.format(new Date(ageTo)) + "\n"
                 + "Length: " + pathMin + "-" + pathTo + "\n"
                 + "Author: " + Arrays.toString(authorLike) + "\n"
-                + "Name  : " + Arrays.toString(nameLike) + "\n";
+                + "Name  : " + Arrays.toString(nameLike);
     }
 
     public Filter(String wall, int gradeFrom, int gradeTo, int pathMin, int pathTo, String authorLike, String nameLike, Date ageFrom, Date ageTo, boolean random) {
@@ -118,8 +118,8 @@ public class Filter implements Serializable {
         while (m.find()) {
             String ss = m.group();
             if (!ss.trim().isEmpty()) {
-                if (ss.startsWith("\"") && ss.endsWith("\"")){
-                    ss=ss.substring(1,ss.length()-1);
+                if (ss.startsWith("\"") && ss.endsWith("\"")) {
+                    ss = ss.substring(1, ss.length() - 1);
                 }
                 l.add(ss);
             }
@@ -154,7 +154,7 @@ public class Filter implements Serializable {
         }
     }
 
-    public static Filter load(InputStream f) throws IOException, ClassNotFoundException {
+    public static Filter load(InputStream f) throws IOException {
         Properties p = new Properties();
         p.load(f);
         return new Filter(p.getProperty("wall"),
