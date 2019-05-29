@@ -17,28 +17,23 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Vector;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -68,6 +63,7 @@ import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.desktop.TextToSpeech;
+import org.fbb.board.desktop.TrainingSaveLoadDialog;
 import org.fbb.board.internals.grid.Boulder;
 import org.fbb.board.internals.db.DB;
 import org.fbb.board.internals.Filter;
@@ -96,7 +92,6 @@ public class MainWindow {
     public static ListWithFilter list;
     private static final JPopupMenu listJump = new JPopupMenu();
     private static final JPopupMenu historyJump = new JPopupMenu();
-    private static final Authenticator auth = new Authenticator();
     private static final DB db = new DB(gs);
     private static final Puller puller = Puller.create(gs.getPullerDelay() * 60, db);
 
@@ -161,7 +156,7 @@ public class MainWindow {
     private static void createSelectOrImportWall(String urlorFile, final JFrame... redundants) throws IOException {
         JDialog f = new JDialog((JFrame) null, Translator.R("MainWindowSetWall"), true);
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        LoadBackgroundOrImportOrLoadWall panel = new LoadBackgroundOrImportOrLoadWall(urlorFile, auth, db, gs, puller);
+        LoadBackgroundOrImportOrLoadWall panel = new LoadBackgroundOrImportOrLoadWall(urlorFile, Authenticator.auth, db, gs, puller);
         f.add(panel);
         final boolean[] ok = new boolean[]{false};
         panel.setOkAction(new ActionListener() {
@@ -225,7 +220,7 @@ public class MainWindow {
 
     private static void createWindowIpl(BufferedImage bis, String fname, byte[] props, JFrame... redundants) {
         try {
-            auth.authenticate(Translator.R("wallChange"));
+            Authenticator.auth.authenticate(Translator.R("wallChange"));
         } catch (Authenticator.AuthoriseException a) {
             GuiLogHelper.guiLogger.loge(a);
             JOptionPane.showMessageDialog(null, a);
@@ -791,7 +786,7 @@ public class MainWindow {
                                     timeOfTraining.getText(),
                                     (Integer) (numBoulders.getValue()),
                                     list.getLastFilter() == null ? Filter.getAllMatching(preloaded.givenId) : list.getLastFilter(),
-                                    list.getCurrentInHistory().getName()).saveSingleTraining();
+                                    list.getCurrentInHistory().getFile().getName()).saveSingleTraining();
                         } catch (Exception ex) {
                             GuiLogHelper.guiLogger.loge(ex);
                             JOptionPane.showMessageDialog(null, ex);
@@ -807,7 +802,29 @@ public class MainWindow {
                             for (JToggleButton b : quickFilters) {
                                 b.setSelected(false);
                             }
-                            Training t1 = Training.loadSavedTraining(Files.getTraining("list"));
+                            TrainingSaveLoadDialog tls = new TrainingSaveLoadDialog(JFileChooser.OPEN_DIALOG, db);
+                            tls.setVisible(true);
+                            Training t1 = tls.getResult();
+                            if (t1 == null) {
+                                return;
+                            }
+                            if (t1.innerSettings != null) {
+                                try {
+                                    boulderCalc.setActive(false);
+                                    timeOfBoulder.setText(t1.innerSettings.tOfBoulder);
+                                    boulderCalc.setActive(false);
+                                    timeOfTraining.setText(t1.innerSettings.tOfTraining);
+                                    boulderCalc.setActive(false);
+                                    numBoulders.setValue(t1.innerSettings.numOfBoulders);
+                                    boulderCalc.setActive(false);
+                                    allowRandom.setSelected(t1.innerSettings.random);
+                                    allowRegular.setSelected(t1.innerSettings.regular);
+                                    allowJumps.setSelected(t1.innerSettings.jumps);
+                                    boulderCalc.setActive(true);
+                                } finally {
+                                    boulderCalc.setActive(true);
+                                }
+                            }
                             list = new ListWithFilter(t1.filter);
                             if (list.getSize() > 0) {
                                 for (JToggleButton b : quickFilters) {
@@ -858,7 +875,7 @@ public class MainWindow {
                 timeredWindow.setVisible(true);
             }
         });
-        management.addActionListener(new SettingsListener(gp, auth, gs, puller, db, 0));
+        management.addActionListener(new SettingsListener(gp, Authenticator.auth, gs, puller, db, 0));
         logItem.addActionListener(new ActionListener() {
 
             @Override
@@ -870,7 +887,7 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                auth.revoke();
+                Authenticator.auth.revoke();
                 db.revoke();
             }
         });
@@ -1164,7 +1181,7 @@ public class MainWindow {
             grades.setSelectedItem(orig.getGrade().toString());
         }
         final JCheckBox saveOnExit = new JCheckBox(Translator.R("SaveOnExit"));
-        if (orig == null || auth.isPernament()) {
+        if (orig == null || Authenticator.auth.isPernament()) {
             saveOnExit.setSelected(true);
         } else {
             saveOnExit.setSelected(false);
@@ -1176,7 +1193,7 @@ public class MainWindow {
                 if (orig != null) {
                     if (saveOnExit.isSelected()) {
                         try {
-                            auth.authenticate(Translator.R("AllowToEditBoulder"));
+                            Authenticator.auth.authenticate(Translator.R("AllowToEditBoulder"));
                         } catch (Authenticator.AuthoriseException ee) {
                             GuiLogHelper.guiLogger.loge(ee);
                             saveOnExit.setSelected(false);
@@ -1580,14 +1597,14 @@ public class MainWindow {
                 if (boulders.getModel() == null || boulders.getModel().getSize() == 0) {
                     return;
                 }
-                if (auth.isPernament()) {
+                if (Authenticator.auth.isPernament()) {
                     int y = JOptionPane.showConfirmDialog(d, Translator.R("delConf", boulders.getModel().getSize()));
                     if (y != JOptionPane.YES_OPTION) {
                         return;
                     }
                 } else {
                     try {
-                        auth.authenticate(Translator.R("delConf", boulders.getModel().getSize()));
+                        Authenticator.auth.authenticate(Translator.R("delConf", boulders.getModel().getSize()));
                     } catch (Authenticator.AuthoriseException ex) {
                         JOptionPane.showMessageDialog(d, ex);
                         return;
@@ -1621,14 +1638,14 @@ public class MainWindow {
                 if (boulders.getSelectedValuesList() == null || boulders.getSelectedValuesList().isEmpty()) {
                     return;
                 }
-                if (auth.isPernament()) {
+                if (Authenticator.auth.isPernament()) {
                     int y = JOptionPane.showConfirmDialog(d, Translator.R("delConf", boulders.getSelectedValuesList().size()));
                     if (y != JOptionPane.YES_OPTION) {
                         return;
                     }
                 } else {
                     try {
-                        auth.authenticate(Translator.R("delConf", boulders.getSelectedValuesList().size()));
+                        Authenticator.auth.authenticate(Translator.R("delConf", boulders.getSelectedValuesList().size()));
                     } catch (Authenticator.AuthoriseException ex) {
                         JOptionPane.showMessageDialog(d, ex);
                         return;

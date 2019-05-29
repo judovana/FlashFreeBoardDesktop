@@ -23,6 +23,11 @@ class BoulderCalc {
     private final JSpinner numBoulders;
     private boolean active = true;
 
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    
     BoulderCalc(JTextField timeOfBoulder, JTextField timeOfTraining, JSpinner numBoulders) {
         this.timeOfBoulder = timeOfBoulder;
         this.timeOfTraining = timeOfTraining;

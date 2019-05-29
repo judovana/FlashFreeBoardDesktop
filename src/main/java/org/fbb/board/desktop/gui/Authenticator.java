@@ -24,6 +24,7 @@ import org.fbb.board.desktop.Files;
 public class Authenticator {
 
     private boolean pernament = false;
+    public static final Authenticator auth = new Authenticator();
 
     public boolean isPernament() {
         return pernament || Files.getAuthFileHash() == null;
