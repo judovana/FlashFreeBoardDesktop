@@ -88,7 +88,7 @@ import org.fbb.board.internals.db.ExceptionHandler;
 public class MainWindow {
 
     private static final GlobalSettings gs = new GlobalSettings();
-    public static final HistoryManager hm = new HistoryManager();
+    public static final HistoryManager hm = new HistoryManager(100);
     public static ListWithFilter list;
     private static final JPopupMenu listJump = new JPopupMenu();
     private static final JPopupMenu historyJump = new JPopupMenu();

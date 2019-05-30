@@ -6,7 +6,6 @@
 package org.fbb.board.internals;
 
 import java.util.Date;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  *
@@ -40,6 +39,8 @@ public class GuiLogHelper {
         System.out.println(s);
     }
 
+    int limit = 1000000;
+
     public synchronized void appendInternal(String s, boolean err) {
         StringBuffer a = sout;
         if (err) {
@@ -50,6 +51,9 @@ public class GuiLogHelper {
         } else {
             a.append(new Date().toString()).append(": ").append(s);
         }
+        if (a.length() > limit) {
+            a.delete(0, a.length() - (limit - 1));
+        }
     }
 
     public void loge(String s) {
@@ -59,6 +63,11 @@ public class GuiLogHelper {
     public void loge(Throwable e) {
         e.printStackTrace(System.err);
 
+    }
+
+    public static void main(String... ar) {
+        StringBuffer a = new StringBuffer("123456789");
+        System.out.println(a.delete(0, a.length() - 5));
     }
 
 }

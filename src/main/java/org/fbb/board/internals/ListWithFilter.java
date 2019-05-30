@@ -96,6 +96,7 @@ public class ListWithFilter extends HistoryManager {
         if (b != null) {
             history.add(b);
             historyIndex = history.size() - 1;
+            limit();
         }
     }
 

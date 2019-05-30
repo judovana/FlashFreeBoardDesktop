@@ -18,6 +18,15 @@ public class HistoryManager {
 
     protected final List<Boulder> history = new ArrayList<>();
     protected int historyIndex = -1;
+    protected final int llimit;
+
+    public HistoryManager(int limit) {
+        llimit = limit;
+    }
+
+    public HistoryManager() {
+        llimit = -1;
+    }
 
     //returns whether we are at end or not;
     //return true, if index is NOT last (and thus forward button can be enabld)
@@ -34,13 +43,15 @@ public class HistoryManager {
             historyIndex = 0;
             return;
         }
-        if (historyIndex == history.size() - 1) {
+        if (historyIndex >= history.size() - 1) {
             historyIndex++;
             history.add(b);
+            limit();
             return;
         }
         historyIndex++;
         history.add(historyIndex, b);
+        limit();
         return;
     }
 
@@ -96,5 +107,11 @@ public class HistoryManager {
     public void clearHistory() {
         historyIndex = -1;
         history.clear();
+    }
+
+    protected void limit() {
+        if (llimit > 0 && history.size() > llimit) {
+            history.remove(0);
+        }
     }
 }

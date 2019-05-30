@@ -62,8 +62,8 @@ public class LogView extends JFrame {
 
     }
 
-    public LogView(DB db) throws HeadlessException {
-        this.db = db;
+    public LogView(DB ddb) throws HeadlessException {
+        this.db = ddb;
         this.setLayout(new BorderLayout());
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         JTextArea e = new JTextArea();
