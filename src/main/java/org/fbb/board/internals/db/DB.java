@@ -66,7 +66,8 @@ public class DB {
             pullCatched(new ExceptionHandler.LoggingEater());
             for (File boulder : f) {
                 try {
-                    git.rm().addFilepattern(boulder.getAbsolutePath()).call();
+                    String toAdd = toGitAblePath(boulder);
+                    git.rm().addFilepattern(toAdd).call();
                     //not tracked?
                     if (boulder.exists()) {
                         boulder.delete();
@@ -223,15 +224,20 @@ public class DB {
         if (git != null) {
             pullCatched(new ExceptionHandler.LoggingEater());
             for (File f : fs) {
-                String toAdd = f.getAbsolutePath().replaceAll(Files.repo.getAbsolutePath(), "");
-                if (toAdd.startsWith("/") || toAdd.startsWith("\\")) {
-                    toAdd = toAdd.substring(1);
-                }
+                String toAdd = toGitAblePath(f);
                 git.add().setUpdate(false).addFilepattern(toAdd).call();
             }
             git.commit().setMessage("added " + fs.length + " files. " + appendix).setAuthor(getAuthor()).call();
             push();
         }
+    }
+
+    public String toGitAblePath(File f) {
+        String toAdd = f.getAbsolutePath().replaceAll(Files.repo.getAbsolutePath(), "");
+        if (toAdd.startsWith("/") || toAdd.startsWith("\\")) {
+            toAdd = toAdd.substring(1);
+        }
+        return toAdd;
     }
 
     public void addAll() throws IOException, GitAPIException {
