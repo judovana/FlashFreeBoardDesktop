@@ -31,4 +31,17 @@ public interface ExceptionHandler<T extends Throwable> {
         }
     }
 
+    class Resender implements ExceptionHandler<Throwable> {
+
+        @Override
+        public void handleWithIssue(Throwable t) throws Throwable {
+            throw new UnsupportedOperationException("Should not occure");
+        }
+
+        @Override
+        public void handleCleanly(Throwable t) {
+            throw new RuntimeException(t);
+        }
+    }
+
 }

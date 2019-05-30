@@ -6,6 +6,7 @@
 package org.fbb.board.desktop;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -15,10 +16,14 @@ import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.fbb.board.Translator;
@@ -55,7 +60,9 @@ public class TrainingSaveLoadDialog extends JDialog {
         mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         mainSplit.setDividerLocation(400);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        UIManager.put("FileChooser.readOnly", Boolean.TRUE);
         mainChooser = new JFileChooser(Files.trainingsDir);
+        UIManager.put("FileChooser.readOnly", Boolean.FALSE);
         mainChooser.setFileFilter(new FileFilter() {
 
             @Override
@@ -132,7 +139,7 @@ public class TrainingSaveLoadDialog extends JDialog {
                 if (mainChooser.getSelectedFile() != null) {
                     try {
                         Authenticator.auth.authenticate((Translator.R("Bdelete", mainChooser.getSelectedFile().getName())));
-                        db.delte("", mainChooser.getSelectedFile());
+                        db.delte(" - " + mainChooser.getSelectedFile().getName(), mainChooser.getSelectedFile());
                     } catch (Authenticator.AuthoriseException | IOException | GitAPIException ee) {
                         GuiLogHelper.guiLogger.loge(ee);
                         JOptionPane.showMessageDialog(null, ee);
@@ -151,5 +158,38 @@ public class TrainingSaveLoadDialog extends JDialog {
     public static void main(String... args) throws IOException {
         Grade.loadConversiontable();
         new TrainingSaveLoadDialog(JFileChooser.OPEN_DIALOG, new DB(new GlobalSettings())).setVisible(true);
+    }
+
+    public String getFileName() {
+        if (mainChooser.getSelectedFile() == null){
+            return null;
+        } else return mainChooser.getSelectedFile().getName().replaceAll("\\.sitr", "");
+    }
+
+    public static class SaveTrainingDialog {
+
+        public static File show() throws Authenticator.AuthoriseException, IOException {
+            Authenticator.auth.authenticate(Translator.R("SaveTraining"));
+            JTextField fileName = new JTextField();
+            JPanel myPanel = new JPanel(new GridLayout(2, 1));
+            myPanel.add(new JLabel(Translator.R("tName2")));
+            myPanel.add(fileName);
+            int result = JOptionPane.showConfirmDialog(null, myPanel, Translator.R("tName1"), JOptionPane.OK_CANCEL_OPTION);
+            if (result == JOptionPane.OK_OPTION) {
+                File f = Files.getTraining(fileName.getText());
+                if (f.exists()) {
+                    throw new RuntimeException(Translator.R("tExists", fileName.getText(), f.getAbsolutePath()));
+                }
+                boolean okToDo = true;
+                okToDo = okToDo && f.createNewFile();
+                okToDo = okToDo && f.delete();
+                if (okToDo) {
+                    return f;
+                } else {
+                    throw new RuntimeException(Translator.R("tError1", fileName.getText()) + "\n" + Translator.R("tError2", f.getAbsolutePath()));
+                }
+            }
+            return null;
+        }
     }
 }

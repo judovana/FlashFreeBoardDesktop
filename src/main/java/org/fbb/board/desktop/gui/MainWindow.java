@@ -758,14 +758,18 @@ public class MainWindow {
                     public void actionPerformed(ActionEvent e) {
                         if (list.getCurrentInHistory() != null) {
                             try {
-                                new Training(allowRandom.isSelected(),
-                                        allowRegular.isSelected(),
-                                        allowJumps.isSelected(),
-                                        timeOfBoulder.getText(),
-                                        timeOfTraining.getText(),
-                                        (Integer) (numBoulders.getValue()),
-                                        list.enumerate(preloaded.givenId),
-                                        list.getCurrentInHistory().getFile().getName()).saveSingleTraining();
+                                File f = TrainingSaveLoadDialog.SaveTrainingDialog.show();
+                                if (f != null) {
+                                    new Training(allowRandom.isSelected(),
+                                            allowRegular.isSelected(),
+                                            allowJumps.isSelected(),
+                                            timeOfBoulder.getText(),
+                                            timeOfTraining.getText(),
+                                            (Integer) (numBoulders.getValue()),
+                                            list.enumerate(preloaded.givenId),
+                                            list.getCurrentInHistory().getFile().getName()).saveSingleTraining(f);
+                                    db.add(new ExceptionHandler.Resender(), "training " + f.getName(), f);
+                                }
                             } catch (Exception ex) {
                                 GuiLogHelper.guiLogger.loge(ex);
                                 JOptionPane.showMessageDialog(null, ex);
@@ -778,18 +782,24 @@ public class MainWindow {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        try {
-                            new Training(allowRandom.isSelected(),
-                                    allowRegular.isSelected(),
-                                    allowJumps.isSelected(),
-                                    timeOfBoulder.getText(),
-                                    timeOfTraining.getText(),
-                                    (Integer) (numBoulders.getValue()),
-                                    list.getLastFilter() == null ? Filter.getAllMatching(preloaded.givenId) : list.getLastFilter(),
-                                    list.getCurrentInHistory().getFile().getName()).saveSingleTraining();
-                        } catch (Exception ex) {
-                            GuiLogHelper.guiLogger.loge(ex);
-                            JOptionPane.showMessageDialog(null, ex);
+                        if (list.getCurrentInHistory() != null) {
+                            try {
+                                File f = TrainingSaveLoadDialog.SaveTrainingDialog.show();
+                                if (f != null) {
+                                    new Training(allowRandom.isSelected(),
+                                            allowRegular.isSelected(),
+                                            allowJumps.isSelected(),
+                                            timeOfBoulder.getText(),
+                                            timeOfTraining.getText(),
+                                            (Integer) (numBoulders.getValue()),
+                                            list.getLastFilter() == null ? Filter.getAllMatching(preloaded.givenId) : list.getLastFilter(),
+                                            list.getCurrentInHistory().getFile().getName()).saveSingleTraining(f);
+                                    db.add(new ExceptionHandler.Resender(), "training " + f.getName(), f);
+                                }
+                            } catch (Exception ex) {
+                                GuiLogHelper.guiLogger.loge(ex);
+                                JOptionPane.showMessageDialog(null, ex);
+                            }
                         }
                     }
                 });
@@ -808,6 +818,7 @@ public class MainWindow {
                             if (t1 == null) {
                                 return;
                             }
+                            timeredWindow.setTitle(tls.getFileName());
                             if (t1.innerSettings != null) {
                                 try {
                                     boulderCalc.setActive(false);

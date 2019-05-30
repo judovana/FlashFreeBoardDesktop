@@ -17,7 +17,6 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
-import org.fbb.board.desktop.Files;
 
 /**
  *
@@ -124,8 +123,7 @@ public class Training {
         return new Training(setup, filter, current);
     }
 
-    public void saveSingleTraining() throws IOException {
-        File out = Files.getTraining("test");
+    public void saveSingleTraining(File out) throws IOException {
         ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(out));
         zos.putNextEntry(new ZipEntry("filter"));
         this.filter.write(zos);
