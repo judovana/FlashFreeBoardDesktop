@@ -519,12 +519,16 @@ public class MainWindow {
                     }
                     list = new ListWithFilter(listAndothers.list);
                     if (!list.getHistory().isEmpty()) {
-                        Boulder r;
                         if (listAndothers.selctedValue != null) {
-                            r = listAndothers.selctedValue;
+                            list.setIndex(listAndothers.selctedValue.getFile().getName());
                         } else {
-                            r = list.getCurrentInHistory();
+                            if (list.isInRange(listAndothers.seelctedIndex)) {
+                                list.setIndex(listAndothers.seelctedIndex);
+                            } else {
+                                list.setIndex(list.getSize() - 1);
+                            }
                         }
+                        Boulder r = list.getCurrentInHistory();
                         hm.addToBoulderHistory(r);
                         gp.getGrid().setBouler(r);
                         setNameTextAndGrade(name, r);
@@ -1690,12 +1694,12 @@ public class MainWindow {
         }
         switch (result[0]) {
             case SEL: {
-                BoulderListAndIndex r = new BoulderListAndIndex(boulders.getSelectedIndex(), boulders.getSelectedValue(), boulders.getSelectedValuesList());
+                BoulderListAndIndex r = new BoulderListAndIndex(-1/*misleading*/, null/*misleading, first clicked, not last*/, boulders.getSelectedValuesList());
                 d.dispose();
                 return r;
             }
             case ALL: {
-                BoulderListAndIndex r = new BoulderListAndIndex(boulders.getSelectedIndex(), boulders.getSelectedValue(), getAll(boulders.getModel()));
+                BoulderListAndIndex r = new BoulderListAndIndex(boulders.getSelectedIndex() >= 0 ? boulders.getSelectedIndex() : boulders.getModel().getSize() - 1, boulders.getSelectedValue(), getAll(boulders.getModel()));
                 d.dispose();
                 return r;
             }
@@ -1709,6 +1713,9 @@ public class MainWindow {
         ListWithFilter currentList = new ListWithFilter(wallID);
         walls.setSelectedItem(wallID);
         boulders.setModel(new DefaultComboBoxModel<>(currentList.getHistory()));
+        if (boulders.getModel().getSize() > 0) {
+            boulders.ensureIndexIsVisible(boulders.getModel().getSize() - 1);
+        }
         holdsMin.setValue(currentList.getShortest());
         holdsMax.setValue(currentList.getLongest());
         authorLabel.setToolTipText(currentList.getAuthors());
@@ -1818,6 +1825,9 @@ public class MainWindow {
                 );
                 lastList.getLastFilter().save(Files.getLastAppliedFilterFile());
                 boulders.setModel(new DefaultComboBoxModel<>(lastList.getHistory()));
+                if (boulders.getModel().getSize() > 0) {
+                    boulders.ensureIndexIsVisible(boulders.getModel().getSize() - 1);
+                }
             } catch (Exception ex) {
                 GuiLogHelper.guiLogger.loge(ex);
                 JOptionPane.showMessageDialog(dateFrom, ex);

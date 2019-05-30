@@ -265,4 +265,8 @@ public class ListWithFilter extends HistoryManager {
         }
     }
 
+    public boolean isInRange(int seelctedIndex) {
+        return seelctedIndex >= 0 && seelctedIndex < history.size();
+    }
+
 }
