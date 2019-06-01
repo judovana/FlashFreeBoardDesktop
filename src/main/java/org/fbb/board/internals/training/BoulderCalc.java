@@ -23,11 +23,10 @@ public class BoulderCalc {
     private final JSpinner numBoulders;
     private boolean active = true;
 
-    public void setActive(boolean active) {
+    private void setActive(boolean active) {
         this.active = active;
     }
 
-    
     public BoulderCalc(JTextField timeOfBoulder, JTextField timeOfTraining, JSpinner numBoulders) {
         this.timeOfBoulder = timeOfBoulder;
         this.timeOfTraining = timeOfTraining;
@@ -153,4 +152,30 @@ public class BoulderCalc {
         return decode(timeOfBoulder.getText());
     }
 
+    void setTimeOfBoulder(String text) {
+        try {
+            setActive(false);
+            timeOfBoulder.setText(text);
+        } finally {
+            setActive(true);
+        }
+    }
+
+    void setTimeOfTraining(String text) {
+        try {
+            setActive(false);
+            timeOfTraining.setText(text);
+        } finally {
+            setActive(true);
+        }
+    }
+
+    void setNumBoulders(int n) {
+        try {
+            setActive(false);
+            numBoulders.setValue(n);
+        } finally {
+            setActive(true);
+        }
+    }
 }

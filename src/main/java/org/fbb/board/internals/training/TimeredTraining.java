@@ -22,23 +22,33 @@ public class TimeredTraining implements Runnable {
     private final ActionListener next, prev, nextRandom, nextGenerateRandom;
     private boolean running = true;
     private boolean paused = false;
-    private boolean randomAllowed, regularAllowed, jumpingAllowed;
-    private final int totalTime;
-    private final int timeOfBoulder;
     private int counter;
     private final JLabel output;
     private TextToSpeech.TextId speak;
+    private final TrainingWithBackends ts;
 
     public void setJumpingAllowed(boolean jumpingAllowed) {
-        this.jumpingAllowed = jumpingAllowed;
+        ts.allowJumps.setSelected(jumpingAllowed);
     }
 
     public void setRandomAllowed(boolean randomAllowed) {
-        this.randomAllowed = randomAllowed;
+        ts.allowRandom.setSelected(randomAllowed);
     }
 
     public void setRegularAllowed(boolean regularAllowed) {
-        this.regularAllowed = regularAllowed;
+        ts.allowRegular.setSelected(regularAllowed);
+    }
+
+    public boolean getJumpingAllowed() {
+        return ts.allowJumps.isSelected();
+    }
+
+    public boolean getRandomAllowed() {
+        return ts.allowRandom.isSelected();
+    }
+
+    public boolean getRegularAllowed() {
+        return ts.allowRegular.isSelected();
     }
 
     public boolean isPaused() {
@@ -61,19 +71,15 @@ public class TimeredTraining implements Runnable {
         this.speak = speak;
     }
 
-    public TimeredTraining(ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, boolean randomAllowed, boolean regularAllowed, boolean jumpingAllowed, int totalTime, int timeOfBoulder, JLabel output, TextToSpeech.TextId speak) {
+    public TimeredTraining(ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, TrainingWithBackends ts, JLabel output, TextToSpeech.TextId speak) {
         this.next = next;
         this.prev = prev;
         this.nextRandom = nextRandom;
         this.nextGenerateRandom = nextGenerateRandom;
-        this.randomAllowed = randomAllowed;
-        this.regularAllowed = regularAllowed;
-        this.jumpingAllowed = jumpingAllowed;
         this.output = output;
-        this.totalTime = totalTime;
-        this.timeOfBoulder = timeOfBoulder;
         this.speak = speak;
-        counter = totalTime + 1;
+        this.ts = ts;
+        counter = ts.getTotalTime() + 1;
     }
 
     @Override
@@ -85,16 +91,16 @@ public class TimeredTraining implements Runnable {
                     counter--;
                     output.setText(counter / 60 + ":" + counter % 60);
                     output.repaint();
-                    if (counter % timeOfBoulder == 0) {
-                        if (!regularAllowed && !randomAllowed) {
+                    if (counter % ts.getTimeOfBoulder() == 0) {
+                        if (!getRegularAllowed() && !getRandomAllowed()) {
                             continue;
                         }
                         boolean choice1 = r.nextBoolean();
-                        if (!regularAllowed || (randomAllowed && choice1)) {
+                        if (!getRegularAllowed() || (getRandomAllowed() && choice1)) {
                             nextGenerateRandom.actionPerformed(null);
                         }
-                        if (!randomAllowed || (regularAllowed && !choice1)) {
-                            if (jumpingAllowed && r.nextBoolean()) {
+                        if (!getRandomAllowed() || (getRandomAllowed() && !choice1)) {
+                            if (getJumpingAllowed() && r.nextBoolean()) {
                                 int i = r.nextInt(MainWindow.list.getSize());
                                 i = i--;
                                 MainWindow.list.setIndex(i);

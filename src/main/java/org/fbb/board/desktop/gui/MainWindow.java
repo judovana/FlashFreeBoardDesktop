@@ -80,6 +80,8 @@ import org.fbb.board.internals.training.Training;
 import org.fbb.board.internals.grades.Grade;
 import org.fbb.board.internals.db.GuiExceptionHandler;
 import org.fbb.board.internals.db.ExceptionHandler;
+import org.fbb.board.internals.training.ListSetter;
+import org.fbb.board.internals.training.TrainingWithBackends;
 
 /**
  *
@@ -730,6 +732,38 @@ public class MainWindow {
                 timeredWindow.add(createList);
                 loadList.setEnabled(false);
                 createList.setEnabled(false);
+                ListSetter ls = new ListSetter() {
+                    @Override
+                    public void setUpBoulderWall(Filter filter, String selected, String title) {
+                        if (filter != null) {
+                            if (title != null) {
+                                timeredWindow.setTitle(title);
+                            }
+                            list = new ListWithFilter(filter);
+                            if (list.getSize() > 0) {
+                                for (JToggleButton b : quickFilters) {
+                                    b.setSelected(false);
+                                }
+                                if (selected != null) {
+                                    list.setIndex(selected);
+                                }
+                                Boulder b = list.getCurrentInHistory();
+                                gp.getGrid().setBouler(b);
+                                hm.addToBoulderHistory(b);
+                                gp.getGrid().setBouler(b);
+                                setNameTextAndGrade(name, b);
+                                gp.repaintAndSend(gs);
+                                Files.setLastBoulder(b);
+                                next.setEnabled(hm.canFwd());
+                                previous.setEnabled(hm.canBack());
+                                nextInList.setEnabled(list.canFwd());
+                                prevInList.setEnabled(list.canBack());
+                                nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                                prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                            }
+                        }
+                    }
+                };
                 start.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -739,7 +773,11 @@ public class MainWindow {
                                     prevInList.getActionListeners()[0],
                                     nextRandom.getActionListeners()[0],
                                     nextRandomGenerated.getActionListeners()[0],
-                                    allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), boulderCalc.getTotalTime(), boulderCalc.getTimeOfBoulder(), counterClock, (TextToSpeech.TextId) reader.getSelectedItem());
+                                    new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
+                                            new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
+                                            0, null, null),
+                                    counterClock, (TextToSpeech.TextId) reader.getSelectedItem()
+                            );
                             new Thread(trainig[0]).start();
                         } else {
                             trainig[0].stop();
@@ -823,43 +861,12 @@ public class MainWindow {
                             if (t1 == null) {
                                 return;
                             }
-                            timeredWindow.setTitle(tls.getFileName());
                             if (t1.innerSettings != null) {
-                                try {
-                                    boulderCalc.setActive(false);
-                                    timeOfBoulder.setText(t1.innerSettings.tOfBoulder);
-                                    boulderCalc.setActive(false);
-                                    timeOfTraining.setText(t1.innerSettings.tOfTraining);
-                                    boulderCalc.setActive(false);
-                                    numBoulders.setValue(t1.innerSettings.numOfBoulders);
-                                    boulderCalc.setActive(false);
-                                    allowRandom.setSelected(t1.innerSettings.random);
-                                    allowRegular.setSelected(t1.innerSettings.regular);
-                                    allowJumps.setSelected(t1.innerSettings.jumps);
-                                    boulderCalc.setActive(true);
-                                } finally {
-                                    boulderCalc.setActive(true);
-                                }
-                            }
-                            list = new ListWithFilter(t1.filter);
-                            if (list.getSize() > 0) {
-                                for (JToggleButton b : quickFilters) {
-                                    b.setSelected(false);
-                                }
-                                list.setIndex(t1.currentName);
-                                Boulder b = list.getCurrentInHistory();
-                                gp.getGrid().setBouler(b);
-                                hm.addToBoulderHistory(b);
-                                gp.getGrid().setBouler(b);
-                                setNameTextAndGrade(name, b);
-                                gp.repaintAndSend(gs);
-                                Files.setLastBoulder(b);
-                                next.setEnabled(hm.canFwd());
-                                previous.setEnabled(hm.canBack());
-                                nextInList.setEnabled(list.canFwd());
-                                prevInList.setEnabled(list.canBack());
-                                nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                                prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                                TrainingWithBackends tt = new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps, t1, 0, tls.getFileName(), ls);
+                                tt.setBoulderCalc();
+                                tt.setChecks();
+                                tt.init();
+
                             }
                         } catch (Exception ex) {
                             GuiLogHelper.guiLogger.loge(ex);
