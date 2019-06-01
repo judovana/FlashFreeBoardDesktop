@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fbb.board.internals;
+package org.fbb.board.internals.training;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,6 +17,7 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+import org.fbb.board.internals.Filter;
 
 /**
  *

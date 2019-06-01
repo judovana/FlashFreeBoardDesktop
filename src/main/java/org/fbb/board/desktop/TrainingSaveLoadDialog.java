@@ -30,7 +30,7 @@ import org.fbb.board.Translator;
 import org.fbb.board.desktop.gui.Authenticator;
 import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.GuiLogHelper;
-import org.fbb.board.internals.Training;
+import org.fbb.board.internals.training.Training;
 import org.fbb.board.internals.db.DB;
 import org.fbb.board.internals.grades.Grade;
 

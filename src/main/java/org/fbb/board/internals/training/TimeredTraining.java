@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fbb.board.internals;
+package org.fbb.board.internals.training;
 
 import org.fbb.board.internals.grid.Boulder;
 import java.awt.event.ActionListener;
@@ -11,6 +11,7 @@ import java.util.Random;
 import javax.swing.JLabel;
 import org.fbb.board.desktop.TextToSpeech;
 import org.fbb.board.desktop.gui.MainWindow;
+import org.fbb.board.internals.GuiLogHelper;
 
 /**
  *

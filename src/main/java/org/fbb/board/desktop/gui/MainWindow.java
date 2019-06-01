@@ -1,5 +1,6 @@
 package org.fbb.board.desktop.gui;
 
+import org.fbb.board.internals.training.BoulderCalc;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -74,8 +75,8 @@ import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.HistoryManager;
 import org.fbb.board.internals.ListWithFilter;
 import org.fbb.board.internals.db.Puller;
-import org.fbb.board.internals.TimeredTraining;
-import org.fbb.board.internals.Training;
+import org.fbb.board.internals.training.TimeredTraining;
+import org.fbb.board.internals.training.Training;
 import org.fbb.board.internals.grades.Grade;
 import org.fbb.board.internals.db.GuiExceptionHandler;
 import org.fbb.board.internals.db.ExceptionHandler;

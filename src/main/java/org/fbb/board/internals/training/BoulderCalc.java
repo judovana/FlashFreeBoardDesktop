@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fbb.board.desktop.gui;
+package org.fbb.board.internals.training;
 
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -16,7 +16,7 @@ import org.fbb.board.internals.GuiLogHelper;
  *
  * @author jvanek
  */
-class BoulderCalc {
+public class BoulderCalc {
 
     private final JTextField timeOfBoulder;
     private final JTextField timeOfTraining;
@@ -28,7 +28,7 @@ class BoulderCalc {
     }
 
     
-    BoulderCalc(JTextField timeOfBoulder, JTextField timeOfTraining, JSpinner numBoulders) {
+    public BoulderCalc(JTextField timeOfBoulder, JTextField timeOfTraining, JSpinner numBoulders) {
         this.timeOfBoulder = timeOfBoulder;
         this.timeOfTraining = timeOfTraining;
         this.numBoulders = numBoulders;
