@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -773,9 +774,10 @@ public class MainWindow {
                                     prevInList.getActionListeners()[0],
                                     nextRandom.getActionListeners()[0],
                                     nextRandomGenerated.getActionListeners()[0],
-                                    new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
-                                            new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
-                                            0, null, null),
+                                    Arrays.asList(new TrainingWithBackends[]{
+                                        new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
+                                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
+                                                0, null, null)}),
                                     counterClock, (TextToSpeech.TextId) reader.getSelectedItem()
                             );
                             new Thread(trainig[0]).start();

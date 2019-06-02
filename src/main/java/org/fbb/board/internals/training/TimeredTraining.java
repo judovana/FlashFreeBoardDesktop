@@ -7,6 +7,7 @@ package org.fbb.board.internals.training;
 
 import org.fbb.board.internals.grid.Boulder;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.Random;
 import javax.swing.JLabel;
 import org.fbb.board.desktop.TextToSpeech;
@@ -25,30 +26,31 @@ public class TimeredTraining implements Runnable {
     private int counter;
     private final JLabel output;
     private TextToSpeech.TextId speak;
-    private final TrainingWithBackends ts;
+    private final List<TrainingWithBackends> ts;
+    private int currentInList = 0;
 
     public void setJumpingAllowed(boolean jumpingAllowed) {
-        ts.allowJumps.setSelected(jumpingAllowed);
+        ts.get(currentInList).allowJumps.setSelected(jumpingAllowed);
     }
 
     public void setRandomAllowed(boolean randomAllowed) {
-        ts.allowRandom.setSelected(randomAllowed);
+        ts.get(currentInList).allowRandom.setSelected(randomAllowed);
     }
 
     public void setRegularAllowed(boolean regularAllowed) {
-        ts.allowRegular.setSelected(regularAllowed);
+        ts.get(currentInList).allowRegular.setSelected(regularAllowed);
     }
 
     public boolean getJumpingAllowed() {
-        return ts.allowJumps.isSelected();
+        return ts.get(currentInList).allowJumps.isSelected();
     }
 
     public boolean getRandomAllowed() {
-        return ts.allowRandom.isSelected();
+        return ts.get(currentInList).allowRandom.isSelected();
     }
 
     public boolean getRegularAllowed() {
-        return ts.allowRegular.isSelected();
+        return ts.get(currentInList).allowRegular.isSelected();
     }
 
     public boolean isPaused() {
@@ -71,7 +73,7 @@ public class TimeredTraining implements Runnable {
         this.speak = speak;
     }
 
-    public TimeredTraining(ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, TrainingWithBackends ts, JLabel output, TextToSpeech.TextId speak) {
+    public TimeredTraining(ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, List<TrainingWithBackends> ts, JLabel output, TextToSpeech.TextId speak) {
         this.next = next;
         this.prev = prev;
         this.nextRandom = nextRandom;
@@ -79,19 +81,19 @@ public class TimeredTraining implements Runnable {
         this.output = output;
         this.speak = speak;
         this.ts = ts;
-        counter = ts.getTotalTime() + 1;
+        counter = ts.get(currentInList).getTotalTime() + 1;
     }
 
     @Override
     public void run() {
         Random r = new Random();
         try {
-            while (running && counter > 0) {
+            while (consultList() && running && counter > 0) {
                 if (!paused) {
                     counter--;
                     output.setText(counter / 60 + ":" + counter % 60);
                     output.repaint();
-                    if (counter % ts.getTimeOfBoulder() == 0) {
+                    if (counter % ts.get(currentInList).getTimeOfBoulder() == 0) {
                         if (!getRegularAllowed() && !getRandomAllowed()) {
                             continue;
                         }
@@ -127,5 +129,17 @@ public class TimeredTraining implements Runnable {
         } catch (Exception ex) {
             GuiLogHelper.guiLogger.loge(ex);
         }
+    }
+
+    private boolean consultList() {
+        if (running && counter <= 0) {
+            currentInList++;
+            if (currentInList >= ts.size()) {
+                return false;
+            }
+            //init filter and aply initial delay
+            counter = ts.get(currentInList).getTotalTime() + 1;
+        }
+        return true;
     }
 }
