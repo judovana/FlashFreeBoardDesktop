@@ -38,6 +38,15 @@ public class TextToSpeech {
 
     };
 
+    public void change(TextId id) {
+        if (id.code.equalsIgnoreCase("cs")) {
+            tell("Změna v tréniku", id);
+        }
+        if (id.code.equalsIgnoreCase("en")) {
+            tell("Change in training", id);
+        }
+    }
+
     public void tell(String s, TextId id) {
         try {
             tellImpl(s, id);

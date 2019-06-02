@@ -722,17 +722,20 @@ public class MainWindow {
                 timeredWindow.add(new JLabel());
                 final JButton save1 = new JButton(Translator.R("Bsave1"));
                 timeredWindow.add(save1);
+                save1.setToolTipText(Translator.R("HintSaveByList"));
                 final JButton save2 = new JButton(Translator.R("Bsave2"));
                 timeredWindow.add(save2);
+                save2.setToolTipText(Translator.R("HintSaveByFilter"));
                 final JButton load = new JButton(Translator.R("Bload"));
                 timeredWindow.add(new JLabel());
                 timeredWindow.add(load);
-                final JButton loadList = new JButton(Translator.R("BloadList"));
-                timeredWindow.add(loadList);
+                load.setToolTipText(Translator.R("HintLaod"));
                 final JButton createList = new JButton(Translator.R("BCreateList"));
                 timeredWindow.add(createList);
-                loadList.setEnabled(false);
-                createList.setEnabled(false);
+                createList.setToolTipText(Translator.R("HintCreateList"));
+                final JButton loadList = new JButton(Translator.R("BloadList"));
+                timeredWindow.add(loadList);
+                loadList.setToolTipText(Translator.R("HintPlayList"));
                 ListSetter ls = new ListSetter() {
                     @Override
                     public void setUpBoulderWall(Filter filter, String selected, String title) {
