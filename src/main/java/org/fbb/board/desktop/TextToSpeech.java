@@ -38,12 +38,29 @@ public class TextToSpeech {
 
     };
 
-    public void change(TextId id) {
-        if (id.code.equalsIgnoreCase("cs")) {
-            tell("Změna v tréniku", id);
+    public static void change(TextId id) {
+        try {
+            if (id.code.equalsIgnoreCase("cs")) {
+                tellImpl("Změna v tréniku", id);
+            }
+            if (id.code.equalsIgnoreCase("en")) {
+                tellImpl("Change in training", id);
+            }
+        } catch (Exception ex) {
+            GuiLogHelper.guiLogger.loge(ex);
         }
-        if (id.code.equalsIgnoreCase("en")) {
-            tell("Change in training", id);
+    }
+
+    public static void pause(TextId id) {
+        try {
+            if (id.code.equalsIgnoreCase("cs")) {
+                tellImpl("Pauza", id);
+            }
+            if (id.code.equalsIgnoreCase("en")) {
+                tellImpl("Break", id);
+            }
+        } catch (Exception ex) {
+            GuiLogHelper.guiLogger.loge(ex);
         }
     }
 

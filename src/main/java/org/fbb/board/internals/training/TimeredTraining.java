@@ -91,7 +91,25 @@ public class TimeredTraining implements Runnable {
             while (consultList() && running && counter > 0) {
                 if (!paused) {
                     counter--;
+                    if (counter == ts.get(currentInList).getTotalTime()) {
+                        if (ts.get(currentInList).getInitialDelay() > 0) {
+                            TextToSpeech.pause(speak);
+                            int delay = ts.get(currentInList).getInitialDelay();
+                            while (delay > 0) {
+                                if (!paused) {
+                                    delay--;
+                                    output.setText("Brak! " + delay / 60 + ":" + delay % 60);
+                                    output.repaint();
+                                    Thread.sleep(1000);
+                                }
+                            }
+                            TextToSpeech.change(speak);
+                        }
+                    }
                     output.setText(counter / 60 + ":" + counter % 60);
+                    if (ts.size() > 1) {
+                        output.setText(output.getText() + "(" + (currentInList + 1) + "/" + ts.size() + ")");
+                    }
                     output.repaint();
                     if (counter % ts.get(currentInList).getTimeOfBoulder() == 0) {
                         if (!getRegularAllowed() && !getRandomAllowed()) {
@@ -138,7 +156,15 @@ public class TimeredTraining implements Runnable {
                 return false;
             }
             //init filter and aply initial delay
+            int delay = ts.get(currentInList).getInitialDelay();
+            if (delay == 0) {
+                TextToSpeech.change(speak);
+            }
             counter = ts.get(currentInList).getTotalTime() + 1;
+            TrainingWithBackends q = ts.get(currentInList);
+            q.setBoulderCalc();
+            q.setChecks();
+            q.init();
         }
         return true;
     }

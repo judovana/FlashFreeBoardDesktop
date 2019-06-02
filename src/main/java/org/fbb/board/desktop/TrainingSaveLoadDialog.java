@@ -33,6 +33,7 @@ import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.training.Training;
 import org.fbb.board.internals.db.DB;
 import org.fbb.board.internals.grades.Grade;
+import org.fbb.board.internals.training.TrainingPlaylist;
 
 /**
  *
@@ -45,13 +46,13 @@ public class TrainingSaveLoadDialog extends JDialog {
     private final JTextArea preview;
     private final JButton delete;
     private final DB db;
-    private Training result;
+    private File result;
 
-    public Training getResult() {
+    public File getResult() {
         return result;
     }
 
-    public TrainingSaveLoadDialog(int type/*jfch.open/save*/, DB db) {
+    public TrainingSaveLoadDialog(int type/*jfch.open/save*/, DB db, File dir) {
         this.db = db;
         this.setModal(true);
         this.setSize(800, 400);
@@ -61,13 +62,13 @@ public class TrainingSaveLoadDialog extends JDialog {
         mainSplit.setDividerLocation(400);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         UIManager.put("FileChooser.readOnly", Boolean.TRUE);
-        mainChooser = new JFileChooser(Files.trainingsDir);
+        mainChooser = new JFileChooser(dir);
         UIManager.put("FileChooser.readOnly", Boolean.FALSE);
         mainChooser.setFileFilter(new FileFilter() {
 
             @Override
             public boolean accept(File f) {
-                if (f.getName().endsWith(".sitr") || f.isDirectory()) {
+                if (f.getName().endsWith(".sitr") || f.isDirectory() || f.getName().endsWith(".tpl")) {
                     return true;
                 }
                 return false;
@@ -85,8 +86,13 @@ public class TrainingSaveLoadDialog extends JDialog {
             public void propertyChange(PropertyChangeEvent evt) {
                 try {
                     if (!evt.getPropertyName().equals("ancestor")) {
-                        if (mainChooser.getSelectedFile() != null) {
-                            preview.setText(Training.loadSavedTraining(mainChooser.getSelectedFile()).toString());
+                        if (mainChooser.getSelectedFile() != null && mainChooser.getSelectedFile().isFile()) {
+                            if (mainChooser.getSelectedFile().getName().endsWith(".sitr")) {
+                                preview.setText(getFileName() + ": " + Training.loadSavedTraining(mainChooser.getSelectedFile()).toString());
+                            } else if (mainChooser.getSelectedFile().getName().endsWith(".tpl")) {
+                                preview.setText(TrainingPlaylist.loadSavedTraining(mainChooser.getSelectedFile()).toString());
+
+                            }
                             delete.setText(Translator.R("Bdelete", mainChooser.getSelectedFile().getName()));
                         } else {
                             preview.setText("");
@@ -109,14 +115,7 @@ public class TrainingSaveLoadDialog extends JDialog {
                     } else {
                         //close
                         //return selectedFile
-                        try {
-                            result = Training.loadSavedTraining(mainChooser.getSelectedFile());
-                        } catch (Exception ex) {
-                            GuiLogHelper.guiLogger.loge(ex);
-                            result = null;
-                            JOptionPane.showMessageDialog(null, ex);
-                            return;
-                        }
+                        result = mainChooser.getSelectedFile();
                         TrainingSaveLoadDialog.this.dispose();
                     }
                 } else {
@@ -157,13 +156,15 @@ public class TrainingSaveLoadDialog extends JDialog {
 
     public static void main(String... args) throws IOException {
         Grade.loadConversiontable();
-        new TrainingSaveLoadDialog(JFileChooser.OPEN_DIALOG, new DB(new GlobalSettings())).setVisible(true);
+        new TrainingSaveLoadDialog(JFileChooser.OPEN_DIALOG, new DB(new GlobalSettings()), Files.trainingLilstDir).setVisible(true);
     }
 
     public String getFileName() {
-        if (mainChooser.getSelectedFile() == null){
+        if (mainChooser.getSelectedFile() == null) {
             return null;
-        } else return mainChooser.getSelectedFile().getName().replaceAll("\\.sitr", "");
+        } else {
+            return mainChooser.getSelectedFile().getName().replaceAll("\\.sitr$", "").replaceAll("\\.tpl$", "");
+        }
     }
 
     public static class SaveTrainingDialog {

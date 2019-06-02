@@ -123,12 +123,12 @@ public class BoulderCalc {
         }
     }
 
-    private String code(int seconds) {
+    public static  String code(int seconds) {
         return (seconds / 60) + ":" + (seconds % 60);
 
     }
 
-    private int decode(String s) {
+    public static int decode(String s) {
         try {
             String[] ss = s.trim().split(":");
             if (ss.length == 1) {

@@ -82,6 +82,7 @@ import org.fbb.board.internals.grades.Grade;
 import org.fbb.board.internals.db.GuiExceptionHandler;
 import org.fbb.board.internals.db.ExceptionHandler;
 import org.fbb.board.internals.training.ListSetter;
+import org.fbb.board.internals.training.TrainingPlaylist;
 import org.fbb.board.internals.training.TrainingWithBackends;
 
 /**
@@ -768,6 +769,51 @@ public class MainWindow {
                         }
                     }
                 };
+
+                loadList.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            TrainingSaveLoadDialog tls = new TrainingSaveLoadDialog(JFileChooser.OPEN_DIALOG, db, Files.trainingLilstDir);
+                            tls.setVisible(true);
+                            if (tls.getResult() == null) {
+                                return;
+                            }
+                            TrainingPlaylist tp = TrainingPlaylist.loadSavedTraining(tls.getResult());
+                            if (tp == null) {
+                                return;
+                            }
+                            List<Training> trainings = tp.toTrainings();
+                            List<TrainingWithBackends> result = new ArrayList<>(trainings.size());
+                            for (int i = 0; i < trainings.size(); i++) {
+                                Training t = trainings.get(i);
+                                result.add(new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
+                                        t, tp.getPauseForTraing(i), tp.getTitleForTraing(i), ls));
+                            }
+                            if (trainig[0] != null) {
+                                trainig[0].stop();
+                            }
+                            if (trainig[0] == null) {
+                                trainig[0] = new TimeredTraining(
+                                        nextInList.getActionListeners()[0],
+                                        prevInList.getActionListeners()[0],
+                                        nextRandom.getActionListeners()[0],
+                                        nextRandomGenerated.getActionListeners()[0],
+                                        result,
+                                        counterClock, (TextToSpeech.TextId) reader.getSelectedItem()
+                                );
+                                new Thread(trainig[0]).start();
+                            } else {
+                                trainig[0].stop();
+                                trainig[0] = null;
+                            }
+                        } catch (Exception ex) {
+                            GuiLogHelper.guiLogger.loge(ex);
+                            JOptionPane.showMessageDialog(null, ex);
+                        }
+                    }
+                });
                 start.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -860,9 +906,12 @@ public class MainWindow {
                             for (JToggleButton b : quickFilters) {
                                 b.setSelected(false);
                             }
-                            TrainingSaveLoadDialog tls = new TrainingSaveLoadDialog(JFileChooser.OPEN_DIALOG, db);
+                            TrainingSaveLoadDialog tls = new TrainingSaveLoadDialog(JFileChooser.OPEN_DIALOG, db, Files.trainingsDir);
                             tls.setVisible(true);
-                            Training t1 = tls.getResult();
+                            if (tls.getResult() == null) {
+                                return;
+                            }
+                            Training t1 = Training.loadSavedTraining(tls.getResult());
                             if (t1 == null) {
                                 return;
                             }
