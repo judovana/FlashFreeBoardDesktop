@@ -244,13 +244,13 @@ public class Grid {
                     int[] xs = new int[get.xpoints.length];
                     int[] ys = new int[get.ypoints.length];
                     for (int j = -width / 2; j <= width; j++) {
-                        for (int k = -width / 2; k <= width; k++) {
+                        {
                             for (int l = 0; l < xs.length; l++) {
                                 ys[l] = get.ypoints[l] + j;
 
                             }
                             for (int l = 0; l < ys.length; l++) {
-                                xs[l] = get.xpoints[l] + k;
+                                xs[l] = get.xpoints[l] + j;
 
                             }
                             g.drawPolygon(xs, ys, xs.length);
