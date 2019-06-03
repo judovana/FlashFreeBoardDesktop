@@ -10,7 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Objects;
 import java.util.Properties;
 import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.grades.Grade;

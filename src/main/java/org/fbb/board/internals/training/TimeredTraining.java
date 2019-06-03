@@ -12,6 +12,7 @@ import java.util.Random;
 import javax.swing.JLabel;
 import org.fbb.board.desktop.TextToSpeech;
 import org.fbb.board.desktop.gui.MainWindow;
+import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.GuiLogHelper;
 
 /**
@@ -28,6 +29,7 @@ public class TimeredTraining implements Runnable {
     private TextToSpeech.TextId speak;
     private final List<TrainingWithBackends> ts;
     private int currentInList = 0;
+    private final ActionListener clear;
 
     public void setJumpingAllowed(boolean jumpingAllowed) {
         ts.get(currentInList).allowJumps.setSelected(jumpingAllowed);
@@ -73,11 +75,12 @@ public class TimeredTraining implements Runnable {
         this.speak = speak;
     }
 
-    public TimeredTraining(ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, List<TrainingWithBackends> ts, JLabel output, TextToSpeech.TextId speak) {
+    public TimeredTraining(ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, ActionListener clear, List<TrainingWithBackends> ts, JLabel output, TextToSpeech.TextId speak) {
         this.next = next;
         this.prev = prev;
         this.nextRandom = nextRandom;
         this.nextGenerateRandom = nextGenerateRandom;
+        this.clear=clear;
         this.output = output;
         this.speak = speak;
         this.ts = ts;
@@ -95,6 +98,7 @@ public class TimeredTraining implements Runnable {
                         if (ts.get(currentInList).getInitialDelay() > 0) {
                             TextToSpeech.pause(speak);
                             int delay = ts.get(currentInList).getInitialDelay();
+                            clear.actionPerformed(null);
                             while (delay > 0) {
                                 if (!paused) {
                                     delay--;

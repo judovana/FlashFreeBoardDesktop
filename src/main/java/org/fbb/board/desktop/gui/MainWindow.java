@@ -795,11 +795,20 @@ public class MainWindow {
                                 trainig[0].stop();
                             }
                             if (trainig[0] == null) {
+                                if (result.size() > 0) {
+                                    result.get(0).setBoulderCalc();
+                                    result.get(0).setChecks();
+                                    result.get(0).init();
+                                }
                                 trainig[0] = new TimeredTraining(
                                         nextInList.getActionListeners()[0],
                                         prevInList.getActionListeners()[0],
                                         nextRandom.getActionListeners()[0],
                                         nextRandomGenerated.getActionListeners()[0],
+                                        (ActionEvent e1) -> {
+                                            gp.getGrid().clean();
+                                            gp.repaintAndSend(gs);
+                                        },
                                         result,
                                         counterClock, (TextToSpeech.TextId) reader.getSelectedItem()
                                 );
@@ -823,6 +832,14 @@ public class MainWindow {
                                     prevInList.getActionListeners()[0],
                                     nextRandom.getActionListeners()[0],
                                     nextRandomGenerated.getActionListeners()[0],
+                                    new ActionListener() {
+
+                                        @Override
+                                        public void actionPerformed(ActionEvent e) {
+                                            gp.getGrid().clean();
+                                            gp.repaintAndSend(gs);
+                                        }
+                                    },
                                     Arrays.asList(new TrainingWithBackends[]{
                                         new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
                                                 new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
