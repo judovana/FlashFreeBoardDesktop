@@ -133,7 +133,7 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
                 break;
             case 1:
                 valid.setForeground(Color.green);
-                valid.setText(Translator.R("ExistsFile"));
+                valid.setText(MainWindow.addCtrLine(Translator.R("ExistsFile")));
                 break;
             case 11:
                 valid.setForeground(Color.red);
@@ -141,11 +141,11 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
                 break;
             case 2:
                 valid.setForeground(Color.orange);
-                valid.setText(Translator.R("NotExistsFile"));
+                valid.setText(MainWindow.addCtrLine(Translator.R("NotExistsFile")));
                 break;
             case 3:
                 valid.setForeground(Color.green);
-                valid.setText(Translator.R("OkRemoteUrl"));
+                valid.setText(MainWindow.addCtrLine(Translator.R("OkRemoteUrl")));
                 break;
             default:
                 valid.setForeground(Color.red);

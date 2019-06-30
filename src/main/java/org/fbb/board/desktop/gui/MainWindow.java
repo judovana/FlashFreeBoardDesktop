@@ -9,6 +9,7 @@ import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import static java.awt.event.InputEvent.CTRL_MASK;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -54,6 +55,7 @@ import javax.swing.ListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -441,7 +443,7 @@ public class MainWindow {
         nextInList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) {
+                if (e.getButton() == MouseEvent.BUTTON3 || (e.getButton() == MouseEvent.BUTTON1 && e.isControlDown())) {
                     generateListJumper(gp, name, next, previous, nextInList, nextInList);
                     listJump.show((JButton) e.getSource(), 0, 0);
                 }
@@ -451,7 +453,7 @@ public class MainWindow {
         prevInList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) {
+                if (e.getButton() == MouseEvent.BUTTON3 || (e.getButton() == MouseEvent.BUTTON1 && e.isControlDown())) {
                     generateListJumper(gp, name, next, previous, nextInList, prevInList);
                     listJump.show((JButton) e.getSource(), 0, 0);
                 }
@@ -462,7 +464,7 @@ public class MainWindow {
         next.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) {
+                if (e.getButton() == MouseEvent.BUTTON3 || (e.getButton() == MouseEvent.BUTTON1 && e.isControlDown())) {
                     generateHistoryJumper(gp, name, next, previous, nextInList, prevInList);
                     historyJump.show((JButton) e.getSource(), 0, 0);
                 }
@@ -472,7 +474,7 @@ public class MainWindow {
         previous.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) {
+                if (e.getButton() == MouseEvent.BUTTON3 || (e.getButton() == MouseEvent.BUTTON1 && e.isControlDown())) {
                     generateHistoryJumper(gp, name, next, previous, nextInList, prevInList);
                     historyJump.show((JButton) e.getSource(), 0, 0);
                 }
@@ -543,8 +545,8 @@ public class MainWindow {
                         previous.setEnabled(hm.canBack());
                         list.setIndex(r.getFile().getName());
                     }
-                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                    prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                     nextInList.setEnabled(list.canFwd());
                     prevInList.setEnabled(list.canBack());
                 }
@@ -567,8 +569,8 @@ public class MainWindow {
                         Files.setLastBoulder(r);
                         list.addToBoulderHistory(r);
                         list.setIndex(r.getFile().getName());
-                        nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                        prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                        nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                        prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                         nextInList.setEnabled(list.canFwd());
                         prevInList.setEnabled(list.canBack());
                     }
@@ -593,8 +595,8 @@ public class MainWindow {
                         Files.setLastBoulder(r);
                         list.addToBoulderHistory(r);
                         list.setIndex(r.getFile().getName());
-                        nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                        prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                        nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                        prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                         nextInList.setEnabled(list.canFwd());
                         prevInList.setEnabled(list.canBack());
                     }
@@ -627,8 +629,8 @@ public class MainWindow {
                     Files.setLastBoulder(b);
                     list.addToBoulderHistory(b);
                     list.setIndex(b.getFile().getName());
-                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                    prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                     nextInList.setEnabled(list.canFwd());
                     prevInList.setEnabled(list.canBack());
                 } catch (IOException ex) {
@@ -763,8 +765,8 @@ public class MainWindow {
                                 previous.setEnabled(hm.canBack());
                                 nextInList.setEnabled(list.canFwd());
                                 prevInList.setEnabled(list.canBack());
-                                nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                                prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                                nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                                prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                             }
                         }
                     }
@@ -1000,6 +1002,9 @@ public class MainWindow {
         previous.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if ((e.getModifiers() & CTRL_MASK) != 0) {
+                    return;
+                }
                 if (hm.canBack()) {
                     Boulder b = hm.back();
                     gp.getGrid().setBouler(b);
@@ -1009,11 +1014,17 @@ public class MainWindow {
                 }
                 next.setEnabled(hm.canFwd());
                 previous.setEnabled(hm.canBack());
+                if (e.getSource() != null && e.getSource() instanceof Component) {
+                    ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
+                }
             }
         });
         next.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if ((e.getModifiers() & CTRL_MASK) != 0) {
+                    return;
+                }
                 if (hm.canFwd()) {
                     Boulder b = hm.forward();
                     gp.getGrid().setBouler(b);
@@ -1023,6 +1034,9 @@ public class MainWindow {
                 }
                 next.setEnabled(hm.canFwd());
                 previous.setEnabled(hm.canBack());
+                if (e.getSource() != null && e.getSource() instanceof Component) {
+                    ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
+                }
             }
         });
         previous.setEnabled(false);
@@ -1036,6 +1050,9 @@ public class MainWindow {
                 gp.repaintAndSend(gs);
                 next.setEnabled(hm.canFwd());
                 previous.setEnabled(hm.canBack());
+                if (e.getSource() != null && e.getSource() instanceof Component) {
+                    ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
+                }
             }
         });
         nextInList.setEnabled(list.canFwd());
@@ -1055,8 +1072,11 @@ public class MainWindow {
                     previous.setEnabled(hm.canBack());
                     nextInList.setEnabled(list.canFwd());
                     prevInList.setEnabled(list.canBack());
-                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                    prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                }
+                if (e.getSource() != null && e.getSource() instanceof Component) {
+                    ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
                 }
             }
         });
@@ -1064,6 +1084,9 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                if ((e.getModifiers() & CTRL_MASK) != 0) {
+                    return;
+                }
                 Boulder b = list.forward();
                 if (b != null) {
                     hm.addToBoulderHistory(b);
@@ -1075,8 +1098,11 @@ public class MainWindow {
                     previous.setEnabled(hm.canBack());
                     nextInList.setEnabled(list.canFwd());
                     prevInList.setEnabled(list.canBack());
-                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                    prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                }
+                if (e.getSource() != null && e.getSource() instanceof Component) {
+                    ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
                 }
             }
         });
@@ -1084,6 +1110,9 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                if ((e.getModifiers() & CTRL_MASK) != 0) {
+                    return;
+                }
                 Boulder b = list.back();
                 if (b != null) {
                     hm.addToBoulderHistory(b);
@@ -1095,8 +1124,11 @@ public class MainWindow {
                     previous.setEnabled(hm.canBack());
                     nextInList.setEnabled(list.canFwd());
                     prevInList.setEnabled(list.canBack());
-                    nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                    prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                    nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                    prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                }
+                if (e.getSource() != null && e.getSource() instanceof Component) {
+                    ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
                 }
             }
         });
@@ -1115,11 +1147,11 @@ public class MainWindow {
         }
         nextRandomGenerated.setToolTipText(Translator.R("NextRandomGenerated"));
         nextRandom.setToolTipText(Translator.R("NextRandomlySelected"));
-        nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-        prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-        previous.setToolTipText(Translator.R("PreviousBoulder"));
+        nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+        prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+        previous.setToolTipText(addCtrLine(Translator.R("PreviousBoulder")));
         settings.setToolTipText(Translator.R("Settings"));
-        next.setToolTipText(Translator.R("FwdBoulder"));
+        next.setToolTipText(addCtrLine(Translator.R("FwdBoulder")));
         createWallWindow.add(tools, BorderLayout.NORTH);
         createWallWindow.add(tools2, BorderLayout.SOUTH);
         createWallWindow.pack();
@@ -1181,8 +1213,8 @@ public class MainWindow {
                             Files.setLastBoulder(r);
                             next.setEnabled(hm.canFwd());
                             previous.setEnabled(hm.canBack());
-                            nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                            prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                            nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                            prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                             nextInList.setEnabled(list.canFwd());
                             prevInList.setEnabled(list.canBack());
                         }
@@ -1966,8 +1998,8 @@ public class MainWindow {
                 previous.setEnabled(hm.canBack());
                 nextInList.setEnabled(list.canFwd());
                 prevInList.setEnabled(list.canBack());
-                nextInList.setToolTipText(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize());
-                prevInList.setToolTipText(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize());
+                nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+                prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
             }
         }
     }
@@ -2008,6 +2040,10 @@ public class MainWindow {
             n.setHorizontalAlignment(SwingConstants.CENTER);
         }
 
+    }
+
+    static String addCtrLine(String string) {
+        return "<html>" + string + "<br>" + Translator.R("tryCtrl");
     }
 
 }

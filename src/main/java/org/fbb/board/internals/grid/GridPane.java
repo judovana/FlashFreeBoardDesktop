@@ -178,16 +178,16 @@ public class GridPane extends JPanel implements Meassurable {
 
         @Override
         public void mousePressed(MouseEvent e) {
-            if (e.getButton() == MouseEvent.BUTTON1) {
+            if (e.getButton() == MouseEvent.BUTTON3 || (e.getButton() == MouseEvent.BUTTON1 && e.isControlDown())) {
                 double relX = (double) e.getX() / (double) getWidth();
                 double relY = (double) e.getY() / (double) getHeight();
                 grid.select(relX, relY);
             }
-            if (e.getButton() == MouseEvent.BUTTON3) {
+            if (e.getButton() == MouseEvent.BUTTON1) {
                 grid.setPs(e.getX(), e.getY());
                 repaintAndSendToKnown();
             }
-            if (e.getButton() == MouseEvent.BUTTON2) {
+            if (e.getButton() == MouseEvent.BUTTON2 ) {
                 grid.setShowGrid(!grid.isShowGrid());
                 repaintAndSendToKnown();
             }
