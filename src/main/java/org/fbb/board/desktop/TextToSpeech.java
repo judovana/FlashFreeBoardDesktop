@@ -40,11 +40,13 @@ public class TextToSpeech {
 
     public static void change(TextId id) {
         try {
-            if (id.code.equalsIgnoreCase("cs")) {
-                tellImpl("Změna v tréniku", id);
-            }
-            if (id.code.equalsIgnoreCase("en")) {
-                tellImpl("Change in training", id);
+            if (id != null && id.code != null) {
+                if (id.code.equalsIgnoreCase("cs")) {
+                    tellImpl("Změna v tréniku", id);
+                }
+                if (id.code.equalsIgnoreCase("en")) {
+                    tellImpl("Change in training", id);
+                }
             }
         } catch (Exception ex) {
             GuiLogHelper.guiLogger.loge(ex);

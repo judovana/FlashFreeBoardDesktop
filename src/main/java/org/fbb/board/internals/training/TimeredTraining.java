@@ -5,6 +5,7 @@
  */
 package org.fbb.board.internals.training;
 
+import java.awt.event.ActionEvent;
 import org.fbb.board.internals.grid.Boulder;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -128,13 +129,13 @@ public class TimeredTraining implements Runnable {
                                 int i = r.nextInt(MainWindow.list.getSize());
                                 i = i--;
                                 MainWindow.list.setIndex(i);
-                                next.actionPerformed(null);
+                                next.actionPerformed(new ActionEvent(this, 0, null));
                             } else {
                                 if (MainWindow.list.canFwd()) {
-                                    next.actionPerformed(null);
+                                    next.actionPerformed(new ActionEvent(this, 0, null));
                                 } else {
                                     MainWindow.list.setIndex(-1);
-                                    next.actionPerformed(null);
+                                    next.actionPerformed(new ActionEvent(this, 0, null));
                                 }
                             }
                         }
