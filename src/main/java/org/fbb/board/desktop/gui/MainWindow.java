@@ -4,6 +4,7 @@ import org.fbb.board.internals.training.BoulderCalc;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -31,6 +32,7 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -734,6 +736,87 @@ public class MainWindow {
                 timeredWindow.add(load);
                 load.setToolTipText(Translator.R("HintLaod"));
                 final JButton createList = new JButton(Translator.R("BCreateList"));
+                createList.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        JDialog d = new JDialog();
+                        d.setModal(true);
+                        d.setSize(800, 600);
+                        d.setLayout(new GridLayout(0, 1));
+                        JPanel row0 = new JPanel(new GridLayout(0, 4));
+                        JButton save = (new JButton("Save"));
+                        JTextField name = (new JTextField("name"));
+                        JButton remove = (new JButton("-"));
+                        JButton add = (new JButton("+"));
+                        add.addActionListener(new ActionListener() {
+
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                JPanel row = new JPanel(new GridLayout(0, 2));
+                                JTextField time = (new JTextField("00:10"));
+                                time.setToolTipText("initial delay mm:ss");
+                                JComboBox training = (new JComboBox(desuffix(Files.trainingsDir.list())));
+                                row.add(time);
+                                row.add(training);
+                                d.add(row);
+                                d.pack();
+                            }
+
+                            private String[] desuffix(String[] list) {
+                                for (int i = 0; i < list.length; i++) {
+                                    String list1 = list[i];
+                                    list[i] = list1.replaceAll(".sitr$", "");
+                                }
+                                return list;
+                            }
+                        });
+                        remove.addActionListener(new ActionListener() {
+
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                Container dd = d.getContentPane();
+                                if (dd.getComponentCount() > 1) {
+                                    dd.remove(dd.getComponents()[dd.getComponents().length - 1]);
+                                    d.pack();
+                                }
+                            }
+                        });
+                        save.addActionListener(new ActionListener() {
+
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                Container dd = d.getContentPane();
+                                if (dd.getComponentCount() > 1) {
+                                    List<String> l = new ArrayList<>(dd.getComponentCount()-1);
+                                    for (int x = 1; x < dd.getComponentCount(); x++) {
+                                        JPanel p = (JPanel) dd.getComponent(x);
+                                        JTextField ti = (JTextField) p.getComponent(0);
+                                        JComboBox tr = (JComboBox) p.getComponent(1);
+                                        l.add(ti.getText()+"/"+tr.getSelectedItem().toString());
+                                    }
+                                    try{
+                                        File f = new File(Files.trainingLilstDir,name.getText()+".tpl");
+                                        java.nio.file.Files.write(f.toPath(), l);
+                                        db.add(new ExceptionHandler.Resender(), "", f);
+                                    }catch(IOException ex){
+                                        GuiLogHelper.guiLogger.loge(ex);
+                                        JOptionPane.showMessageDialog(null, ex);
+                                    }
+                                }
+                            }
+                        });
+                        row0.add(save);
+                        row0.add(name);
+                        row0.add(remove);
+                        row0.add(add);
+                        d.add(row0);
+                        d.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        d.pack();
+                        d.setLocationRelativeTo(timeredWindow);
+                        d.setVisible(true);
+                    }
+                });
                 timeredWindow.add(createList);
                 createList.setToolTipText(Translator.R("HintCreateList"));
                 final JButton loadList = new JButton(Translator.R("BloadList"));
