@@ -1,5 +1,6 @@
 /*
- sudo  usermod -aG uucp jvanek
+sudo  usermod -aG dialout jvanek
+sudo  usermod -aG uucp jvanek
  sudo  usermod -aG lock jvanek
  sudo chown root:uucp  /run/lock
  sudo chmod 775 /run/lock
