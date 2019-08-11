@@ -8,6 +8,8 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import static java.awt.event.InputEvent.CTRL_MASK;
@@ -52,6 +54,7 @@ import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.JWindow;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.SpinnerNumberModel;
@@ -358,6 +361,7 @@ public class MainWindow {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                setIdealWindowLocation(createWallWindow);
                 createWallWindow.setVisible(true);
             }
         });
@@ -368,8 +372,50 @@ public class MainWindow {
         double dw = (double) size.width / (double) bis.getWidth();
         double dh = (double) size.height / (double) bis.getHeight();
         double ratio = Math.min(dw, dh);
-        ratio = ratio * 0.8;//do not cover all screen
+        ratio = ratio * gs.getRatio();
         return ratio;
+    }
+
+    private static void setIdealWindowLocation(Window w) {
+        int he=gs.getHardcodedEdge();
+        if (gs.getLocation().equalsIgnoreCase("TR")) {
+            w.setLocation(
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth()-he),
+                    (int) (he));
+        } else if (gs.getLocation().equalsIgnoreCase("TL")) {
+            w.setLocation(
+                    (int) (he),
+                    (int) (he));
+        } else if (gs.getLocation().equalsIgnoreCase("BR")) {
+            w.setLocation(
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth()-he),
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight())-he);
+        } else if (gs.getLocation().equalsIgnoreCase("BL")) {
+            w.setLocation(
+                    (int) (he),
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight())-he);
+
+        } else if (gs.getLocation().equalsIgnoreCase("T")) {
+            w.setLocation(
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth()) / 2,
+                    (int) (he));
+        } else if (gs.getLocation().equalsIgnoreCase("B")) {
+            w.setLocation(
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth()) / 2,
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight())-he);
+        } else if (gs.getLocation().equalsIgnoreCase("R")) {
+            w.setLocation(
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth()-he),
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight()) / 2);
+        } else if (gs.getLocation().equalsIgnoreCase("L")) {
+            w.setLocation(
+                    (int) (he),
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight()) / 2);
+        } else {
+            w.setLocation(
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth()) / 2,
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight()) / 2);
+        }
     }
 
     private static void loadWallWithBoulder(String lastBoard) throws IOException {
@@ -788,18 +834,18 @@ public class MainWindow {
                             public void actionPerformed(ActionEvent e) {
                                 Container dd = d.getContentPane();
                                 if (dd.getComponentCount() > 1) {
-                                    List<String> l = new ArrayList<>(dd.getComponentCount()-1);
+                                    List<String> l = new ArrayList<>(dd.getComponentCount() - 1);
                                     for (int x = 1; x < dd.getComponentCount(); x++) {
                                         JPanel p = (JPanel) dd.getComponent(x);
                                         JTextField ti = (JTextField) p.getComponent(0);
                                         JComboBox tr = (JComboBox) p.getComponent(1);
-                                        l.add(ti.getText()+"/"+tr.getSelectedItem().toString());
+                                        l.add(ti.getText() + "/" + tr.getSelectedItem().toString());
                                     }
-                                    try{
-                                        File f = new File(Files.trainingLilstDir,name.getText()+".tpl");
+                                    try {
+                                        File f = new File(Files.trainingLilstDir, name.getText() + ".tpl");
                                         java.nio.file.Files.write(f.toPath(), l);
                                         db.add(new ExceptionHandler.Resender(), "", f);
-                                    }catch(IOException ex){
+                                    } catch (IOException ex) {
                                         GuiLogHelper.guiLogger.loge(ex);
                                         JOptionPane.showMessageDialog(null, ex);
                                     }
@@ -1243,6 +1289,7 @@ public class MainWindow {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                setIdealWindowLocation(createWallWindow);
                 createWallWindow.setVisible(true);
             }
         });
@@ -1341,6 +1388,7 @@ public class MainWindow {
                 }
             });
             historyJump.add(i);
+
         }
     }
 
@@ -1454,10 +1502,12 @@ public class MainWindow {
         operateBoulder.add(tools2, BorderLayout.SOUTH);
         operateBoulder.pack();
         operateBoulder.setSize((int) nw, (int) nh + tools1.getHeight() + tools2.getHeight());
+        setIdealWindowLocation(operateBoulder);
         DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit, operateBoulder, gp.getGrid(), name, grades, p.givenId, author, change);
         doneButton.addActionListener(done);
         operateBoulder.setVisible(true);
         return new BoulderAndSaved(done.getResult(), saveOnExit.isSelected());
+
     }
 
     private static class DoneEditingBoulderListener implements ActionListener {
@@ -1589,6 +1639,9 @@ public class MainWindow {
         final Map<String, GridPane.Preload> wallCache = new HashMap();
         JDialog d = new JDialog((JDialog) null, true);
         d.setSize(800, 600);
+        d.setLocation(
+                (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - d.getWidth()) / 2,
+                (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - d.getHeight()) / 2);
         d.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         final JList<Boulder> boulders = new JList();
         final JPanel boulderPreview = new JPanel(new BorderLayout());
@@ -1934,6 +1987,7 @@ public class MainWindow {
         author.setText(f.getAuthorsString());
         name.setText(f.getNamesString());
         random.setSelected(f.random);
+
     }
 
     private static class BoulderListRenderer extends JLabel implements ListCellRenderer<Boulder> {

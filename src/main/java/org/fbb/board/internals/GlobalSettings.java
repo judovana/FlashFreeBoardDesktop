@@ -201,6 +201,18 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         return r;
     }
 
+    public double getRatio() {
+        return mainframeRatio;
+    }
+    
+    public String getLocation() {
+        return mainframeLocation;
+    }
+    
+    public int getHardcodedEdge() {
+        return hardcodedEdge;
+    }
+
     private class MessagesResender extends Thread {
 
         public MessagesResender() {
@@ -427,6 +439,9 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         setNumberOfSources(Integer.valueOf(p.getProperty("COUNT_SOURCES", "1")), false);
         setHoldMarkerOapcity(Float.valueOf(p.getProperty("HOLD_OPACITY", "0.75")), false);
         setDefaultStyle(Integer.valueOf(p.getProperty("HOLD_STYLE", "0")), false);
+        setRatio(Double.valueOf(p.getProperty("MAINFRAME_RATIO", "0.8")), false);
+        setLocation(p.getProperty("MAINFRAME_LOCATION", "C"), false);
+        setHardcodedEdge(Integer.valueOf(p.getProperty("HARDCODED_EDGE", "0")), false);
     }
 
     private void save() {
@@ -452,7 +467,10 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         p.setProperty("COUNT_SOURCES", "" + getNumberOfSources());
         p.setProperty("HOLD_OPACITY", "" + getHoldMarkerOapcity());
         p.setProperty("HOLD_STYLE", "" + getDefaultStyle());
-        p.store(new OutputStreamWriter(new FileOutputStream(Files.settings), Charset.forName("utf-8")), "FlashFreeBoard settings " + new Date());
+        p.setProperty("MAINFRAME_RATIO", "" + getRatio());
+        p.setProperty("MAINFRAME_LOCATION", "" + getLocation());
+        p.setProperty("HARDCODED_EDGE", "" + getHardcodedEdge());
+        p.store(new OutputStreamWriter(new FileOutputStream(Files.settings), Charset.forName("utf-8")), "FlashFreeBoard settings " + new Date()+" ;  TODO: MAINFRAME_RATIO, MAINFRAME_LOCATION HARDCODED_EDGE gui");
     }
 
     public void setRuser(String u) {
@@ -511,6 +529,9 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
     private double singleLed = 0.18d;
     private double singleSource = 2.00d;
     private int numberOfSources = 1;
+    private double mainframeRatio=0.8;
+    private int hardcodedEdge=0;
+    private String mainframeLocation = "C" ;  //T,B,L,R,C, TR, TL, BR, BL //me lazy, sorry:(
 
     public int getBrightness() {
         if (brightness <= 1) {
@@ -695,6 +716,27 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
 
     private void setHoldMarkerOapcity(float f, boolean save) {
         this.holdOpacity = f;
+        if (save) {
+            save();
+        }
+    }
+    
+    private void setRatio(double f, boolean save) {
+        this.mainframeRatio = f;
+        if (save) {
+            save();
+        }
+    }
+    
+    private void setLocation(String f, boolean save) {
+        this.mainframeLocation = f;
+        if (save) {
+            save();
+        }
+    }
+    
+    private void setHardcodedEdge(int f, boolean save) {
+        this.hardcodedEdge = f;
         if (save) {
             save();
         }
