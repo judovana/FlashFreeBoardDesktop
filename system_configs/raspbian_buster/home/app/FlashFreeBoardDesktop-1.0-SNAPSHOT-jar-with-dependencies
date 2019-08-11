@@ -27,6 +27,7 @@ sudo su:  echo  -n pass | sha256sum  > /etc/FBB.auth
 
 .fluxbox/init: session.screen0.workspaces: 1
 /etc/lightdm/lightdm.conf: autologin-user=app
+in raspi-config add cs_CZ locale
 
 
 
