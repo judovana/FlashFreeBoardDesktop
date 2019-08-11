@@ -1,0 +1,14 @@
+[Unit]
+Description=Start FFB
+After=rotate.service
+
+[Service]
+User=app
+Group=app
+Environment="DISPLAY=:0"
+ExecStart=java -jar /home/app/FlashFreeBoardDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=graphical.target

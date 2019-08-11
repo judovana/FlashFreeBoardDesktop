@@ -1,0 +1,70 @@
+#!/bin/bash
+# many thanks: https://gist.github.com/mildmojo/48e9025070a2ba40795c
+# set -eo added against original to work fine as service
+set -e
+set -o pipefail
+#
+# rotate_desktop.sh
+#
+# Rotates modern Linux desktop screen and input devices to match. Handy for
+# convertible notebooks. Call this script from panel launchers, keyboard
+# shortcuts, or touch gesture bindings (xSwipe, touchegg, etc.).
+#
+# Using transformation matrix bits taken from:
+#   https://wiki.ubuntu.com/X/InputCoordinateTransformation
+#
+
+# Configure these to match your hardware (names taken from `xinput` output).
+#TOUCHPAD='SynPS/2 Synaptics TouchPad'
+#TOUCHSCREEN='Atmel Atmel maXTouch Digitizer'
+
+# adapted against original
+TOUCHPAD='ELAN Touchscreen'
+TOUCHSCREEN='Virtual core XTEST pointer'
+
+if [ -z "$1" ]; then
+  echo "Missing orientation."
+  echo "Usage: $0 [normal|inverted|left|right] [revert_seconds]"
+  echo
+  exit 1
+fi
+
+function do_rotate
+{
+  xrandr --output $1 --rotate $2
+
+  TRANSFORM='Coordinate Transformation Matrix'
+
+  case "$2" in
+    normal)
+      [ ! -z "$TOUCHPAD" ]    && xinput set-prop "$TOUCHPAD"    "$TRANSFORM" 1 0 0 0 1 0 0 0 1
+      [ ! -z "$TOUCHSCREEN" ] && xinput set-prop "$TOUCHSCREEN" "$TRANSFORM" 1 0 0 0 1 0 0 0 1
+      ;;
+    inverted)
+      [ ! -z "$TOUCHPAD" ]    && xinput set-prop "$TOUCHPAD"    "$TRANSFORM" -1 0 1 0 -1 1 0 0 1
+      [ ! -z "$TOUCHSCREEN" ] && xinput set-prop "$TOUCHSCREEN" "$TRANSFORM" -1 0 1 0 -1 1 0 0 1
+      ;;
+    left)
+      [ ! -z "$TOUCHPAD" ]    && xinput set-prop "$TOUCHPAD"    "$TRANSFORM" 0 -1 1 1 0 0 0 0 1
+      [ ! -z "$TOUCHSCREEN" ] && xinput set-prop "$TOUCHSCREEN" "$TRANSFORM" 0 -1 1 1 0 0 0 0 1
+      ;;
+    right)
+      [ ! -z "$TOUCHPAD" ]    && xinput set-prop "$TOUCHPAD"    "$TRANSFORM" 0 1 0 -1 0 1 0 0 1
+      [ ! -z "$TOUCHSCREEN" ] && xinput set-prop "$TOUCHSCREEN" "$TRANSFORM" 0 1 0 -1 0 1 0 0 1
+      ;;
+  esac
+}
+
+XDISPLAY=`xrandr --current | grep primary | sed -e 's/ .*//g'`
+XROT=`xrandr --current --verbose | grep primary | egrep -o ' (normal|left|inverted|right) '`
+
+do_rotate $XDISPLAY $1
+
+# not disabled  in original, as this is service, handled rather by forced restart; maybe bad idea
+# but the sleep may not be enough
+#if [ ! -z "$2" ]; then
+#sleep $2
+#  do_rotate $XDISPLAY $XROT
+#  exit 0
+#fi
+

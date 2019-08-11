@@ -1,0 +1,13 @@
+[Unit]
+Description=Rotate desktop to portrait, including touch coordinates
+
+[Service]
+User=app
+Group=app
+Restart=on-failure
+RestartSec=5
+Environment="DISPLAY=:0"
+ExecStart=bash /home/app/rotate_desktop.sh left
+
+[Install]
+WantedBy=graphical.target

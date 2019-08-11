@@ -1,0 +1,17 @@
+[Unit]
+Description=Start virtual keyboards
+After=FFB.service
+
+[Service]
+User=app
+Group=app
+Restart=always
+RestartSec=3
+Environment="DISPLAY=:0"
+#ExecStart=matchbox-keyboard
+# onboard is the only keyboard with ctrl in selections working
+# onboard must have docking enabled and  show floating icon when hideen
+ExecStart=onboard
+
+[Install]
+WantedBy=graphical.target
