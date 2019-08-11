@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -561,6 +560,8 @@ public class MainWindow {
         sub2.add(revokePermission);
         JMenuItem reset = new JMenuItem("remote reset");
         sub2.add(reset);
+        JMenuItem tips = new JMenuItem("Tips");
+        sub2.add(tips);
 
         selectListBoulders.addActionListener(new ActionListener() {
 
@@ -1121,6 +1122,17 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gs.reset();
+            }
+        });
+        tips.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "<html><li>"+Translator.R("tip1")+"<li>"+escape(Translator.R("tip2"))+"<li>"+escape(Translator.R("tip3")));
+            }
+
+            private String escape(String R) {
+                return R.replace("<", "&lt;").replace(">", "&gt;");
             }
         });
         JPanel subtools = new JPanel(new BorderLayout());
