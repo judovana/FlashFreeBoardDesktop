@@ -237,7 +237,7 @@ public class MainWindow {
             JOptionPane.showMessageDialog(null, a);
             return;
         }
-        final JFrame createWallWindow = new JFrame();
+        final JFrame createWallWindow = new JFrame("Flash Free Board");
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bis, props, gs);
         createWallWindow.add(gp);
@@ -426,7 +426,7 @@ public class MainWindow {
     private static void loadWallWithBoulder(GridPane.Preload preloaded, final Boulder possiblebOulder) throws IOException {
         final JToggleButton[] quickFilters = new JToggleButton[5];
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
-        final JFrame createWallWindow = new JFrame();
+        final JFrame createWallWindow = new JFrame("Flash Free Board");
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bi, preloaded.props, gs);
         list = new ListWithFilter(preloaded.givenId);

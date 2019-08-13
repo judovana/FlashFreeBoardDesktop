@@ -26,7 +26,7 @@ public class PhotoGrider {
 
             @Override
             public void run() {
-                JFrame f = new JFrame();
+                JFrame f = new JFrame("Flash Free Board");
                 f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 f.pack();
                 f.setSize(800, 600);
