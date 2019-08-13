@@ -1155,7 +1155,7 @@ public class MainWindow {
                 }
                 next.setEnabled(hm.canFwd());
                 previous.setEnabled(hm.canBack());
-                if (e.getSource() != null && e.getSource() instanceof Component) {
+                if (e != null && e.getSource() != null && e.getSource() instanceof Component) {
                     ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
                 }
             }
@@ -1175,7 +1175,7 @@ public class MainWindow {
                 }
                 next.setEnabled(hm.canFwd());
                 previous.setEnabled(hm.canBack());
-                if (e.getSource() != null && e.getSource() instanceof Component) {
+                if (e != null && e.getSource() != null && e.getSource() instanceof Component) {
                     ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
                 }
             }
@@ -1191,7 +1191,7 @@ public class MainWindow {
                 gp.repaintAndSend(gs);
                 next.setEnabled(hm.canFwd());
                 previous.setEnabled(hm.canBack());
-                if (e.getSource() != null && e.getSource() instanceof Component) {
+                if (e != null && e.getSource() != null && e.getSource() instanceof Component) {
                     ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
                 }
             }
@@ -1216,7 +1216,7 @@ public class MainWindow {
                     nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                     prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                 }
-                if (e.getSource() != null && e.getSource() instanceof Component) {
+                if (e != null && e.getSource() != null && e.getSource() instanceof Component) {
                     ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
                 }
             }
@@ -1242,7 +1242,7 @@ public class MainWindow {
                     nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                     prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                 }
-                if (e.getSource() != null && e.getSource() instanceof Component) {
+                if (e != null && e.getSource() != null && e.getSource() instanceof Component) {
                     ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
                 }
             }
@@ -1268,7 +1268,7 @@ public class MainWindow {
                     nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                     prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
                 }
-                if (e.getSource() != null && e.getSource() instanceof Component) {
+                if (e != null && e.getSource() != null && e.getSource() instanceof Component) {
                     ToolTipManager.sharedInstance().mouseMoved(new MouseEvent((Component) e.getSource(), 0, 0, 0, 0, 0, 0, false));
                 }
             }
