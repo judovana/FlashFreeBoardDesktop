@@ -4,12 +4,17 @@
   apt-get install xorg
   sudo apt-get install xorg
   sudo apt-get install fluxbox onboard
+  sudo mv /usr/bin/xterm  /usr/bin/xterm-backup #as xterm is in default menu
+
   sudo apt install  dconf #onbaords depndence
       sudo apt-get install matchbox-keyboard # good one
       sudo apt-get install espeak
       sudo apt-get install pulseaudio
       sudo apt-get install alza
       sudo apt-get install alsa-mixer #audio enablment
+sudo apt install sox # to enable fallback if application, run as systemd service fails to play directly form jdk
+# maybe also ad duser to audio and other groups?
+
   sudo apt install openjdk-8-jdk
   sudo apt  install xinput #rotation depndence
   sudo apt install espeak
