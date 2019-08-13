@@ -33,6 +33,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.fbb.board.Translator;
+import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.internals.FUtils;
 import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.GuiLogHelper;
@@ -547,6 +548,12 @@ class SettingsListener implements ActionListener {
         allSettingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         allSettingsWindow.pack();
         allSettingsWindow.setLocationRelativeTo(null);
+        if (allSettingsWindow.getWidth() > ScreenFinder.getCurrentScreenSizeWithoutBounds().width) {
+            allSettingsWindow.setSize(ScreenFinder.getCurrentScreenSizeWithoutBounds().width-5, allSettingsWindow.getHeight());
+        }
+        if (allSettingsWindow.getHeight() > ScreenFinder.getCurrentScreenSizeWithoutBounds().height) {
+            allSettingsWindow.setSize(allSettingsWindow.getWidth(), ScreenFinder.getCurrentScreenSizeWithoutBounds().height-5);
+        }
         allSettingsWindow.setVisible(true);
     }
 
