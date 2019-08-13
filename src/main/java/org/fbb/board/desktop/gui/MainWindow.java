@@ -789,7 +789,7 @@ public class MainWindow {
                     public void actionPerformed(ActionEvent e) {
                         JDialog d = new JDialog();
                         d.setModal(true);
-                        d.setSize(800, 600);
+                        d.setSize(750, 600);
                         d.setLayout(new GridLayout(0, 1));
                         JPanel row0 = new JPanel(new GridLayout(0, 4));
                         JButton save = (new JButton("Save"));
@@ -1650,7 +1650,7 @@ public class MainWindow {
         final int SEL = 2;
         final Map<String, GridPane.Preload> wallCache = new HashMap();
         JDialog d = new JDialog((JDialog) null, true);
-        d.setSize(800, 600);
+        d.setSize(750, 600);
         d.setLocation(
                 (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - d.getWidth()) / 2,
                 (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - d.getHeight()) / 2);
@@ -1862,7 +1862,7 @@ public class MainWindow {
             }
         });
         apply.addActionListener(new ApplyFilterListener(walls, gradesFrom, gradesTo, holdsMin, holdsMax, authorsFilter, nameFilter, dateFrom, dateTo, boulders, random));
-        sp.setDividerLocation(d.getWidth() / 2);
+        sp.setDividerLocation((int)((double)(d.getWidth()*2) / 3));
         wallDefault.setFont(addAll.getFont().deriveFont(Font.PLAIN));
         deleteAll.addActionListener(new ActionListener() {
 
