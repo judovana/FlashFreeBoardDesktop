@@ -7,12 +7,15 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import static java.awt.event.InputEvent.CTRL_MASK;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -105,9 +108,39 @@ public class MainWindow {
     private static final JPopupMenu historyJump = new JPopupMenu();
     private static final DB db = new DB(gs);
     private static final Puller puller = Puller.create(gs.getPullerDelay() * 60, db);
+    private static final ActionListener showTips = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JOptionPane.showMessageDialog(null, "<html>"
+                    + "<li>" + Translator.R("tip1")
+                    + "<ul>"
+                    + "<li>" + escape(Translator.R("tip2"))
+                    + "<li>" + escape(Translator.R("tip3"))
+                    + "</ul>"
+                    + "<li>" + escape(Translator.R("tip4"))
+                    + "<li>" + escape(Translator.R("tip5")));
+        }
+
+        private String escape(String R) {
+            return R.replace("<", "&lt;").replace(">", "&gt;");
+        }
+    };
+    private static final KeyEventDispatcher f1 = new KeyEventDispatcher() {
+        
+        @Override
+        public boolean dispatchKeyEvent(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_F1 && e.getID() == KeyEvent.KEY_PRESSED) {
+                showTips.actionPerformed(null);
+                return true;
+            }
+            return false;
+        }
+    };
 
     public static void main(String... s) {
         try {
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(f1);
             Grid.colorProvider = gs;
             list = new ListWithFilter();
             Grade.loadConversiontable();
@@ -1124,17 +1157,7 @@ public class MainWindow {
                 gs.reset();
             }
         });
-        tips.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "<html><li>" + Translator.R("tip1") + "<li>" + escape(Translator.R("tip2")) + "<li>" + escape(Translator.R("tip3")));
-            }
-
-            private String escape(String R) {
-                return R.replace("<", "&lt;").replace(">", "&gt;");
-            }
-        });
+        tips.addActionListener(showTips);
         JPanel subtools = new JPanel(new BorderLayout());
         subtools.add(settings, BorderLayout.WEST);
         subtools.add(name);

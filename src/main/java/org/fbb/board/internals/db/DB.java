@@ -100,14 +100,12 @@ public class DB {
     }
 
     private void pullUncatched() throws IOException, GitAPIException {
-        if (canUp()) {
-            Git git = getDB();
-            if (git != null) {
-                PullResult r = git.pull().setProgressMonitor(new ProgressMonitorImpl()).call();
-                if (!r.isSuccessful()) {
-                    throw new GitAPIException("pull failed; consult logs and fix manually") {
-                    };
-                }
+        Git git = getDB();
+        if (git != null) {
+            PullResult r = git.pull().setProgressMonitor(new ProgressMonitorImpl()).call();
+            if (!r.isSuccessful()) {
+                throw new GitAPIException("pull failed; consult logs and fix manually") {
+                };
             }
         }
     }
