@@ -376,10 +376,10 @@ public class MainWindow {
     }
 
     private static void setIdealWindowLocation(Window w) {
-        int he=gs.getHardcodedEdge();
+        int he = gs.getHardcodedEdge();
         if (gs.getLocation().equalsIgnoreCase("TR")) {
             w.setLocation(
-                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth()-he),
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth() - he),
                     (int) (he));
         } else if (gs.getLocation().equalsIgnoreCase("TL")) {
             w.setLocation(
@@ -387,12 +387,12 @@ public class MainWindow {
                     (int) (he));
         } else if (gs.getLocation().equalsIgnoreCase("BR")) {
             w.setLocation(
-                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth()-he),
-                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight())-he);
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth() - he),
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight()) - he);
         } else if (gs.getLocation().equalsIgnoreCase("BL")) {
             w.setLocation(
                     (int) (he),
-                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight())-he);
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight()) - he);
 
         } else if (gs.getLocation().equalsIgnoreCase("T")) {
             w.setLocation(
@@ -401,10 +401,10 @@ public class MainWindow {
         } else if (gs.getLocation().equalsIgnoreCase("B")) {
             w.setLocation(
                     (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth()) / 2,
-                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight())-he);
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight()) - he);
         } else if (gs.getLocation().equalsIgnoreCase("R")) {
             w.setLocation(
-                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth()-he),
+                    (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - w.getWidth() - he),
                     (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - w.getHeight()) / 2);
         } else if (gs.getLocation().equalsIgnoreCase("L")) {
             w.setLocation(
@@ -1128,7 +1128,7 @@ public class MainWindow {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "<html><li>"+Translator.R("tip1")+"<li>"+escape(Translator.R("tip2"))+"<li>"+escape(Translator.R("tip3")));
+                JOptionPane.showMessageDialog(null, "<html><li>" + Translator.R("tip1") + "<li>" + escape(Translator.R("tip2")) + "<li>" + escape(Translator.R("tip3")));
             }
 
             private String escape(String R) {
@@ -1597,7 +1597,18 @@ public class MainWindow {
                 if (possibleReturnCandidate.getFile().exists()) {
                     int a = JOptionPane.showConfirmDialog(null, Translator.R("RewriteBoulder", nwNameProvider.getText()));
                     if (a == JOptionPane.YES_OPTION) {
-                        possibleReturnCandidate.save();
+                        if (orig == null) {
+                            //was new one, but have overlaping name
+                            try {
+                                Authenticator.auth.authenticate(Translator.R("nwBldrOverwrite"));
+                                possibleReturnCandidate.save();
+                            } catch (Authenticator.AuthoriseException ex) {
+                                GuiLogHelper.guiLogger.loge(ex);
+                                JOptionPane.showMessageDialog(null, ex);
+                            }
+                        } else {
+                            possibleReturnCandidate.save();
+                        }
                     } else {
                         return;
                     }
@@ -1862,7 +1873,7 @@ public class MainWindow {
             }
         });
         apply.addActionListener(new ApplyFilterListener(walls, gradesFrom, gradesTo, holdsMin, holdsMax, authorsFilter, nameFilter, dateFrom, dateTo, boulders, random));
-        sp.setDividerLocation((int)((double)(d.getWidth()*2) / 3));
+        sp.setDividerLocation((int) ((double) (d.getWidth() * 2) / 3));
         wallDefault.setFont(addAll.getFont().deriveFont(Font.PLAIN));
         deleteAll.addActionListener(new ActionListener() {
 
