@@ -204,11 +204,11 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
     public double getRatio() {
         return mainframeRatio;
     }
-    
+
     public String getLocation() {
         return mainframeLocation;
     }
-    
+
     public int getHardcodedEdge() {
         return hardcodedEdge;
     }
@@ -413,7 +413,7 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
     }
 
     private void load() {
-        if (!Files.settings.exists()) {
+        if (!Files.getSettings().exists()) {
             return;
         }
         try {
@@ -425,23 +425,25 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
 
     private void loadIpl() throws IOException {
         Properties p = new Properties();
-        p.load(new FileInputStream(Files.settings));
-        setPortType(Integer.valueOf(p.getProperty("COMM", "0")), false);
-        setBrightness(Integer.valueOf(p.getProperty("SHINE", "0")), false);
-        setDeviceId((p.getProperty("URL", "/dev/ttyUSB0")), false);
-        setParts((p.getProperty("COMPOSITION", "0,1,0,0,0,1,1,0,0")));
-        setUrl(p.getProperty("RURL", ""), false);
-        setBranch(p.getProperty("RBRANCH", ""), false);
-        setRuser(p.getProperty("RUSER", ""), false);
-        setPullerDelay(Integer.valueOf(p.getProperty("PULLER", "1")), false);
-        setSingleRgbLedAmpers(Double.valueOf(p.getProperty("SINGLE_LED", "0.18")), false);
-        setSingleSourceAmpers(Double.valueOf(p.getProperty("SINGLE_SOURCE", "2")), false);
-        setNumberOfSources(Integer.valueOf(p.getProperty("COUNT_SOURCES", "1")), false);
-        setHoldMarkerOapcity(Float.valueOf(p.getProperty("HOLD_OPACITY", "0.75")), false);
-        setDefaultStyle(Integer.valueOf(p.getProperty("HOLD_STYLE", "0")), false);
-        setRatio(Double.valueOf(p.getProperty("MAINFRAME_RATIO", "0.8")), false);
-        setLocation(p.getProperty("MAINFRAME_LOCATION", "C"), false);
-        setHardcodedEdge(Integer.valueOf(p.getProperty("HARDCODED_EDGE", "0")), false);
+        try (FileInputStream fs = new FileInputStream(Files.getSettings())) {
+            p.load(fs);
+            setPortType(Integer.valueOf(p.getProperty("COMM", "0")), false);
+            setBrightness(Integer.valueOf(p.getProperty("SHINE", "0")), false);
+            setDeviceId((p.getProperty("URL", "/dev/ttyUSB0")), false);
+            setParts((p.getProperty("COMPOSITION", "0,1,0,0,0,1,1,0,0")));
+            setUrl(p.getProperty("RURL", ""), false);
+            setBranch(p.getProperty("RBRANCH", ""), false);
+            setRuser(p.getProperty("RUSER", ""), false);
+            setPullerDelay(Integer.valueOf(p.getProperty("PULLER", "1")), false);
+            setSingleRgbLedAmpers(Double.valueOf(p.getProperty("SINGLE_LED", "0.18")), false);
+            setSingleSourceAmpers(Double.valueOf(p.getProperty("SINGLE_SOURCE", "2")), false);
+            setNumberOfSources(Integer.valueOf(p.getProperty("COUNT_SOURCES", "1")), false);
+            setHoldMarkerOapcity(Float.valueOf(p.getProperty("HOLD_OPACITY", "0.75")), false);
+            setDefaultStyle(Integer.valueOf(p.getProperty("HOLD_STYLE", "0")), false);
+            setRatio(Double.valueOf(p.getProperty("MAINFRAME_RATIO", "0.8")), false);
+            setLocation(p.getProperty("MAINFRAME_LOCATION", "C"), false);
+            setHardcodedEdge(Integer.valueOf(p.getProperty("HARDCODED_EDGE", "0")), false);
+        }
     }
 
     private void save() {
@@ -470,7 +472,9 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         p.setProperty("MAINFRAME_RATIO", "" + getRatio());
         p.setProperty("MAINFRAME_LOCATION", "" + getLocation());
         p.setProperty("HARDCODED_EDGE", "" + getHardcodedEdge());
-        p.store(new OutputStreamWriter(new FileOutputStream(Files.settings), Charset.forName("utf-8")), "FlashFreeBoard settings " + new Date()+" ;  TODO: MAINFRAME_RATIO, MAINFRAME_LOCATION HARDCODED_EDGE gui");
+        try (OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(Files.getSettings()), Charset.forName("utf-8"))) {
+            p.store(os, "FlashFreeBoard settings " + new Date() + " ;  TODO: MAINFRAME_RATIO, MAINFRAME_LOCATION HARDCODED_EDGE gui");
+        };
     }
 
     public void setRuser(String u) {
@@ -518,9 +522,9 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         return remoteUser;
     }
 
-    private String remoteUrl;
-    private String remoteBranch;
-    private String remoteUser;
+    private String remoteUrl = "";
+    private String remoteBranch = "";
+    private String remoteUser = "";
     private COMM comm = COMM.PORT;
     private String deviceId = "/dev/ttyUSB0";
     //private String deviceId = "btspp://000666C0AC62:1;authenticate=false;encrypt=false;master=true";
@@ -529,9 +533,9 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
     private double singleLed = 0.18d;
     private double singleSource = 2.00d;
     private int numberOfSources = 1;
-    private double mainframeRatio=0.8;
-    private int hardcodedEdge=0;
-    private String mainframeLocation = "C" ;  //T,B,L,R,C, TR, TL, BR, BL //me lazy, sorry:(
+    private double mainframeRatio = 0.8;
+    private int hardcodedEdge = 0;
+    private String mainframeLocation = "C";  //T,B,L,R,C, TR, TL, BR, BL //me lazy, sorry:(
 
     public int getBrightness() {
         if (brightness <= 1) {
@@ -720,21 +724,21 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
             save();
         }
     }
-    
+
     private void setRatio(double f, boolean save) {
         this.mainframeRatio = f;
         if (save) {
             save();
         }
     }
-    
+
     private void setLocation(String f, boolean save) {
         this.mainframeLocation = f;
         if (save) {
             save();
         }
     }
-    
+
     private void setHardcodedEdge(int f, boolean save) {
         this.hardcodedEdge = f;
         if (save) {
