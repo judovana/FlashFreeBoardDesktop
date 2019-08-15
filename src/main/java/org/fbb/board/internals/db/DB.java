@@ -15,7 +15,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.swing.JTextArea;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
@@ -166,20 +165,34 @@ public class DB {
             db = null;
             FileUtils.deleteDirectory(Files.repoGit);
         }
+        if (!Files.configDir.exists()) {
+            Files.configDir.mkdirs();
+        }
         File tmp = new File(Files.configDir, "" + new Date().getTime() + ".tmpGit");
-        Git.cloneRepository()
+        Git g = Git.cloneRepository()
                 .setURI(gs.getUrl())
                 .setBranch(gs.getBranch())
                 .setDirectory(tmp)
                 .setProgressMonitor(new ProgressMonitorImpl())
                 .call();
+        g.close();//we need to rename, will init it later
+        boolean b1 = true;
         if (Files.repo.exists()) {
             FileUtils.copyDirectory(Files.repo, tmp);
-            Files.repo.renameTo(new File(Files.repo.getParent(), "backup-" + tmp.getName()));
+            b1 = Files.repo.renameTo(new File(Files.repo.getParent(), "backup-" + tmp.getName()));
         }
-        tmp.renameTo(Files.repo);
+        boolean b2 = tmp.renameTo(Files.repo);
         //if canUp -> git add all? + commit?
         //push()?
+        if (b1 == false && b2 == false) {
+            throw new RuntimeException("Failed both sync and renaming");
+        }
+        if (b1 == false) {
+            throw new RuntimeException("Failed sync");
+        }
+        if (b2 == false) {
+            throw new RuntimeException("Failed renaming");
+        }
         return false;
     }
 
@@ -231,7 +244,7 @@ public class DB {
     }
 
     public String toGitAblePath(File f) {
-        String toAdd = f.getAbsolutePath().replaceAll(Files.repo.getAbsolutePath(), "");
+        String toAdd = f.getAbsolutePath().replace(Files.repo.getAbsolutePath(), "");
         if (toAdd.startsWith("/") || toAdd.startsWith("\\")) {
             toAdd = toAdd.substring(1);
         }
