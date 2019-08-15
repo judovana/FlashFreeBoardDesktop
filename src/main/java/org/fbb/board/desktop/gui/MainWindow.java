@@ -212,6 +212,7 @@ public class MainWindow {
             }
         });
         f.setSize(500, 200);
+        f.setLocationRelativeTo(null);
         f.setVisible(true);
         if (!ok[0]) {
             return;
