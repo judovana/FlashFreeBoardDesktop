@@ -236,6 +236,7 @@ public class DB {
             pullCatched(new ExceptionHandler.LoggingEater());
             for (File f : fs) {
                 String toAdd = toGitAblePath(f);
+                GuiLogHelper.guiLogger.logo("git add "+f.getAbsolutePath()+" as "+toAdd);
                 git.add().setUpdate(false).addFilepattern(toAdd).call();
             }
             git.commit().setMessage("added " + fs.length + " files. " + appendix).setAuthor(getAuthor()).call();
@@ -248,6 +249,7 @@ public class DB {
         if (toAdd.startsWith("/") || toAdd.startsWith("\\")) {
             toAdd = toAdd.substring(1);
         }
+        toAdd = toAdd.replace('\\', '/');
         return toAdd;
     }
 
