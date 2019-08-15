@@ -31,7 +31,7 @@ public class Files {
     public static final File bouldersDir = new File(repo + "/boulders");
     private static final File lastBoard = new File(configDir + "/lastBoard");
     private static final File lastBoulder = new File(configDir + "/lastBoulder");
-    public static final File settings = new File(configDir + "/settings");
+    private static final File settings = new File(configDir + "/settings");
     public static final File masterAuth = new File("/etc/FFB.auth");
     public static final File localAuth = new File(configDir + "/FFB.auth");
 
@@ -51,6 +51,14 @@ public class Files {
         return sanitizeFileName(filename, SANITIZED_CHAR);
     }
 
+    public static File getSettings() {
+        if (!configDir.exists()){
+            configDir.mkdirs();
+        }
+        return settings;
+    }
+
+    
     private static String sanitizeFileName(String filename, char substitute) {
 
         for (int i = 0; i < INVALID_NAME.size(); i++) {
