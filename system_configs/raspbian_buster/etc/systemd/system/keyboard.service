@@ -1,6 +1,6 @@
 [Unit]
 Description=Start virtual keyboards
-After=FFB.service
+After=ffb.service
 
 [Service]
 User=app
