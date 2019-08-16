@@ -8,6 +8,7 @@ package org.fbb.board.internals.grades;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class Grade {
 
     //to be used by combobox
     public static Vector<String> currentGrades() {
-        return new Vector<>(valuesPerColumn.get(usedGrades));
+        return nice(new Vector<>(valuesPerColumn.get(usedGrades)));
     }
 
     public static void loadConversiontable() throws IOException {
@@ -92,9 +93,17 @@ public class Grade {
         StringBuilder sbs = new StringBuilder();
         for (int i = 0; i < columns.length; i++) {
             String column = columns[i];
-            sbs.append(column).append(": ").append(valuesPerGrade.get(artificialValue)[i]).append(delimiter);
+            sbs.append(column).append(": ").append(getValuePerGrade(i)).append(delimiter);
         }
         return sbs.toString();
+    }
+
+    private String getValuePerGrade(int i) {
+        return nice(valuesPerGrade.get(artificialValue)[i]);
+    }
+
+    private String getValuesPerColumn() {
+        return nice(valuesPerColumn.get(usedGrades).get(artificialValue));
     }
 
     @Override
@@ -102,7 +111,7 @@ public class Grade {
         if (artificialValue <= RANDOM) {
             return Translator.R("RandomUnknown");
         }
-        return valuesPerColumn.get(usedGrades).get(artificialValue);
+        return getValuesPerColumn();
     }
 
     public int toNumber() {
@@ -129,6 +138,19 @@ public class Grade {
 
     public static int getMaxGrade() {
         return valuesPerGrade.size() - 1;
+    }
+
+    private static String nice(String get) {
+        return get.replace('_', ' ');
+    }
+
+    private static Vector<String> nice(Vector<String> orig) {
+        for (int i = 0; i < orig.size(); i++) {
+            String get = orig.get(i);
+            orig.set(i, nice(get));
+
+        }
+        return orig;
     }
 
 }
