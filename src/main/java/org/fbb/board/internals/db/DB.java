@@ -118,9 +118,11 @@ public class DB {
     }
 
     private void push() throws IOException, GitAPIException {
+        GuiLogHelper.guiLogger.logo("Push tempted");
         if (canUp()) {
             Git git = getDB();
             if (git != null) {
+                GuiLogHelper.guiLogger.logo("Push running");
                 git.push().setCredentialsProvider(new CredentialsProvider() {
                     @Override
                     public boolean isInteractive() {
@@ -151,6 +153,9 @@ public class DB {
 
                 }).call();
             }
+            GuiLogHelper.guiLogger.logo("Push done");
+        } else {
+            GuiLogHelper.guiLogger.logo("Push cant");
         }
     }
 
