@@ -119,7 +119,8 @@ public class MainWindow {
                     + "<li>" + escape(Translator.R("tip3"))
                     + "</ul>"
                     + "<li>" + escape(Translator.R("tip4"))
-                    + "<li>" + escape(Translator.R("tip5")));
+                    + "<li>" + escape(Translator.R("tip5"))
+                    + "<li>" + escape(Translator.R("tip6")));
         }
 
         private String escape(String R) {
@@ -738,7 +739,7 @@ public class MainWindow {
         timered.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final JDialog timeredWindow = new JDialog();
+                final JDialog timeredWindow = new JDialog((JFrame)null, Translator.R("timered"));
                 final TimeredTraining[] trainig = new TimeredTraining[1];
                 timeredWindow.setModal(true);
                 timeredWindow.setLayout(new GridLayout(10, 2));
@@ -1446,7 +1447,7 @@ public class MainWindow {
         //return  new BoulderAlways? - on Ok?
         final boolean[] change = new boolean[]{false, false, false};
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(p.img));
-        final JDialog operateBoulder = new JDialog((JFrame) null, true);
+        final JDialog operateBoulder = new JDialog((JFrame) null,Translator.R("createBoulder"), true);
         operateBoulder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bi, p.props, gs);
         gp.getGrid().setShowGrid(true);
@@ -1684,7 +1685,7 @@ public class MainWindow {
         final int ALL = 1;
         final int SEL = 2;
         final Map<String, GridPane.Preload> wallCache = new HashMap();
-        JDialog d = new JDialog((JDialog) null, true);
+        JDialog d = new JDialog((JDialog) null, Translator.R("selectBoulderCaption"), true);
         d.setSize(750, 600);
         d.setLocation(
                 (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - d.getWidth()) / 2,
