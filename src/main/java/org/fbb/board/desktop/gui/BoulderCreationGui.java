@@ -11,8 +11,10 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -44,6 +46,13 @@ public class BoulderCreationGui {
 
     public BoulderCreationGui(GlobalSettings gs) {
         this.gs=gs;
+    }
+    
+    public static void main(String... args) throws Exception{
+        Grade.loadConversiontable();
+        File f = new File("/home/jvanek/.config/FlashBoard/repo/walls/moon400test.wall");
+        GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)), f.getName());
+        new BoulderCreationGui(new GlobalSettings()).editBoulderImpl(preloaded, null);
     }
     
     
@@ -88,7 +97,8 @@ public class BoulderCreationGui {
         JComboBox<String> grades = new JComboBox<>(Grade.currentGrades());
         JTextField name = new JTextField();
         if (orig == null) {
-            name.setText(p.givenId + " " + new Date().toString());
+            name.setText(Translator.R("missingName"));
+            grades.setSelectedIndex(grades.getModel().getSize()/3);
         } else {
             name.setText(orig.getName());
             grades.setSelectedItem(orig.getGrade().toString());
