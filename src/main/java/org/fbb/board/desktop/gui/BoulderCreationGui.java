@@ -299,10 +299,10 @@ public class BoulderCreationGui {
             String possibleFileName = Files.sanitizeFileName(nwNameProvider.getText());
             File possibleTargetFile = Files.getBoulderFile(possibleFileName + ".bldr");
             if (orig != null && orig.getFile() != null) {
-                possibleReturnCandidate.setFile(possibleTargetFile);
+                possibleReturnCandidate.setFile(possibleTargetFile);//??
             }
             if (orig != null) {
-                possibleReturnCandidate.setDate(orig.getDate());
+                possibleReturnCandidate.setDate(new Date()); //its new, not edited
             }
             if (saveOnExit.isSelected()) {
                 if (!Authenticator.auth.isPernament()) {
