@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
@@ -46,7 +47,8 @@ import org.fbb.board.internals.grid.GridPane;
 public class BoulderCreationGui {
 
     private final GlobalSettings gs;
-
+    public static final SimpleDateFormat antiChild = new SimpleDateFormat("ddMMyy");
+    
     public BoulderCreationGui(GlobalSettings gs) {
         this.gs = gs;
     }
@@ -303,6 +305,12 @@ public class BoulderCreationGui {
                 possibleReturnCandidate.setDate(orig.getDate());
             }
             if (saveOnExit.isSelected()) {
+                if (!Authenticator.auth.isPernament()) {
+                    String a = JOptionPane.showInputDialog(null, Translator.R("nwBoulderBye"), "You shell not pass!", JOptionPane.QUESTION_MESSAGE);
+                    if (!antiChild.format(new Date()).equals(a)) {
+                        return;
+                    }
+                }
                 possibleReturnCandidate.setFile(possibleTargetFile);
                 if (possibleReturnCandidate.getFile().exists()) {
                     int a = JOptionPane.showConfirmDialog(null, Translator.R("RewriteBoulder", nwNameProvider.getText()));
