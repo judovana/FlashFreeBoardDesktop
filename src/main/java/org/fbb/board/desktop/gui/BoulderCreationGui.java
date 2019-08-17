@@ -6,6 +6,7 @@
 package org.fbb.board.desktop.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -90,7 +91,7 @@ public class BoulderCreationGui {
         } else {
             gp.getGrid().clean();
         }
-        JButton doneButton = new JButton(Translator.R("Bdone"));
+        final JButton doneButton = new JButton(Translator.R("Bdone"));
         JPanel tools1 = new JPanel(new GridLayout(4, 1));
         JPanel tools2 = new JPanel(new BorderLayout());
         JComboBox<String> grades = new JComboBox<>(Grade.currentGrades());
@@ -151,16 +152,17 @@ public class BoulderCreationGui {
         JPanel tools1L3 = new JPanel(new BorderLayout());
         JPanel tools1L4 = new JPanel(new BorderLayout());
         tools1L1.add(back, BorderLayout.WEST);
-        tools1L1.add(new JLabel(Translator.R("nwBoulderWelcome")));
+        final JLabel welcome = new JLabel(Translator.R("nwBoulderWelcome"));
+        tools1L1.add(welcome);
         tools1L11.add(dateLabel, BorderLayout.WEST);
         tools1L11.add(saveOnExit, BorderLayout.EAST);
         tools1L1.add(tools1L11, BorderLayout.EAST);
-        tools1L2.add(new JLabel(Translator.R("BautorBoulder")+" "), BorderLayout.WEST);
+        tools1L2.add(new JLabel(Translator.R("BautorBoulder") + " "), BorderLayout.WEST);
         tools1L2.add(author);
         tools1L3.add(name);
-        tools1L3.add(new JLabel(Translator.R("BtitleBoulder")+"  "), BorderLayout.WEST);
+        tools1L3.add(new JLabel(Translator.R("BtitleBoulder") + "  "), BorderLayout.WEST);
         tools1L4.add(grades);
-        tools1L4.add(new JLabel(Translator.R("BgradeBoulder")+"   "), BorderLayout.WEST);
+        tools1L4.add(new JLabel(Translator.R("BgradeBoulder") + "   "), BorderLayout.WEST);
         tools1.add(tools1L1);
         tools1.add(tools1L2);
         tools1.add(tools1L3);
@@ -191,6 +193,40 @@ public class BoulderCreationGui {
         operateBoulder.add(tools2, BorderLayout.SOUTH);
         operateBoulder.pack();
         operateBoulder.setSize((int) nw, (int) nh + tools1.getHeight() + tools2.getHeight());
+        name.getDocument().addDocumentListener(new DocumentListener() {
+            private Color bg;
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                dd();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                dd();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                dd();
+            }
+
+            private void dd() {
+                if (bg == null) {
+                    bg = name.getBackground();
+                }
+                if (name.getText().trim().isEmpty() || Files.getBoulderFile(Files.sanitizeFileName(name.getText() + ".bldr")).exists()) {
+                    name.setBackground(new Color(200, 0, 0));
+                    doneButton.setText(Translator.R("Fexs", name.getText()));
+                    doneButton.setEnabled(false);
+                } else {
+                    name.setBackground(bg);
+                    doneButton.setEnabled(true);
+                    doneButton.setText(Translator.R("Bdone"));
+                }
+
+            }
+        });
         MainWindow.setIdealWindowLocation(operateBoulder);
         DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit, operateBoulder, gp.getGrid(), name, grades, p.givenId, author, change);
         doneButton.addActionListener(done);
