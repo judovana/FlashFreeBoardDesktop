@@ -6,6 +6,7 @@
 package org.fbb.board.desktop.gui;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -42,22 +43,21 @@ import org.fbb.board.internals.grid.GridPane;
  * @author jvanek
  */
 public class BoulderCreationGui {
+
     private final GlobalSettings gs;
 
     public BoulderCreationGui(GlobalSettings gs) {
-        this.gs=gs;
+        this.gs = gs;
     }
-    
-    public static void main(String... args) throws Exception{
+
+    public static void main(String... args) throws Exception {
         Grade.loadConversiontable();
         File f = new File("/home/jvanek/.config/FlashBoard/repo/walls/moon400test.wall");
         GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)), f.getName());
         new BoulderCreationGui(new GlobalSettings()).editBoulderImpl(preloaded, null);
     }
-    
-    
-    
-      static class BoulderAndSaved {
+
+    static class BoulderAndSaved {
 
         final Boulder b;
         final boolean saved;
@@ -75,7 +75,7 @@ public class BoulderCreationGui {
         //return  new BoulderAlways? - on Ok?
         final boolean[] change = new boolean[]{false, false, false};
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(p.img));
-        final JDialog operateBoulder = new JDialog((JFrame) null,Translator.R("createBoulder"), true);
+        final JDialog operateBoulder = new JDialog((JFrame) null, Translator.R("createBoulder"), true);
         operateBoulder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bi, p.props, gs);
         gp.getGrid().setShowGrid(true);
@@ -91,14 +91,13 @@ public class BoulderCreationGui {
             gp.getGrid().clean();
         }
         JButton doneButton = new JButton(Translator.R("Bdone"));
-        JPanel tools1 = new JPanel(new BorderLayout());
+        JPanel tools1 = new JPanel(new GridLayout(4, 1));
         JPanel tools2 = new JPanel(new BorderLayout());
-        JPanel tools11 = new JPanel(new BorderLayout());
         JComboBox<String> grades = new JComboBox<>(Grade.currentGrades());
         JTextField name = new JTextField();
         if (orig == null) {
             name.setText(Translator.R("missingName"));
-            grades.setSelectedIndex(grades.getModel().getSize()/3);
+            grades.setSelectedIndex(grades.getModel().getSize() / 3);
         } else {
             name.setText(orig.getName());
             grades.setSelectedItem(orig.getGrade().toString());
@@ -125,23 +124,47 @@ public class BoulderCreationGui {
                 }
             }
         });
-        tools1.add(grades, BorderLayout.WEST);
-        tools1.add(name);
-        tools1.add(saveOnExit, BorderLayout.EAST);
-        tools11.add(new JLabel("Author"), BorderLayout.WEST);
         JTextField author = new JTextField();
         if (orig == null) {
             author.setText(Translator.R("DefaultSign"));
         } else {
             author.setText(orig.getAuthor());
         }
-        tools11.add(author);
+        JLabel dateLabel;
         if (orig == null) {
-            tools11.add(new JLabel(Filter.dtf.format(new Date())), BorderLayout.EAST);
+            dateLabel = new JLabel(Filter.dtf.format(new Date()));
         } else {
-            tools11.add(new JLabel(Filter.dtf.format(orig.getDate())), BorderLayout.EAST);
+            dateLabel = new JLabel(Filter.dtf.format(orig.getDate()));
         }
-        tools1.add(tools11, BorderLayout.SOUTH);
+        JButton back = new JButton(Translator.R("Bback"));
+        back.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                operateBoulder.dispose();
+            }
+        });
+
+        JPanel tools1L1 = new JPanel(new BorderLayout());
+        JPanel tools1L11 = new JPanel(new BorderLayout());
+        JPanel tools1L2 = new JPanel(new BorderLayout());
+        JPanel tools1L3 = new JPanel(new BorderLayout());
+        JPanel tools1L4 = new JPanel(new BorderLayout());
+        tools1L1.add(back, BorderLayout.WEST);
+        tools1L1.add(new JLabel(Translator.R("nwBoulderWelcome")));
+        tools1L11.add(dateLabel, BorderLayout.WEST);
+        tools1L11.add(saveOnExit, BorderLayout.EAST);
+        tools1L1.add(tools1L11, BorderLayout.EAST);
+        tools1L2.add(new JLabel(Translator.R("BautorBoulder")+" "), BorderLayout.WEST);
+        tools1L2.add(author);
+        tools1L3.add(name);
+        tools1L3.add(new JLabel(Translator.R("BtitleBoulder")+"  "), BorderLayout.WEST);
+        tools1L4.add(grades);
+        tools1L4.add(new JLabel(Translator.R("BgradeBoulder")+"   "), BorderLayout.WEST);
+        tools1.add(tools1L1);
+        tools1.add(tools1L2);
+        tools1.add(tools1L3);
+        tools1.add(tools1L4);
         operateBoulder.add(tools1, BorderLayout.NORTH);
         JCheckBox gridb = new JCheckBox(Translator.R("Bgrid"));
         gridb.setSelected(true);
@@ -284,7 +307,7 @@ public class BoulderCreationGui {
             parent.dispose();
         }
     }
-    
+
     private static class ChangeRecodingDocumentListener implements DocumentListener {
 
         private final boolean[] change;
