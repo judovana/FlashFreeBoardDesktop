@@ -103,12 +103,7 @@ public class BoulderCreationGui {
             name.setText(orig.getName());
             grades.setSelectedItem(orig.getGrade().toString());
         }
-        final JCheckBox saveOnExit = new JCheckBox(Translator.R("SaveOnExit"));
-        if (orig == null || Authenticator.auth.isPernament()) {
-            saveOnExit.setSelected(true);
-        } else {
-            saveOnExit.setSelected(false);
-        }
+        final JCheckBox saveOnExit = new JCheckBox(Translator.R("SaveOnExit"), true);
         saveOnExit.addActionListener(new ActionListener() {
 
             @Override
@@ -193,7 +188,7 @@ public class BoulderCreationGui {
         operateBoulder.add(tools2, BorderLayout.SOUTH);
         operateBoulder.pack();
         operateBoulder.setSize((int) nw, (int) nh + tools1.getHeight() + tools2.getHeight());
-        name.getDocument().addDocumentListener(new DocumentListener() {
+        DocumentListener checkExistence = new DocumentListener() {
             private Color bg;
 
             @Override
@@ -226,7 +221,9 @@ public class BoulderCreationGui {
                 }
 
             }
-        });
+        };
+        name.getDocument().addDocumentListener(checkExistence);
+        checkExistence.changedUpdate(null);
         MainWindow.setIdealWindowLocation(operateBoulder);
         DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit, operateBoulder, gp.getGrid(), name, grades, p.givenId, author, change);
         doneButton.addActionListener(done);
