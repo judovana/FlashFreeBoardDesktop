@@ -573,12 +573,6 @@ public class MainWindow {
         jp.add(selectListBoulders);
         JMenuItem newBoulder = new JMenuItem(Translator.R("MNewBoulder"));
         jp.add(newBoulder);
-        JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
-        jp.add(editBoulder);
-        //with edit bolder his looks like redundant
-        JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
-        saveBoulder.setEnabled(false);
-        jp.add(saveBoulder);
         JMenuItem timered = new JMenuItem(Translator.R("timered"));
         jp.add(timered);
         JMenu sub1 = new JMenu(Translator.R("Admin"));
@@ -593,10 +587,16 @@ public class MainWindow {
         sub2.add(logItem);
         JMenuItem revokePermission = new JMenuItem(Translator.R("revokePP"));
         sub2.add(revokePermission);
+        JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
+        sub2.add(editBoulder);
+        //with edit bolder his looks like redundant
+        JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
+        saveBoulder.setEnabled(false);
+        sub2.add(saveBoulder);
         JMenuItem reset = new JMenuItem("remote reset");
         sub2.add(reset);
         JMenuItem tips = new JMenuItem("Tips");
-        sub2.add(tips);
+        jp.add(tips);
 
         selectListBoulders.addActionListener(new ActionListener() {
 
