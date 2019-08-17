@@ -6,12 +6,15 @@
 package org.fbb.board.desktop.gui;
 
 import java.awt.GridLayout;
+import java.nio.charset.Charset;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import org.fbb.board.Translator;
+import org.fbb.board.desktop.Files;
+import org.fbb.board.internals.GuiLogHelper;
 
 /**
  *
@@ -39,6 +42,13 @@ public class GitAuthenticator {
         if (pernament != null) {
             return pernament;
         }
+        if (Files.remotePass.exists()) {
+            try {
+                return java.nio.file.Files.readAllLines(Files.remotePass.toPath(), Charset.forName("utf-8")).get(0).toCharArray();
+            } catch (Exception ex) {
+                GuiLogHelper.guiLogger.loge(ex);
+            }
+        }
         Object[] r = new AuthoriseDialog().show(message);
         if (r == null || r.length != 2) {
             return null;
@@ -55,7 +65,7 @@ public class GitAuthenticator {
 
     private static class AuthoriseDialog {
 
-        public static Object[] show(String message) {
+        public Object[] show(String message) {
             JPasswordField pass = new JPasswordField(5);
             JCheckBox save = new JCheckBox(Translator.R("keepLoged"), false);
 

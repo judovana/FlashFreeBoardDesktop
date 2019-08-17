@@ -21,6 +21,7 @@ import org.fbb.board.internals.GuiLogHelper;
 public class Files {
 
     private static final File homeDir = new File(System.getProperty("user.home"));
+    public static final File remotePass = new File(homeDir + "/.ffbRemoteCokie");
     public static final File configDir = new File(homeDir + "/.config/FlashBoard");
     public static final File repo = new File(configDir + "/repo");
     public static final File repoGit = new File(repo + "/.git");

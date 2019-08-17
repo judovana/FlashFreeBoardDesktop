@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.nio.charset.Charset;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -33,6 +34,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.fbb.board.Translator;
+import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.internals.FUtils;
 import org.fbb.board.internals.GlobalSettings;
@@ -55,6 +57,39 @@ class SettingsListener implements ActionListener {
     private final Authenticator auth;
     private final Puller puller;
     private final int selectedTab;
+    private final JLabel remoteSecurityStatus = new JLabel();
+    private final JButton remoteSecurityButton = new JButton();
+    private final ActionListener deleteCokie = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            boolean a = Files.remotePass.delete();
+            if (a) {
+                JOptionPane.showMessageDialog(null, Translator.R("cDeleted", Files.remotePass.getAbsolutePath()));
+            } else {
+                JOptionPane.showMessageDialog(null, Translator.R("cNotDeleted", Files.remotePass.getAbsolutePath()));
+            }
+            setRemoteSecuirty();
+        }
+    };
+
+    private final ActionListener createCookie = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String p = JOptionPane.showInputDialog(Translator.R("cPass"));
+            if (p != null) {
+                try {
+                    java.nio.file.Files.write(Files.remotePass.toPath(), p.getBytes(Charset.forName("utf-8")));
+                    JOptionPane.showMessageDialog(null, Translator.R("cReated", Files.remotePass.getAbsolutePath()));
+                } catch (Exception ex) {
+                    GuiLogHelper.guiLogger.loge(ex);
+                    JOptionPane.showMessageDialog(null, ex);
+                }
+            }
+            setRemoteSecuirty();
+        }
+    };
 
     public SettingsListener(GridPane gp, Authenticator auth, GlobalSettings gs, Puller puller, DB db, int selectedTab) {
         this.gp = gp;
@@ -76,7 +111,7 @@ class SettingsListener implements ActionListener {
         }
         JDialog allSettingsWindow = new JDialog((JFrame) null, "FFB settings", true);
         JTabbedPane settingsTabs = new JTabbedPane();
-        int genRows = 5;
+        int genRows = 6;
         int conRows = 2;
         int colRows = 13;
         int remRows = 9;
@@ -150,6 +185,9 @@ class SettingsListener implements ActionListener {
             }
         });
         general.add(holdStyle);
+        setRemoteSecuirty();
+        general.add(remoteSecurityStatus);
+        general.add(remoteSecurityButton);
         colors.add(new JLabel(Translator.R("testdelay")));
         JSpinner testDelay = new JSpinner(new SpinnerNumberModel(50, 1, 10000, 50));
         colors.add(testDelay);
@@ -549,10 +587,10 @@ class SettingsListener implements ActionListener {
         allSettingsWindow.pack();
         allSettingsWindow.setLocationRelativeTo(null);
         if (allSettingsWindow.getWidth() > ScreenFinder.getCurrentScreenSizeWithoutBounds().width) {
-            allSettingsWindow.setSize(ScreenFinder.getCurrentScreenSizeWithoutBounds().width-5, allSettingsWindow.getHeight());
+            allSettingsWindow.setSize(ScreenFinder.getCurrentScreenSizeWithoutBounds().width - 5, allSettingsWindow.getHeight());
         }
         if (allSettingsWindow.getHeight() > ScreenFinder.getCurrentScreenSizeWithoutBounds().height) {
-            allSettingsWindow.setSize(allSettingsWindow.getWidth(), ScreenFinder.getCurrentScreenSizeWithoutBounds().height-5);
+            allSettingsWindow.setSize(allSettingsWindow.getWidth(), ScreenFinder.getCurrentScreenSizeWithoutBounds().height - 5);
         }
         allSettingsWindow.setVisible(true);
     }
@@ -564,6 +602,30 @@ class SettingsListener implements ActionListener {
         } else {
             ampersResult1.setText(Translator.R("BnoWall"));
             ampersResult2.setText(Translator.R("BnoWall"));
+        }
+    }
+
+    private void setRemoteSecuirty() {
+        setRemoteSecuirty(remoteSecurityButton, remoteSecurityStatus);
+    }
+
+    private void setRemoteSecuirty(JButton remoteSecurityButton, JLabel remoteSecurityStatus) {
+        if (Files.remotePass.exists()) {
+            remoteSecurityStatus.setText(Translator.R("cInsecure"));
+            remoteSecurityButton.setText(Translator.R("cDelete"));
+            ActionListener[] q = remoteSecurityButton.getActionListeners();
+            for (ActionListener q1 : q) {
+                remoteSecurityButton.removeActionListener(q1);
+            }
+            remoteSecurityButton.addActionListener(deleteCokie);
+        } else {
+            remoteSecurityStatus.setText(Translator.R("cSecure"));
+            remoteSecurityButton.setText(Translator.R("cUnlock"));
+            ActionListener[] q = remoteSecurityButton.getActionListeners();
+            for (ActionListener q1 : q) {
+                remoteSecurityButton.removeActionListener(q1);
+            }
+            remoteSecurityButton.addActionListener(createCookie);
         }
     }
 
