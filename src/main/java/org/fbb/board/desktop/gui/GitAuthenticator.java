@@ -44,7 +44,9 @@ public class GitAuthenticator {
         }
         if (Files.remotePass.exists()) {
             try {
-                return java.nio.file.Files.readAllLines(Files.remotePass.toPath(), Charset.forName("utf-8")).get(0).toCharArray();
+                String zzz = java.nio.file.Files.readAllLines(Files.remotePass.toPath(), Charset.forName("utf-8")).get(0);
+                String plainText = SettingsListener.textEncryptor.decrypt(zzz);
+                return plainText.toCharArray();
             } catch (Exception ex) {
                 GuiLogHelper.guiLogger.loge(ex);
             }

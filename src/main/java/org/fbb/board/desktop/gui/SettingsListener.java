@@ -44,12 +44,19 @@ import org.fbb.board.internals.db.DB;
 import org.fbb.board.internals.db.GuiExceptionHandler;
 import org.fbb.board.internals.db.Puller;
 import org.fbb.board.internals.grid.GridPane;
+import org.jasypt.util.text.StrongTextEncryptor;
 
 /**
  *
  * @author jvanek
  */
 class SettingsListener implements ActionListener {
+
+    public static final StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
+
+    static {
+        textEncryptor.setPassword("IwasForcedToDoSo");
+    }
 
     private final GridPane gp;
     private final DB db;
@@ -80,7 +87,8 @@ class SettingsListener implements ActionListener {
             String p = JOptionPane.showInputDialog(Translator.R("cPass"));
             if (p != null) {
                 try {
-                    java.nio.file.Files.write(Files.remotePass.toPath(), p.getBytes(Charset.forName("utf-8")));
+                    String myEncryptedText = textEncryptor.encrypt(p);
+                    java.nio.file.Files.write(Files.remotePass.toPath(), myEncryptedText.getBytes(Charset.forName("utf-8")));
                     JOptionPane.showMessageDialog(null, Translator.R("cReated", Files.remotePass.getAbsolutePath()));
                 } catch (Exception ex) {
                     GuiLogHelper.guiLogger.loge(ex);
