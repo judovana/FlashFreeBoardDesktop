@@ -69,7 +69,7 @@ public class DB {
                     git.rm().addFilepattern(toAdd).call();
                     //not tracked?
                     if (boulder.exists()) {
-                        boulder.delete();
+                        deadlyDeletion(boulder);
                     }
                 } catch (Exception ex) {
                     GuiLogHelper.guiLogger.loge(ex);
@@ -79,7 +79,7 @@ public class DB {
             push();
         } else {
             for (File boulder : f) {
-                boulder.delete();
+                deadlyDeletion(boulder);
             }
 
         }
@@ -325,6 +325,14 @@ public class DB {
         if (git != null) {
             pullCatched(new ExceptionHandler.LoggingEater());
             git.reset().setMode(ResetCommand.ResetType.HARD).call();
+        }
+    }
+
+    private static void deadlyDeletion(File boulder) {
+        boolean deleted = boulder.delete();
+        if (!deleted){
+            GuiLogHelper.guiLogger.loge(boulder.getAbsolutePath()+" was not deleted. Will be enforced on shutdown");
+            boulder.deleteOnExit();
         }
     }
 
