@@ -45,8 +45,10 @@ public class Boulder implements Cloneable {
 
     public static Boulder load(File boulderFile) throws IOException {
         Properties p = new Properties();
-        p.load(new FileInputStream(boulderFile));
-        return new Boulder(p, boulderFile);
+        try (FileInputStream fs = new FileInputStream(boulderFile)) {
+            p.load(fs);
+            return new Boulder(p, boulderFile);
+        }
     }
     private final Properties map;
     private File file;
