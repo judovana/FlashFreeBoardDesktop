@@ -22,7 +22,7 @@ import org.fbb.board.internals.GuiLogHelper;
 public class Updater {
 
     private static final String FILE_NAME = "latest-release";
-    private static final String exUrl = "https://raw.githubusercontent.com/judovana/FlashFreeBoardDesktop/master/src/main/resources/org/fbb/board" + FILE_NAME;
+    private static final String exUrl = "https://raw.githubusercontent.com/judovana/FlashFreeBoardDesktop/master/src/main/resources/org/fbb/board/" + FILE_NAME;
     private static final String inPath = "/org/fbb/board/" + FILE_NAME;
 
     private static URL getExURL() throws MalformedURLException {
