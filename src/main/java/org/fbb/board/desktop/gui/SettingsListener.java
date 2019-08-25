@@ -34,6 +34,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.fbb.board.Translator;
+import org.fbb.board.Updater;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.internals.FUtils;
@@ -124,6 +125,7 @@ class SettingsListener implements ActionListener {
         int colRows = 13;
         int remRows = 9;
         int ampRows = 6;
+        int upRows = 3;
         int maxRows = colRows;
         JPanel general = new JPanel(new GridLayout(maxRows, 2));
         general.setName(Translator.R("generalTab"));
@@ -135,11 +137,14 @@ class SettingsListener implements ActionListener {
         remote.setName(Translator.R("remoteTab"));
         JPanel amps = new JPanel(new GridLayout(maxRows, 2));
         amps.setName(Translator.R("ampsTab"));
+        JPanel update = new JPanel(new GridLayout(maxRows, 2));
+        update.setName(Translator.R("UpdateTab"));
         settingsTabs.add(general);
         settingsTabs.add(connection);
         settingsTabs.add(colors);
         settingsTabs.add(remote);
         settingsTabs.add(amps);
+        settingsTabs.add(update);
         settingsTabs.setSelectedIndex(selectedTab);
         allSettingsWindow.add(settingsTabs);
         general.add(new JLabel(Translator.R("brightenes")));
@@ -586,11 +591,92 @@ class SettingsListener implements ActionListener {
                 adjustAmperLabels(ampersResult1, ampersResult2, singleLedAmpers, singleSourceAmpers, numberOfSources);
             }
         });
+        final JLabel updateStatus0 = new JLabel();
+        final JTextField updateStatus1 = new JTextField();
+        final JTextField updateStatus2 = new JTextField();
+        final JButton updateButton = new JButton(Translator.R("checkUpdate"));
+        final JButton doUpdate1 = new JButton(Translator.R("OnlyDownload"));
+        final JButton doUpdate2 = new JButton(Translator.R("DownloadAndRemove"));
+        doUpdate1.setEnabled(false);
+        doUpdate2.setEnabled(false);
+        updateButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final Updater.Update update = Updater.getUpdatePossibility();
+                clean(doUpdate1);
+                clean(doUpdate2);
+                if (update == null) {
+                    doUpdate1.setEnabled(false);
+                    doUpdate2.setEnabled(false);
+                    updateStatus1.setText(Translator.R("UpdateImpossible"));
+                    updateStatus2.setText(Translator.R("UpdateImpossible"));
+                } else {
+                    doUpdate1.setEnabled(true);
+                    doUpdate1.addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            try {
+                                update.download();
+                                JOptionPane.showMessageDialog(null, Translator.R("Downloaded", " \n " + update.getDwnldTarget().getAbsolutePath()));
+                            } catch (Exception ex) {
+                                GuiLogHelper.guiLogger.loge(ex);
+                                JOptionPane.showMessageDialog(null, ex);
+                            }
+                        }
+                    });
+                    if (!isWindows()) {
+                        doUpdate2.setEnabled(true);
+                        doUpdate2.addActionListener(new ActionListener() {
+
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                try {
+                                    update.download();
+                                    JOptionPane.showMessageDialog(null, Translator.R("Downloaded", " \n " + update.getDwnldTarget().getAbsolutePath()));
+                                    boolean deleted = update.getLocal().delete();
+                                    if (deleted) {
+                                        JOptionPane.showMessageDialog(null, Translator.R("Erased", " \n " + update.getLocal().getAbsolutePath()));
+                                        JOptionPane.showMessageDialog(null, Translator.R("Restart"));
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, Translator.R("EraseFailed", " \n " + update.getLocal().getAbsolutePath()));
+                                        JOptionPane.showMessageDialog(null, Translator.R("RestartFail"));
+                                    }
+                                } catch (Exception ex) {
+                                    GuiLogHelper.guiLogger.loge(ex);
+                                    JOptionPane.showMessageDialog(null, ex);
+                                }
+                            }
+                        });
+                    }
+                    updateStatus1.setText(Translator.R("CurrentVersion", update.getLocalVersion(), update.getLocal().getAbsolutePath()));
+                    updateStatus2.setText(Translator.R("RemoteVersion", update.getRemoteVersion(), update.getRemote().toExternalForm()));
+                    updateStatus1.setCaretPosition(0);
+                    updateStatus2.setCaretPosition(0);
+                }
+
+            }
+
+            private void clean(JButton b) {
+                ActionListener[] ls = b.getActionListeners();
+                for (ActionListener l : ls) {
+                    b.removeActionListener(l);
+                }
+            }
+        });
+        update.add(updateStatus0);
+        update.add(updateButton);
+        update.add(updateStatus1);
+        update.add(updateStatus2);
+        update.add(doUpdate1);
+        update.add(doUpdate2);
         FUtils.align(genRows, maxRows, general);
         FUtils.align(conRows, maxRows, connection);
         FUtils.align(colRows, maxRows, colors);
         FUtils.align(remRows, maxRows, remote);
         FUtils.align(ampRows, maxRows, amps);
+        FUtils.align(upRows, maxRows, update);
         allSettingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         allSettingsWindow.pack();
         allSettingsWindow.setLocationRelativeTo(null);
@@ -668,5 +754,11 @@ class SettingsListener implements ActionListener {
             gs.setBrightness(((Integer) sss.getValue()));
             gp.repaintAndSend(gs);
         }
+    }
+
+    private static final String OS = System.getProperty("os.name").toLowerCase();
+
+    public static boolean isWindows() {
+        return OS.contains("win");
     }
 }

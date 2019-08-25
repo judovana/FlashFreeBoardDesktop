@@ -176,13 +176,14 @@ public class Updater {
         return null;
     }
 
-    public static void downloadUsingNIO(String urlStr, String file) throws IOException {
-        URL url = new URL(urlStr);
-        ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        fos.close();
-        rbc.close();
+    public static void downloadUsingNIO(URL url, File file) throws IOException {
+        GuiLogHelper.guiLogger.loge("Downloading " + url + " as " + file.getAbsolutePath());
+        try (ReadableByteChannel rbc = Channels.newChannel(url.openStream())) {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            fos.close();
+        }
+        GuiLogHelper.guiLogger.loge("done");
     }
 
     public static class Update {
@@ -232,7 +233,16 @@ public class Updater {
         public double getLocalVersion() {
             return Double.valueOf(getLocalVersionString());
         }
-        
+
+        public void download() throws IOException {
+            File target = getDwnldTarget();
+            downloadUsingNIO(getRemote(), target);
+        }
+
+        public File getDwnldTarget() {
+            File target = new File(getLocal().getParentFile(), getRemoteFileName());
+            return target;
+        }
 
     }
 
