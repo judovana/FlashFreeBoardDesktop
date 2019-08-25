@@ -13,6 +13,8 @@ import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.fbb.board.internals.GuiLogHelper;
 
 /**
@@ -185,13 +187,52 @@ public class Updater {
 
     public static class Update {
 
-        public final URL from;
-        public final File to;
+        private final URL from;
+        private final File to;
 
         public Update(URL from, File to) {
             this.from = from;
             this.to = to;
         }
+
+        public URL getRemote() {
+            return from;
+        }
+
+        public File getLocal() {
+            return to;
+        }
+
+        public String getRemoteFileName() {
+            return new File(from.getFile()).getName();
+        }
+
+        public String getLocalFileName() {
+            return to.getName();
+        }
+
+        private static final Pattern version = Pattern.compile("[\\d]+\\.[\\d]+");
+
+        public String getRemoteVersionString() {
+            Matcher m = version.matcher(getRemoteFileName());
+            m.find();
+            return m.group();
+        }
+
+        public String getLocalVersionString() {
+            Matcher m = version.matcher(getLocalFileName());
+            m.find();
+            return m.group();
+        }
+
+        public double getRemoteVersion() {
+            return Double.valueOf(getRemoteVersionString());
+        }
+
+        public double getLocalVersion() {
+            return Double.valueOf(getLocalVersionString());
+        }
+        
 
     }
 
@@ -208,7 +249,12 @@ public class Updater {
                     if (fold.getName().equals(nwName)) {
                         return null;
                     }
-                    return new Update(r.getUrl(), fold.getAbsoluteFile());
+                    Update u = new Update(r.getUrl(), fold.getAbsoluteFile());
+                    if (u.getRemoteVersion() <= u.getLocalVersion()) {
+                        GuiLogHelper.guiLogger.logo(u.getRemoteVersion() + " <= " + u.getLocalVersion() + " : likely no update at all");
+                        return null;
+                    }
+                    return u;
                 } else {
                     GuiLogHelper.guiLogger.loge("Nothig to update from");
                     return null;
@@ -228,8 +274,8 @@ public class Updater {
         if (u == null) {
             System.out.println(Translator.R("UpdateImpossible"));
         } else {
-            System.out.println(Translator.R("CurrentVersion", u.to.getName(), u.to.getAbsolutePath()));
-            System.out.println(Translator.R("RemoteVersion", new File(u.from.getFile()).getName(), u.from.toExternalForm()));
+            System.out.println(Translator.R("CurrentVersion", u.getLocalVersion(), u.to.getAbsolutePath()));
+            System.out.println(Translator.R("RemoteVersion", u.getRemoteVersion(), u.from.toExternalForm()));
         }
 
     }
