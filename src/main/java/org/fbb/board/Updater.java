@@ -246,7 +246,7 @@ public class Updater {
 
     }
 
-    public static Update getUpdatePossibility() {
+    public static Update getUpdatePossibility(final boolean replaceAllowed, final boolean downgradeAllowed) {
         try {
             RemoteUrlWithStatus r = obtain();
             if (r.w == LoadedUrlState.NETWORK) {
@@ -256,11 +256,11 @@ public class Updater {
                     String nwName = new File(r.getUrl().getFile()).getName();
                     GuiLogHelper.guiLogger.logo("From: " + fold.getName() + "(" + fold.getAbsolutePath() + ")");
                     GuiLogHelper.guiLogger.logo("To  : " + nwName + " (" + r.getUrl().toExternalForm() + ")");
-                    if (fold.getName().equals(nwName)) {
+                    if (fold.getName().equals(nwName) && !replaceAllowed) {
                         return null;
                     }
                     Update u = new Update(r.getUrl(), fold.getAbsoluteFile());
-                    if (u.getRemoteVersion() <= u.getLocalVersion()) {
+                    if (u.getRemoteVersion() <= u.getLocalVersion() && !downgradeAllowed) {
                         GuiLogHelper.guiLogger.logo(u.getRemoteVersion() + " <= " + u.getLocalVersion() + " : likely no update at all");
                         return null;
                     }
@@ -280,7 +280,7 @@ public class Updater {
     }
 
     public static void main(String... args) throws MalformedURLException {
-        Update u = getUpdatePossibility();
+        Update u = getUpdatePossibility(true, true);
         if (u == null) {
             System.out.println(Translator.R("UpdateImpossible"));
         } else {

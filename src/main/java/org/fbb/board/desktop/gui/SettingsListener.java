@@ -15,6 +15,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.charset.Charset;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -125,7 +126,7 @@ class SettingsListener implements ActionListener {
         int colRows = 13;
         int remRows = 9;
         int ampRows = 6;
-        int upRows = 3;
+        int upRows = 4;
         int maxRows = colRows;
         JPanel general = new JPanel(new GridLayout(maxRows, 2));
         general.setName(Translator.R("generalTab"));
@@ -599,18 +600,33 @@ class SettingsListener implements ActionListener {
         final JButton doUpdate2 = new JButton(Translator.R("DownloadAndRemove"));
         doUpdate1.setEnabled(false);
         doUpdate2.setEnabled(false);
+        final JCheckBox allowDowngrade = new JCheckBox(Translator.R("AllowDown"), false);
+        final JCheckBox allowReplace = new JCheckBox(Translator.R("AllowReplace"), false);
+        allowReplace.setEnabled(false);
+        allowDowngrade.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!isWindows()) {
+                    allowReplace.setEnabled(allowDowngrade.isSelected());
+                    if (!allowDowngrade.isSelected()) {
+                        allowReplace.setSelected(false);
+                    }
+                }
+            }
+        });
         updateButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                final Updater.Update update = Updater.getUpdatePossibility();
+                final Updater.Update update = Updater.getUpdatePossibility(allowReplace.isSelected(), allowDowngrade.isSelected());
                 clean(doUpdate1);
                 clean(doUpdate2);
                 if (update == null) {
                     doUpdate1.setEnabled(false);
                     doUpdate2.setEnabled(false);
                     updateStatus1.setText(Translator.R("UpdateImpossible"));
-                    updateStatus2.setText(Translator.R("UpdateImpossible"));
+                    updateStatus2.setText(Translator.R("SeeLaogs"));
                 } else {
                     doUpdate1.setEnabled(true);
                     doUpdate1.addActionListener(new ActionListener() {
@@ -635,6 +651,10 @@ class SettingsListener implements ActionListener {
                                 try {
                                     update.download();
                                     JOptionPane.showMessageDialog(null, Translator.R("Downloaded", " \n " + update.getDwnldTarget().getAbsolutePath()));
+                                    if (update.getDwnldTarget().getAbsoluteFile().equals(update.getLocal().getAbsoluteFile())) {
+                                        JOptionPane.showMessageDialog(null, Translator.R("Restart"));
+                                        return;
+                                    }
                                     boolean deleted = update.getLocal().delete();
                                     if (deleted) {
                                         JOptionPane.showMessageDialog(null, Translator.R("Erased", " \n " + update.getLocal().getAbsolutePath()));
@@ -671,6 +691,8 @@ class SettingsListener implements ActionListener {
         update.add(updateStatus2);
         update.add(doUpdate1);
         update.add(doUpdate2);
+        update.add(allowDowngrade);
+        update.add(allowReplace);
         FUtils.align(genRows, maxRows, general);
         FUtils.align(conRows, maxRows, connection);
         FUtils.align(colRows, maxRows, colors);
