@@ -7,7 +7,7 @@ User=app
 Group=app
 Environment="DISPLAY=:0"
 Environment="LANG=cs_CZ.UTF-8"
-ExecStart=java -jar /home/app/FlashBalknaSwing_2.3.jar
+ExecStart=bash /home/app/fbb.sh
 Restart=always
 RestartSec=3
 

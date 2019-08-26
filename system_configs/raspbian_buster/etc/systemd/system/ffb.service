@@ -7,7 +7,7 @@ User=app
 Group=app
 Environment="DISPLAY=:0"
 Environment="LANG=cs_CZ.UTF-8"
-ExecStart=java -jar /home/app/FlashFreeBoardDesktop-1.0-SNAPSHOT-jar-with-dependencies.jar
+ExecStart=/bin/bash /home/app/ffb.sh
 Restart=always
 RestartSec=3
 
