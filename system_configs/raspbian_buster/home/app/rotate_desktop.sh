@@ -59,8 +59,13 @@ XDISPLAY=`xrandr --current | grep primary | sed -e 's/ .*//g'`
 XROT=`xrandr --current --verbose | grep primary | egrep -o ' (normal|left|inverted|right) '`
 
 do_rotate $XDISPLAY $1
-
+sleep 2
 fbsetbg  /home/app/ffbbg.jpg
+sleep 2
+rm  /home/app/.fluxbox/lastwallpaper 
+sleep 2
+fbsetbg  /home/app/ffbbg.jpg
+
 
 # not disabled  in original, as this is service, handled rather by forced restart; maybe bad idea
 # but the sleep may not be enough
