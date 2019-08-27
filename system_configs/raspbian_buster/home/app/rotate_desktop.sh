@@ -60,6 +60,8 @@ XROT=`xrandr --current --verbose | grep primary | egrep -o ' (normal|left|invert
 
 do_rotate $XDISPLAY $1
 
+fbsetbg  /home/app/ffbbg.jpg
+
 # not disabled  in original, as this is service, handled rather by forced restart; maybe bad idea
 # but the sleep may not be enough
 #if [ ! -z "$2" ]; then
