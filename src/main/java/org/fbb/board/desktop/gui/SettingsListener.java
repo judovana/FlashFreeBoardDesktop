@@ -592,7 +592,7 @@ class SettingsListener implements ActionListener {
                 adjustAmperLabels(ampersResult1, ampersResult2, singleLedAmpers, singleSourceAmpers, numberOfSources);
             }
         });
-        final JLabel updateStatus0 = new JLabel();
+        final JTextField updateStatus0 = new JTextField();
         final JTextField updateStatus1 = new JTextField();
         final JTextField updateStatus2 = new JTextField();
         final JButton updateButton = new JButton(Translator.R("checkUpdate"));
@@ -701,6 +701,15 @@ class SettingsListener implements ActionListener {
         FUtils.align(upRows, maxRows, update);
         allSettingsWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         allSettingsWindow.pack();
+        //intentioanlly after pack
+        Updater.Update cur = Updater.getCurrentVersionInfo();
+        if (cur != null) {
+            updateStatus0.setText(cur.getLocalVersion() + " " + cur.getLocalFileName() + " " + cur.getLocal().getAbsolutePath());
+            updateStatus0.setCaretPosition(0);
+        } else {
+            updateStatus0.setText(Translator.R("UnknownVersion"));
+        }
+
         allSettingsWindow.setLocationRelativeTo(null);
         if (allSettingsWindow.getWidth() > ScreenFinder.getCurrentScreenSizeWithoutBounds().width) {
             allSettingsWindow.setSize(ScreenFinder.getCurrentScreenSizeWithoutBounds().width - 5, allSettingsWindow.getHeight());

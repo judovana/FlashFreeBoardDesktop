@@ -186,6 +186,14 @@ public class Updater {
         GuiLogHelper.guiLogger.loge("done");
     }
 
+    public static Update getCurrentVersionInfo() {
+        String s = checkForCurrent();
+        if (s == null) {
+            return null;
+        }
+        return new Update(null, new File(s));
+    }
+
     public static class Update {
 
         private final URL from;
@@ -215,15 +223,17 @@ public class Updater {
         private static final Pattern version = Pattern.compile("[\\d]+\\.[\\d]+");
 
         public String getRemoteVersionString() {
-            Matcher m = version.matcher(getRemoteFileName());
+            return extractVersion(getRemoteFileName());
+        }
+
+        public static String extractVersion(String filename) {
+            Matcher m = version.matcher(filename);
             m.find();
             return m.group();
         }
 
         public String getLocalVersionString() {
-            Matcher m = version.matcher(getLocalFileName());
-            m.find();
-            return m.group();
+            return extractVersion(getLocalFileName());
         }
 
         public double getRemoteVersion() {
