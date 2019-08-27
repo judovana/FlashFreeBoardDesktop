@@ -7,7 +7,8 @@ Group=app
 Restart=on-failure
 RestartSec=5
 Environment="DISPLAY=:0"
-ExecStart=bash /home/app/rotate_desktop.sh left
+#ExecStart=bash /home/app/rotate_desktop.sh left
+ExecStart=bash /home/app/rotate_desktop.sh normal
 
 [Install]
 WantedBy=graphical.target
