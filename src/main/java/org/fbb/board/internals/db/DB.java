@@ -95,6 +95,7 @@ public class DB {
         try {
             pullUncatched();
         } catch (GitAPIException |  org.eclipse.jgit.errors.CheckoutConflictException ex) {
+            GuiLogHelper.guiLogger.loge(ex);
             try {
                 hardReset();
             } catch (Throwable ee) {
