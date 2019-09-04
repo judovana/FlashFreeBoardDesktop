@@ -24,6 +24,7 @@ import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.ProgressMonitor;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialItem;
@@ -93,6 +94,12 @@ public class DB {
     public void pullCatched(ExceptionHandler<Throwable> t) {
         try {
             pullUncatched();
+        } catch (GitAPIException |  org.eclipse.jgit.errors.CheckoutConflictException ex) {
+            try {
+                hardReset();
+            } catch (Throwable ee) {
+                t.handleCleanly(ee);
+            }
         } catch (Throwable e) {
             t.handleCleanly(e);
         }
@@ -101,7 +108,7 @@ public class DB {
     private void pullUncatched() throws IOException, GitAPIException {
         Git git = getDB();
         if (git != null) {
-            PullResult r = git.pull().setProgressMonitor(new ProgressMonitorImpl()).call();
+            PullResult r = git.pull().setStrategy(MergeStrategy.THEIRS).setProgressMonitor(new ProgressMonitorImpl()).call();
             if (!r.isSuccessful()) {
                 throw new GitAPIException("pull failed; consult logs and fix manually") {
                 };
@@ -323,8 +330,10 @@ public class DB {
     public void hardReset() throws IOException, GitAPIException {
         Git git = getDB();
         if (git != null) {
-            pullCatched(new ExceptionHandler.LoggingEater());
+            git.fetch();
             git.reset().setMode(ResetCommand.ResetType.HARD).call();
+            pullUncatched();
+            
         }
     }
 

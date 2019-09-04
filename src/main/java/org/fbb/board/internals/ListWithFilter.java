@@ -135,6 +135,13 @@ public class ListWithFilter extends HistoryManager {
         List<Boulder> all = loadAll();
         List<Boulder> walls = new ArrayList<>(all.size());
         for (Boulder b : all) {
+            //merges can left leftovers
+            if (b == null || b.getWall() == null) {
+                if (b != null && b.getFile() != null) {
+                    b.getFile().delete();
+                }
+                continue;
+            }
             if (b.getWall().equals(wallId)) {
                 walls.add(b);
             }
