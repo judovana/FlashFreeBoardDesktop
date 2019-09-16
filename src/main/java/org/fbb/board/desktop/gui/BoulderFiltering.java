@@ -281,6 +281,11 @@ public class BoulderFiltering {
         resultsPanel.add(resultsPanel1);
         resultsPanel.add(resultsPanel2);
         d.add(resultsPanel, BorderLayout.SOUTH);
+        if (!Authenticator.auth.isPernament()) {
+            resultsPanel2.setVisible(false);
+            walls.setVisible(false);
+            random.setVisible(false);
+        }
         boulders.setCellRenderer(new BoulderListRenderer());
         lastApplied.addActionListener(new ActionListener() {
             @Override
