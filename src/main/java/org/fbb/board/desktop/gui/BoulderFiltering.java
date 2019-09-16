@@ -55,12 +55,17 @@ import org.fbb.board.internals.db.DB;
 import org.fbb.board.internals.grades.Grade;
 import org.fbb.board.internals.grid.Boulder;
 import org.fbb.board.internals.grid.GridPane;
+import org.jdatepicker.JDatePicker;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 
 /**
  *
  * @author jvanek
  */
 public class BoulderFiltering {
+
     private final DB db;
     private final GlobalSettings gs;
 
@@ -194,7 +199,7 @@ public class BoulderFiltering {
         tools0.add(walls);
         final JCheckBox random = new JCheckBox(Translator.R("random"), true);
         tools0.add(random, BorderLayout.EAST);
-        if (!Authenticator.auth.isPernament()){
+        if (!Authenticator.auth.isPernament()) {
             random.setEnabled(false);
             walls.setEnabled(false);
         }
@@ -256,6 +261,17 @@ public class BoulderFiltering {
         tools4.add(dateFrom);
         final JTextField dateTo = new JTextField();
         tools4.add(dateTo);
+
+        dateFrom.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent me) {
+
+                UtilDateModel model = new UtilDateModel();
+                JDatePanelImpl datePanel = new JDatePanelImpl(model);
+                datePicker = new JDatePickerImpl(datePanel);
+            }
+
+        });
 
         wallDefault.addActionListener(new ActionListener() {
 
