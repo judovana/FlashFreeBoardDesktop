@@ -587,16 +587,16 @@ public class MainWindow {
         JMenu sub2 = new JMenu(Translator.R("Special"));
         jp.add(sub2);
         JMenuItem logItem = new JMenuItem("Logs");
-        sub2.add(logItem);
         JMenuItem revokePermission = new JMenuItem(Translator.R("revokePP"));
-        sub2.add(revokePermission);
         JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
-        sub2.add(editBoulder);
         //with edit bolder his looks like redundant
         JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
         saveBoulder.setEnabled(false);
+        JMenuItem reset = new JMenuItem("remote reset");   
+        sub2.add(editBoulder);
         sub2.add(saveBoulder);
-        JMenuItem reset = new JMenuItem("remote reset");
+        sub2.add(revokePermission);
+        sub2.add(logItem);
         sub2.add(reset);
         JMenuItem tips = new JMenuItem("Tips");
         jp.add(tips);
