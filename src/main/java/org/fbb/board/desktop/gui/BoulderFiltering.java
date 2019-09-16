@@ -5,6 +5,8 @@
  */
 package org.fbb.board.desktop.gui;
 
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DateTimePicker;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -43,6 +45,7 @@ import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.fbb.board.Translator;
@@ -55,10 +58,6 @@ import org.fbb.board.internals.db.DB;
 import org.fbb.board.internals.grades.Grade;
 import org.fbb.board.internals.grid.Boulder;
 import org.fbb.board.internals.grid.GridPane;
-import org.jdatepicker.JDatePicker;
-import org.jdatepicker.impl.JDatePanelImpl;
-import org.jdatepicker.impl.JDatePickerImpl;
-import org.jdatepicker.impl.UtilDateModel;
 
 /**
  *
@@ -265,10 +264,13 @@ public class BoulderFiltering {
         dateFrom.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent me) {
-
-                UtilDateModel model = new UtilDateModel();
-                JDatePanelImpl datePanel = new JDatePanelImpl(model);
-                datePicker = new JDatePickerImpl(datePanel);
+                DateTimePicker dp = new DateTimePicker();
+                dp.setVisible(true);
+                JDialog f = new JDialog((JDialog)null, true);
+                f.add(dp);
+                f.pack();
+                f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                f.setVisible(true);
             }
 
         });
