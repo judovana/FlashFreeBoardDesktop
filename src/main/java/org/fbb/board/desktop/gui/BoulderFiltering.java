@@ -21,6 +21,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -185,6 +188,7 @@ public class BoulderFiltering {
         JPanel tools2 = new JPanel(new GridLayout(1, 3));
         JPanel tools3 = new JPanel(new BorderLayout());
         JPanel tools4 = new JPanel(new GridLayout(1, 3));
+        JPanel tools4dates = new JPanel(new GridLayout(1, 4));
         JPanel tools5 = new JPanel(new BorderLayout());
         JPanel tools6 = new JPanel(new GridLayout(1, 3));
         JButton lastApplied = new JButton(Translator.R("BLastAppliedFilter"));
@@ -256,25 +260,18 @@ public class BoulderFiltering {
         final JTextField authorsFilter = new JTextField();
         tools5.add(authorsFilter);
         tools4.add(new JLabel(Translator.R("Date") + " [dd/MM/YYYY HH:mm] " + Translator.R("FromTo")));
-        final JTextField dateFrom = new JTextField();
+        final DateTimePicker dateFrom = new DateTimePicker();
         tools4.add(dateFrom);
-        final JTextField dateTo = new JTextField();
+        final DateTimePicker dateTo = new DateTimePicker();
         tools4.add(dateTo);
-
-        dateFrom.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent me) {
-                DateTimePicker dp = new DateTimePicker();
-                dp.setVisible(true);
-                JDialog f = new JDialog((JDialog)null, true);
-                f.add(dp);
-                f.pack();
-                f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                f.setVisible(true);
-            }
-
-        });
-
+        JButton lastDay = new JButton("LastDay");
+        JButton lastWeek = new JButton("LastWeek");
+        JButton lastMonth = new JButton("LastMonth");
+        JButton lastTreeMonths = new JButton("LastThreeMonths");
+        tools4dates.add(lastDay);
+        tools4dates.add(lastWeek);
+        tools4dates.add(lastMonth);
+        tools4dates.add(lastTreeMonths);
         wallDefault.addActionListener(new ActionListener() {
 
             @Override
@@ -284,12 +281,13 @@ public class BoulderFiltering {
         });
         resetDefaults(wallID, walls, boulders, holdsMin, holdsMax, authorLabel, dateFrom, dateTo, gradesFrom, gradesTo, authorsFilter, nameFilter, random);
 
-        JPanel tools = new JPanel(new GridLayout(8, 1));
+        JPanel tools = new JPanel(new GridLayout(9, 1));
         tools.add(tools0);
         tools.add(tools1);
         tools.add(tools2);
-        tools.add(tools3);
         tools.add(tools4);
+        tools.add(tools4dates);
+        tools.add(tools3);
         tools.add(tools5);
         tools.add(tools6);
         final JButton apply = new JButton(Translator.R("Apply"));
@@ -444,7 +442,7 @@ public class BoulderFiltering {
         }
     }
 
-    public static ListWithFilter resetDefaults(String wallID, final JComboBox<String> walls, final JList<Boulder> boulders, final JSpinner holdsMin, final JSpinner holdsMax, final JLabel authorLabel, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name, JCheckBox random) {
+    public static ListWithFilter resetDefaults(String wallID, final JComboBox<String> walls, final JList<Boulder> boulders, final JSpinner holdsMin, final JSpinner holdsMax, final JLabel authorLabel, final DateTimePicker dateFrom, final DateTimePicker dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name, JCheckBox random) {
         ListWithFilter currentList = new ListWithFilter(wallID);
         walls.setSelectedItem(wallID);
         boulders.setModel(new DefaultComboBoxModel<>(currentList.getHistory()));
@@ -454,8 +452,14 @@ public class BoulderFiltering {
         holdsMin.setValue(currentList.getShortest());
         holdsMax.setValue(currentList.getLongest());
         authorLabel.setToolTipText(currentList.getAuthors());
-        dateFrom.setText(Filter.dtf.format(currentList.getOldest()));
-        dateTo.setText(Filter.dtf.format(currentList.getYoungest()));
+        LocalDateTime ldtFrom = Instant.ofEpochMilli(currentList.getOldest().getTime())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+        LocalDateTime ldtTo = Instant.ofEpochMilli(currentList.getYoungest().getTime())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+        dateFrom.setDateTimeStrict(ldtFrom);
+        dateTo.setDateTimeStrict(ldtTo);
         gradesFrom.setSelectedItem(currentList.getEasiest().toString());
         gradesTo.setSelectedItem(currentList.getHardest().toString());
         author.setText("");
@@ -464,12 +468,18 @@ public class BoulderFiltering {
         return currentList;
     }
 
-    public static void applyFilter(Filter f, String wallID, final JComboBox<String> walls, final JSpinner holdsMin, final JSpinner holdsMax, final JTextField dateFrom, final JTextField dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name, JCheckBox random) {
+    public static void applyFilter(Filter f, String wallID, final JComboBox<String> walls, final JSpinner holdsMin, final JSpinner holdsMax, final DateTimePicker dateFrom, final DateTimePicker dateTo, final JComboBox<String> gradesFrom, final JComboBox<String> gradesTo, JTextField author, JTextField name, JCheckBox random) {
         walls.setSelectedItem(f.wall);
         holdsMin.setValue(f.pathMin);
         holdsMax.setValue(f.pathTo);
-        dateFrom.setText(Filter.dtf.format(new Date(f.ageFrom)));
-        dateTo.setText(Filter.dtf.format(new Date(f.ageTo)));
+         LocalDateTime ldtFrom = Instant.ofEpochMilli(f.ageFrom)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+        LocalDateTime ldtTo = Instant.ofEpochMilli(f.ageTo )
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+        dateFrom.setDateTimeStrict(ldtFrom);
+        dateTo.setDateTimeStrict(ldtTo);
         gradesFrom.setSelectedItem(new Grade(f.gradeFrom).toString());
         gradesTo.setSelectedItem(new Grade(f.gradeTo).toString());
         author.setText(f.getAuthorsString());
@@ -519,8 +529,8 @@ public class BoulderFiltering {
         private final JSpinner holdsMax;
         private final JTextField authorsFilter;
         private final JTextField nameFilter;
-        private final JTextField dateFrom;
-        private final JTextField dateTo;
+        private final DateTimePicker dateFrom;
+        private final DateTimePicker dateTo;
         private final JList<Boulder> boulders;
         private ListWithFilter lastList;
         private final JCheckBox random;
@@ -529,7 +539,7 @@ public class BoulderFiltering {
             return lastList;
         }
 
-        public ApplyFilterListener(JComboBox<String> walls, JComboBox<String> gradesFrom, JComboBox<String> gradesTo, JSpinner holdsMin, JSpinner holdsMax, JTextField authorsFilter, JTextField nameFilter, JTextField dateFrom, JTextField dateTo, JList<Boulder> boulders, JCheckBox random) {
+        public ApplyFilterListener(JComboBox<String> walls, JComboBox<String> gradesFrom, JComboBox<String> gradesTo, JSpinner holdsMin, JSpinner holdsMax, JTextField authorsFilter, JTextField nameFilter, DateTimePicker dateFrom, DateTimePicker dateTo, JList<Boulder> boulders, JCheckBox random) {
             this.walls = walls;
             this.gradesFrom = gradesFrom;
             this.gradesTo = gradesTo;
@@ -555,8 +565,8 @@ public class BoulderFiltering {
                                 (Integer) (holdsMax.getValue()),
                                 authorsFilter.getText(),
                                 nameFilter.getText(),
-                                Filter.dtf.parse(dateFrom.getText()),
-                                Filter.dtf.parse(dateTo.getText()),
+                                Date.from(dateFrom.getDateTimeStrict().atZone(ZoneId.systemDefault()).toInstant()),
+                                Date.from(dateTo.getDateTimeStrict().atZone(ZoneId.systemDefault()).toInstant()),
                                 random.isSelected())
                 );
                 lastList.getLastFilter().save(Files.getLastAppliedFilterFile());
