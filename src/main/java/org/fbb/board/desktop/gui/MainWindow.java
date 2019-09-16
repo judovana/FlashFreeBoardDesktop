@@ -467,20 +467,25 @@ public class MainWindow {
         hm.addToBoulderHistory(b);
         final JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
         final JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
-        final JButton nextRandom = new JButton("?>");
+        final JButton nextRandom = new JButton(Translator.R("random2"));
+        JButton settings = new JButton(Translator.R("menu"));//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
+        JButton nextRandomGenerated = new JButton(Translator.R("generate"));
+        final JButton historyButtons = new JButton("ˇ");
         final JButton nextInList = new JButton(">>");
         final JButton prevInList = new JButton("<<");
-        JButton settings = new JButton("|||");//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
-        JButton nextRandomGenerated = new JButton("?");
+        JLabel historyLabel1 = new JLabel(Translator.R("historyLabel"), SwingConstants.CENTER);
+        JLabel historyLabel2 = new JLabel(Translator.R("historyLabel"), SwingConstants.CENTER);
         JLabel name = new JLabel();
         setNameTextAndGrade(name, b);
         JPopupMenu jp = new JPopupMenu();
         next.setEnabled(hm.canFwd());
         previous.setEnabled(hm.canBack());
         gp.getGrid().setShowGrid(false);
-        JPanel tools = new JPanel(new GridLayout(2, 1));
-        JPanel quickFilterPanel = new JPanel(new GridLayout(1, 4));
-        JPanel tools2 = new JPanel(new GridLayout(1, 4));
+        final JPanel tools = new JPanel(new GridLayout(2, 1));
+        final JPanel quickFilterPanel = new JPanel(new GridLayout(1, 4));
+        final JPanel tools2wrapper = new JPanel(new BorderLayout());
+        final JPanel tools2List = new JPanel(new GridLayout(1, 4));
+        final JPanel tools2History = new JPanel(new GridLayout(1, 4));
         JToggleButton a5 = new JToggleButton("-5A");
         quickFilterPanel.add(a5);
         JToggleButton a6 = new JToggleButton("5A-6A");
@@ -502,6 +507,17 @@ public class MainWindow {
         a8.addActionListener(new QuickFilterLIstener(19, 26, preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
         a9.addActionListener(new QuickFilterLIstener(26, Grade.getMaxGrade(), preloaded.givenId, nextInList, prevInList, gp, name, next, previous, quickFilters));
         name.setToolTipText(b.getStandardTooltip());
+        historyButtons.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                tools2History.setVisible(!tools2History.isVisible());
+                if (!tools2History.isVisible()){
+                    historyButtons.setText("ˇ");
+                } else {
+                    historyButtons.setText("^");
+                }
+            }
+        });
         name.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -1285,17 +1301,25 @@ public class MainWindow {
                 }
             }
         });
-        tools2.add(prevInList);
-        tools2.add(previous);
-        tools2.add(nextRandomGenerated);
-        tools2.add(nextRandom);
-        tools2.add(next);
-        tools2.add(nextInList);
+        tools2wrapper.add(tools2List, BorderLayout.NORTH);
+        tools2wrapper.add(tools2History, BorderLayout.SOUTH);
+        tools2List.add(prevInList);
+        tools2List.add(historyButtons);
+        tools2List.add(nextRandom);
+        tools2List.add(nextInList);
+        tools2History.add(previous);
+        tools2History.add(historyLabel1);
+        tools2History.add(nextRandomGenerated);
+        tools2History.add(historyLabel2);
+        tools2History.add(next);
         name.setFont(name.getFont().deriveFont((float) name.getFont().getSize() * 2));
         for (Component c : tools.getComponents()) {
             c.setFont(name.getFont());
         }
-        for (Component c : tools2.getComponents()) {
+        for (Component c : tools2History.getComponents()) {
+            c.setFont(name.getFont());
+        }
+        for (Component c : tools2List.getComponents()) {
             c.setFont(name.getFont());
         }
         nextRandomGenerated.setToolTipText(Translator.R("NextRandomGenerated"));
@@ -1306,10 +1330,11 @@ public class MainWindow {
         settings.setToolTipText(Translator.R("Settings"));
         next.setToolTipText(addCtrLine(Translator.R("FwdBoulder")));
         createWallWindow.add(tools, BorderLayout.NORTH);
-        createWallWindow.add(tools2, BorderLayout.SOUTH);
+        createWallWindow.add(tools2wrapper, BorderLayout.SOUTH);
         createWallWindow.pack();
         gp.repaintAndSend(gs);
-        createWallWindow.setSize((int) nw, (int) nh + tools.getHeight() + tools2.getHeight());
+        createWallWindow.setSize((int) nw, (int) nh + tools.getHeight() + tools2wrapper.getHeight());
+        tools2History.setVisible(false);
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
