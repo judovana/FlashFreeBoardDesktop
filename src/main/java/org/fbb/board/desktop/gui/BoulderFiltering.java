@@ -75,6 +75,10 @@ public class BoulderFiltering {
 
     private final DB db;
     private final GlobalSettings gs;
+    private final long day = (long) (24 * 60 * 60 * 1000);
+    private final long week = 7l * day;
+    private final long month = 31l * day;
+    private final long threeMmonth = 3l * month;
 
     public BoulderFiltering(DB db, GlobalSettings gs) {
         this.db = db;
@@ -268,27 +272,32 @@ public class BoulderFiltering {
         TimePickerSettings timeSettings1 = new TimePickerSettings();
         timeSettings1.setFormatForDisplayTime(Filter.hours);
         timeSettings1.setFormatForMenuTimes(Filter.hours);
-        DatePickerSettings  dateSettings1 = new DatePickerSettings();
+        DatePickerSettings dateSettings1 = new DatePickerSettings();
         dateSettings1.setFormatForDatesCommonEra(Filter.days);
         dateSettings1.setFormatsForParsing(Filter.dtdtgs());
         TimePickerSettings timeSettings2 = new TimePickerSettings();
         timeSettings2.setFormatForDisplayTime(Filter.hours);
         timeSettings2.setFormatForMenuTimes(Filter.hours);
-        DatePickerSettings  dateSettings2 = new DatePickerSettings();
+        DatePickerSettings dateSettings2 = new DatePickerSettings();
         dateSettings2.setFormatForDatesCommonEra(Filter.days);
         dateSettings2.setFormatsForParsing(Filter.dtdtgs());
         final DateTimePicker dateFrom = new DateTimePicker(dateSettings1, timeSettings1);
         tools4.add(dateFrom);
         final DateTimePicker dateTo = new DateTimePicker(dateSettings2, timeSettings2);
         tools4.add(dateTo);
-        JButton lastDay = new JButton("LastDay");
-        JButton lastWeek = new JButton("LastWeek");
-        JButton lastMonth = new JButton("LastMonth");
-        JButton lastTreeMonths = new JButton("LastThreeMonths");
+        JButton lastDay = new JButton(Translator.R("LastDay"));
+        JButton lastWeek = new JButton(Translator.R("LastWeek"));
+        JButton lastMonth = new JButton(Translator.R("LastMonth"));
+        JButton lastTreeMonths = new JButton(Translator.R("LastThreeMonths"));
         tools4dates.add(lastDay);
         tools4dates.add(lastWeek);
         tools4dates.add(lastMonth);
         tools4dates.add(lastTreeMonths);
+
+        lastDay.addActionListener(new QuickPAstSelectListener(day, dateFrom, dateTo));
+        lastWeek.addActionListener(new QuickPAstSelectListener(week, dateFrom, dateTo));
+        lastMonth.addActionListener(new QuickPAstSelectListener(month, dateFrom, dateTo));
+        lastTreeMonths.addActionListener(new QuickPAstSelectListener(threeMmonth, dateFrom, dateTo));
         wallDefault.addActionListener(new ActionListener() {
 
             @Override
@@ -604,6 +613,29 @@ public class BoulderFiltering {
             r.add(model.getElementAt(i));
         }
         return r;
+    }
+
+    private static class QuickPAstSelectListener implements ActionListener {
+
+        private final long past;
+        private final DateTimePicker df;
+        private final DateTimePicker dt;
+
+        public QuickPAstSelectListener(long past, DateTimePicker df, DateTimePicker dt) {
+            this.past = past;
+            this.df = df;
+            this.dt = dt;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            df.setDateTimeStrict(
+                    Instant.ofEpochMilli(new Date().getTime() - past).atZone(ZoneId.systemDefault()).toLocalDateTime()
+            );
+            dt.setDateTimeStrict(
+                    Instant.ofEpochMilli(new Date().getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime()
+            );
+        }
     }
 
 }
