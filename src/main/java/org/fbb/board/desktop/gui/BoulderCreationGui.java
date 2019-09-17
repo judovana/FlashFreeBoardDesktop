@@ -10,6 +10,8 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -48,7 +50,7 @@ public class BoulderCreationGui {
 
     private final GlobalSettings gs;
     public static final SimpleDateFormat antiChild = new SimpleDateFormat("ddMMyy");
-    
+
     public BoulderCreationGui(GlobalSettings gs) {
         this.gs = gs;
     }
@@ -99,7 +101,7 @@ public class BoulderCreationGui {
         JComboBox<String> grades = new JComboBox<>(Grade.currentGrades());
         JTextField name = new JTextField();
         if (orig == null) {
-            name.setText(Translator.R("missingName"));
+            name.setText("");
             grades.setSelectedIndex(grades.getModel().getSize() / 3);
         } else {
             name.setText(orig.getName());
@@ -122,9 +124,9 @@ public class BoulderCreationGui {
                 }
             }
         });
-        JTextField author = new JTextField();
+        final JTextField author = new JTextField();
         if (orig == null) {
-            author.setText(Translator.R("DefaultSign"));
+            author.setText("");
         } else {
             author.setText(orig.getAuthor());
         }
@@ -190,45 +192,21 @@ public class BoulderCreationGui {
         operateBoulder.add(tools2, BorderLayout.SOUTH);
         operateBoulder.pack();
         operateBoulder.setSize((int) nw, (int) nh + tools1.getHeight() + tools2.getHeight());
-        DocumentListener checkExistence = new DocumentListener() {
-            private Color bg;
 
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                dd();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                dd();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                dd();
-            }
-
-            private void dd() {
-                if (bg == null) {
-                    bg = name.getBackground();
-                }
-                if (name.getText().trim().isEmpty() || Files.getBoulderFile(Files.sanitizeFileName(name.getText() + ".bldr")).exists()) {
-                    name.setBackground(new Color(200, 0, 0));
-                    doneButton.setText(Translator.R("Fexs", name.getText()));
-                    doneButton.setEnabled(false);
-                } else {
-                    name.setBackground(bg);
-                    doneButton.setEnabled(true);
-                    doneButton.setText(Translator.R("Bdone"));
-                }
-
-            }
-        };
-        name.getDocument().addDocumentListener(checkExistence);
-        checkExistence.changedUpdate(null);
+        CheckExistence checkName = new CheckExistence(name, doneButton);
+        CheckEmpty checkAutohr = new CheckEmpty(author, doneButton);
+        checkName.setCheck2(checkAutohr);
+        checkAutohr.setCheck2(checkName);
+        name.getDocument().addDocumentListener(checkName);
+        author.getDocument().addDocumentListener(checkAutohr);
+        //not wonted, first after first edit
+        //checkExistence.changedUpdate(null);
+        name.addFocusListener(checkName);
+        author.addFocusListener(checkAutohr);
         MainWindow.setIdealWindowLocation(operateBoulder);
         DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit, operateBoulder, gp.getGrid(), name, grades, p.givenId, author, change);
         doneButton.addActionListener(done);
+        doneButton.setEnabled(false);
         operateBoulder.setVisible(true);
         return new BoulderAndSaved(done.getResult(), saveOnExit.isSelected());
 
@@ -375,4 +353,156 @@ public class BoulderCreationGui {
 
         }
     }
+
+    private static class CheckExistence implements DocumentListener, FocusListener {
+
+        private Color bg;
+        private final JTextField name;
+        private final JButton doneButton;
+        private CheckEmpty check2;
+
+        public void setCheck2(CheckEmpty check2) {
+            this.check2 = check2;
+        }
+
+        public CheckExistence(JTextField name, JButton doneButton) {
+            this.name = name;
+            this.doneButton = doneButton;
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            dd();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            dd();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            dd();
+        }
+
+        public int check() {
+            if (name.getText().trim().isEmpty()) {
+                return 1;
+            } else if (Files.getBoulderFile(Files.sanitizeFileName(name.getText() + ".bldr")).exists()) {
+                return 2;
+            } else {
+                return 0;
+            }
+        }
+
+        private void dd() {
+            if (bg == null) {
+                bg = name.getBackground();
+            }
+            switch (check()) {
+                case 1:
+                    name.setBackground(new Color(250, 0, 0));
+                    doneButton.setText(Translator.R("Fexs", name.getText()));
+                    doneButton.setEnabled(false);
+                    break;
+                case 2:
+                    name.setBackground(new Color(200, 0, 0));
+                    doneButton.setText(Translator.R("Fexs", name.getText()));
+                    doneButton.setEnabled(false);
+                    break;
+                default:
+                    name.setBackground(bg);
+                    if (check2.check() == 0) {
+                        doneButton.setEnabled(true);
+                        doneButton.setText(Translator.R("Bdone"));
+                    } else {
+                        doneButton.setText(Translator.R("Fexs", name.getText()));
+                        doneButton.setEnabled(false);
+                    }
+                    break;
+            }
+
+        }
+
+        @Override
+        public void focusGained(FocusEvent fe) {
+            //dd();
+        }
+
+        @Override
+        public void focusLost(FocusEvent fe) {
+            dd();
+        }
+    };
+
+    private static class CheckEmpty implements DocumentListener, FocusListener {
+
+        private Color bg;
+        private final JTextField author;
+        private final JButton doneButton;
+        private CheckExistence check2;
+
+        public void setCheck2(CheckExistence check2) {
+            this.check2 = check2;
+        }
+
+        public CheckEmpty(JTextField author, JButton doneButton) {
+            this.author = author;
+            this.doneButton = doneButton;
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            dd();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            dd();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            dd();
+        }
+
+        public int check() {
+            if (author.getText().trim().isEmpty()) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+
+        private void dd() {
+            if (bg == null) {
+                bg = author.getBackground();
+            }
+            if (check() == 1) {
+                author.setBackground(new Color(200, 0, 0));
+                doneButton.setText(Translator.R("Fexs", ""));
+                doneButton.setEnabled(false);
+            } else {
+                author.setBackground(bg);
+                if (check2.check() == 0) {
+                    doneButton.setEnabled(true);
+                    doneButton.setText(Translator.R("Bdone"));
+                } else {
+                    doneButton.setText(Translator.R("Fexs", ""));
+                    doneButton.setEnabled(false);
+                }
+            }
+
+        }
+
+        @Override
+        public void focusGained(FocusEvent fe) {
+            // dd();
+        }
+
+        @Override
+        public void focusLost(FocusEvent fe) {
+            dd();
+        }
+    };
 }
