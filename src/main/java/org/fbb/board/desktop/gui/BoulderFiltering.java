@@ -6,7 +6,10 @@
 package org.fbb.board.desktop.gui;
 
 import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 import com.github.lgooddatepicker.components.DateTimePicker;
+import com.github.lgooddatepicker.components.TimePickerSettings;
+import com.github.lgooddatepicker.optionalusertools.PickerUtilities;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -24,6 +27,8 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -260,9 +265,21 @@ public class BoulderFiltering {
         final JTextField authorsFilter = new JTextField();
         tools5.add(authorsFilter);
         tools4.add(new JLabel(Translator.R("Date") + " [dd/MM/YYYY HH:mm] " + Translator.R("FromTo")));
-        final DateTimePicker dateFrom = new DateTimePicker();
+        TimePickerSettings timeSettings1 = new TimePickerSettings();
+        timeSettings1.setFormatForDisplayTime(Filter.hours);
+        timeSettings1.setFormatForMenuTimes(Filter.hours);
+        DatePickerSettings  dateSettings1 = new DatePickerSettings();
+        dateSettings1.setFormatForDatesCommonEra(Filter.days);
+        dateSettings1.setFormatsForParsing(Filter.dtdtgs());
+        TimePickerSettings timeSettings2 = new TimePickerSettings();
+        timeSettings2.setFormatForDisplayTime(Filter.hours);
+        timeSettings2.setFormatForMenuTimes(Filter.hours);
+        DatePickerSettings  dateSettings2 = new DatePickerSettings();
+        dateSettings2.setFormatForDatesCommonEra(Filter.days);
+        dateSettings2.setFormatsForParsing(Filter.dtdtgs());
+        final DateTimePicker dateFrom = new DateTimePicker(dateSettings1, timeSettings1);
         tools4.add(dateFrom);
-        final DateTimePicker dateTo = new DateTimePicker();
+        final DateTimePicker dateTo = new DateTimePicker(dateSettings2, timeSettings2);
         tools4.add(dateTo);
         JButton lastDay = new JButton("LastDay");
         JButton lastWeek = new JButton("LastWeek");
@@ -472,10 +489,10 @@ public class BoulderFiltering {
         walls.setSelectedItem(f.wall);
         holdsMin.setValue(f.pathMin);
         holdsMax.setValue(f.pathTo);
-         LocalDateTime ldtFrom = Instant.ofEpochMilli(f.ageFrom)
+        LocalDateTime ldtFrom = Instant.ofEpochMilli(f.ageFrom)
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
-        LocalDateTime ldtTo = Instant.ofEpochMilli(f.ageTo )
+        LocalDateTime ldtTo = Instant.ofEpochMilli(f.ageTo)
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
         dateFrom.setDateTimeStrict(ldtFrom);

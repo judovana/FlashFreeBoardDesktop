@@ -13,7 +13,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
@@ -29,8 +32,21 @@ import org.fbb.board.internals.grades.Grade;
  */
 public class Filter implements Serializable {
 
-    public static final SimpleDateFormat dtf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
+    public static final String  days = "dd/MM/yyyy";
+    public static final String hours = "HH:mm";
+    public static final DateFormat dtf = new SimpleDateFormat(days+" "+hours);
+    public static final DateFormat df = new SimpleDateFormat(days);
+    public static final DateFormat tf = new SimpleDateFormat(hours);
+    public static final DateTimeFormatter dtdtg = DateTimeFormatter.ofPattern(days);
+    
+    public static final ArrayList<DateTimeFormatter> dtdtgs(){
+        //yah  the caller from lgooddatepicker requires arraylist
+        ArrayList<DateTimeFormatter> l = new ArrayList<>(1);
+        l.add(dtdtg);
+        return l;
+        
+    }
+    
     public static Filter getAllMatching(String wall) {
         return new Filter(wall, Grade.getMinGrade(), Grade.getMaxGrade(), Integer.MIN_VALUE, Integer.MAX_VALUE, "", "", new Date(Long.MIN_VALUE), new Date(Long.MAX_VALUE / 2/*there is + in comparsion*/), true);
     }
