@@ -316,7 +316,7 @@ public class BoulderFiltering {
         tools.add(tools3);
         tools.add(tools5);
         tools.add(tools6);
-        final JButton apply = new JButton(Translator.R("Apply"));
+        final JButton apply = new JButton("********* " + Translator.R("Apply").toUpperCase() + " *********");
         tools.add(apply);
         d.add(tools, BorderLayout.NORTH);
         JPanel resultsPanel = new JPanel(new GridLayout(2, 1));
