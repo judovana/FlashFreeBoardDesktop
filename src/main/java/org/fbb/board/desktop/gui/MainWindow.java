@@ -105,9 +105,18 @@ public class MainWindow {
                     + "<li>" + escape(Translator.R("tip2"))
                     + "<li>" + escape(Translator.R("tip3"))
                     + "</ul>"
+                    + "<ul>"
                     + "<li>" + escape(Translator.R("tip4"))
                     + "<li>" + escape(Translator.R("tip5"))
-                    + "<li>" + escape(Translator.R("tip6")));
+                    + "<li>" + escape(Translator.R("tip6"))
+                    + "</ul>"
+                    + "<li>" + escape(Translator.R("tips7"))
+                    + "<ul>"
+                    + "<li>" + escape(Translator.R("tips8"))
+                    + "<li>" + escape(Translator.R("tips9"))
+                    + "<li>" + escape(Translator.R("tips10"))
+                    + "</ul>"
+            );
         }
 
         private String escape(String R) {
