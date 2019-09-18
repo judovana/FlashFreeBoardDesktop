@@ -20,6 +20,21 @@ public class SingleText {
         this.y = y;
         this.key = key;
     }
+
+    public int getX(double d) {
+        return (int)((double)x*d);
+    }
+    
+    public int getY(double d) {
+        return (int)((double)y*d);
+    }
+
+    public String getKey() {
+        return key;
+    }
+    
+    
+    
     
     
     

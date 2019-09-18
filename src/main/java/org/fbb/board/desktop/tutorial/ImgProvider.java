@@ -26,7 +26,7 @@ public class ImgProvider {
     public BufferedImage get(String name) throws IOException {
         BufferedImage bi = cache.get(name);
         if (bi == null) {
-            bi = ImageIO.read((this.getClass().getClassLoader().getResourceAsStream("/org/fbb/board/tutorial/imgs/" + name)));
+            bi = ImageIO.read((this.getClass().getClassLoader().getResourceAsStream("org/fbb/board/tutorial/imgs/" + name)));
             cache.put(name, bi);
         }
         return bi;

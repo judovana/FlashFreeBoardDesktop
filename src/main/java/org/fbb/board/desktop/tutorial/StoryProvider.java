@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ public class StoryProvider {
     public StoryProvider() throws IOException {
             
             
-    try(BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("/org/fbb/board/tutorial/show"), "utf-8"))) {
+    try(BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("org/fbb/board/tutorial/show"), "utf-8"))) {
         while (true) {
             String s = br.readLine();
             if (s == null) {
@@ -36,5 +37,9 @@ public class StoryProvider {
             }
         }
     }
+    }
+    
+    public List<StoryPart> getStory(){
+        return Collections.unmodifiableList(story);
     }
 }

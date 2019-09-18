@@ -26,4 +26,14 @@ public class StoryPart {
         lines.add(l);
     }
 
+    public String getImg() {
+        return img;
+    }
+
+    public List<SingleText> getLines() {
+        return lines;
+    }
+    
+    
+
 }
