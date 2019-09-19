@@ -40,6 +40,7 @@ public class HelpWindow extends JDialog {
     private boolean isAlive = true;
 
     public HelpWindow() throws IOException {
+        this.setTitle(Translator.R("HELP"));
         this.setModal(true);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setSize(650, 800);
@@ -156,7 +157,7 @@ public class HelpWindow extends JDialog {
             }
             while (isAlive) {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(3000);
                     if (running) {
                         index.addAndGet(1);
                         if (index.get() >= sp.getStory().size()) {

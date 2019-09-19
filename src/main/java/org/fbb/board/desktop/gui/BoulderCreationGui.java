@@ -166,7 +166,7 @@ public class BoulderCreationGui {
         final JLabel welcome = new JLabel(Translator.R("nwBoulderWelcome"));
         tools1L1.add(welcome);
         tools1L11.add(dateLabel, BorderLayout.WEST);
-        JButton help = new JButton("Help");
+        JButton help = new JButton(Translator.R("HELP"));
         help.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
