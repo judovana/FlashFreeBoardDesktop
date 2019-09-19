@@ -6,6 +6,7 @@
 package org.fbb.board.desktop.tutorial.awt;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
@@ -33,14 +34,16 @@ public class ImageWithTitles extends JPanel {
         g.drawImage(bi, 0, 0, this.getWidth(), this.getHeight(), null);
         double w = (double) this.getWidth() / (double) bi.getWidth();
         double h = (double) this.getHeight() / (double) bi.getHeight();
+        g.setFont(g.getFont().deriveFont(g.getFont().getSize2D() * 1.5f));
         for (int i = 0; i < titles.size(); i++) {
             SingleText get = titles.get(i);
-            Rectangle2D rect = g.getFontMetrics().getStringBounds(get.getKey(), g);
-            int fh = g.getFontMetrics().getHeight();
-            g.setColor(Color.white);
-            g.fillRect(get.getX(w), get.getY(h) - fh, (int) rect.getWidth(), fh);
+            g.setFont(g.getFont().deriveFont(Font.BOLD));
+            Rectangle2D rect = g.getFontMetrics().getStringBounds(get.getKey(), g);//java.awt.geom.Rectangle2D$Float[x=0.0,y=-11.138672,w=71.0,h=13.96875]
+            int fh = g.getFontMetrics().getHeight();//15
+            g.setColor(new Color(250, 250, 250, 200));
+            g.fillRect(get.getX(w), get.getY(h), (int) rect.getWidth(), fh);
             g.setColor(Color.black);
-            g.drawString(get.getKey(), get.getX(w), get.getY(h));
+            g.drawString(get.getKey(), get.getX(w), get.getY(h) + fh);
         }
     }
 

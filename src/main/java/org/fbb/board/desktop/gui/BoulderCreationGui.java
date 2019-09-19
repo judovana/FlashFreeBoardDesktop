@@ -12,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -34,6 +36,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
+import org.fbb.board.desktop.tutorial.awt.HelpWindow;
 import org.fbb.board.internals.Filter;
 import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.GuiLogHelper;
@@ -96,6 +99,15 @@ public class BoulderCreationGui {
             gp.getGrid().clean();
         }
         final JButton doneButton = new JButton(Translator.R("Bdone"));
+        doneButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent me) {
+                if (!doneButton.isEnabled()) {
+                    HelpWindow.main(null);
+                }
+            }
+
+        });
         JPanel tools1 = new JPanel(new GridLayout(4, 1));
         JPanel tools2 = new JPanel(new BorderLayout());
         JComboBox<String> grades = new JComboBox<>(Grade.currentGrades());
@@ -154,6 +166,14 @@ public class BoulderCreationGui {
         final JLabel welcome = new JLabel(Translator.R("nwBoulderWelcome"));
         tools1L1.add(welcome);
         tools1L11.add(dateLabel, BorderLayout.WEST);
+        JButton help = new JButton("Help");
+        help.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                HelpWindow.main(null);
+            }
+        });
+        tools1L11.add(help);
         tools1L11.add(saveOnExit, BorderLayout.EAST);
         tools1L1.add(tools1L11, BorderLayout.EAST);
         tools1L2.add(new JLabel(Translator.R("BautorBoulder") + " "), BorderLayout.WEST);
