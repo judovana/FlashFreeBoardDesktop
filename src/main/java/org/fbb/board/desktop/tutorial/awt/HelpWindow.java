@@ -7,6 +7,7 @@ package org.fbb.board.desktop.tutorial.awt;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -172,18 +173,24 @@ public class HelpWindow extends JDialog {
         }
     }
 
-    public static void main(String... args) {
+    public static void show(final Component c) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 try {
-                    new HelpWindow().setVisible(true);
+                    HelpWindow h = new HelpWindow();
+                    h.setLocationRelativeTo(c);
+                    h.setVisible(true);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
             }
         });
 
+    }
+    
+    public static void main(String... args) {
+        show(null);
     }
 
 }

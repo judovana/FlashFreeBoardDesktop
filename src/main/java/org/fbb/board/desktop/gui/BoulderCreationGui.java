@@ -103,7 +103,7 @@ public class BoulderCreationGui {
             @Override
             public void mousePressed(MouseEvent me) {
                 if (!doneButton.isEnabled()) {
-                    HelpWindow.main(null);
+                    HelpWindow.show(operateBoulder);
                 }
             }
 
@@ -170,7 +170,7 @@ public class BoulderCreationGui {
         help.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                HelpWindow.main(null);
+                HelpWindow.show(operateBoulder);
             }
         });
         tools1L11.add(help);

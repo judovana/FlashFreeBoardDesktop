@@ -46,11 +46,13 @@ public class ImageWithTitles extends JPanel {
             Rectangle2D rect = g.getFontMetrics().getStringBounds(s, g);//java.awt.geom.Rectangle2D$Float[x=0.0,y=-11.138672,w=71.0,h=13.96875]
             int fh = g.getFontMetrics().getHeight();//15
             g.setColor(new Color(250, 250, 250, 200));
-            g.fillRect(get.getX(w), get.getY(h), (int) rect.getWidth(), fh);
-            g.setColor(Color.black);
             if (get.getX(w) + rect.getWidth() > getWidth()) {
+                g.fillRect(getWidth() - (int) rect.getWidth(), get.getY(h), (int) rect.getWidth(), fh);
+                g.setColor(Color.black);
                 g.drawString(s, getWidth() - (int) rect.getWidth(), get.getY(h) + fh);
             } else {
+                g.fillRect(get.getX(w), get.getY(h), (int) rect.getWidth(), fh);
+                g.setColor(Color.black);
                 g.drawString(s, get.getX(w), get.getY(h) + fh);
             }
         }
