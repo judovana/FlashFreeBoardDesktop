@@ -9,6 +9,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -21,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import org.fbb.board.Translator;
+import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.desktop.tutorial.ImgProvider;
 import org.fbb.board.desktop.tutorial.StoryPart;
 import org.fbb.board.desktop.tutorial.StoryProvider;
@@ -44,7 +47,8 @@ public class HelpWindow extends JDialog {
         this.setTitle(Translator.R("HELP"));
         this.setModal(true);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        this.setSize(650, 800);
+        this.setSize(900,1000);//from images
+        setRelativeSize(this);
         sp = new StoryProvider();
         ip = new ImgProvider();
         welcome = new JLabel(Translator.R("nwBoulderWelcome"));
@@ -147,6 +151,17 @@ public class HelpWindow extends JDialog {
         this.validate();
     }
 
+    private void setRelativeSize(Window bis) {
+        Rectangle size = ScreenFinder.getCurrentScreenSizeWithoutBounds();
+        double dw = (double) size.width / (double) bis.getWidth();
+        double dh = (double) size.height / (double) bis.getHeight();
+        double ratio = Math.min(dw, dh);
+        ratio = ratio * 0.9d; // APROX 4/5 of screen
+        double nwW = ratio * bis.getWidth();
+        double nwH = ratio * bis.getHeight();
+        bis.setSize((int)nwW, (int)nwH);
+    }
+
     private class Runner implements Runnable {
 
         @Override
@@ -188,7 +203,7 @@ public class HelpWindow extends JDialog {
         });
 
     }
-    
+
     public static void main(String... args) {
         show(null);
     }
