@@ -35,4 +35,4 @@ sudo su:  echo  -n pass | sha256sum  > /etc/FBB.auth
 in raspi-config add cs_CZ locale
 
 
-
+usermod -s //usr/sbin/nologin app
