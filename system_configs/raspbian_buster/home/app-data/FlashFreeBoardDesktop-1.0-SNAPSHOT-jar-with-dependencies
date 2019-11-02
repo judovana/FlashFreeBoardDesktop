@@ -25,10 +25,9 @@ sudo apt install sox # to enable fallback if application, run as systemd service
   sudo apt install  dconf-editor #onboard depndence
   sudo apt install  dbus-x11 #onboard depndence
 
-
-sudo  usermod -aG dialout app
-sudo  usermod -aG uucp app
-sudo su:  echo  -n pass | sha256sum  > /etc/FBB.auth
+NOPE!: sudo  usermod -aG dialout app
+NOPE!: sudo  usermod -aG uucp app
+NOPE!: sudo su:  echo  -n pass | sha256sum  > /etc/FBB.auth
 
 .fluxbox/init: session.screen0.workspaces: 1
 /etc/lightdm/lightdm.conf: autologin-user=app
@@ -50,8 +49,10 @@ chown  app-data:app-data /home/app-data
 deluser app dialout
 deluser app uucp
 rm /etc/FBB.auth
-# use
+# use as app-data
 echo  -n pass | sha256sum  > /home/app-data/.config/FlashBoard/FFB.auth # as here it do not need to be world readable
+chmod 600 /home/app-data/.config/FlashBoard/FFB.auth 
+
 sudo  usermod -aG dialout app-data
 sudo  usermod -aG uucp app-data
 

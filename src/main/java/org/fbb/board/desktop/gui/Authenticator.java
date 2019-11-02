@@ -88,7 +88,7 @@ public class Authenticator {
             return new String[]{
                 Translator.R("secNone"),
                 "use `su " + System.getProperty("user.name") + "; echo -n  your_pass | sha256sum  > " + Files.localAuth,
-                " or `su ; echo -n  your_pass | sha256sum  > " + Files.masterAuth};
+                " or `su ; echo -n  your_pass | sha256sum  > " + Files.masterAuth+ " && chmod 600 it"};
         }
         if (isPernament()) {
             return new String[]{

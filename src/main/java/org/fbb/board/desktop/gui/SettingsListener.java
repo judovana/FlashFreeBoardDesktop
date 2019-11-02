@@ -14,6 +14,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.charset.Charset;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
+import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -92,6 +95,11 @@ class SettingsListener implements ActionListener {
                     String myEncryptedText = textEncryptor.encrypt(p);
                     java.nio.file.Files.write(Files.remotePass.toPath(), myEncryptedText.getBytes(Charset.forName("utf-8")));
                     JOptionPane.showMessageDialog(null, Translator.R("cReated", Files.remotePass.getAbsolutePath()));
+                    Set<PosixFilePermission> perms = new HashSet<>();
+                    perms.add(PosixFilePermission.OWNER_READ);
+                    perms.add(PosixFilePermission.OWNER_WRITE);
+                    java.nio.file.Files.setPosixFilePermissions(Files.remotePass.toPath(), perms);
+                    JOptionPane.showMessageDialog(null, Translator.R("cSecured", Files.remotePass.getAbsolutePath()));
                 } catch (Exception ex) {
                     GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(null, ex);
