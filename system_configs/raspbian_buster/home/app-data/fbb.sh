@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar /home/app/FlashBalknaSwing*.jar
+java -jar /home/app-data/FlashBalknaSwing*.jar

@@ -55,4 +55,18 @@ echo  -n pass | sha256sum  > /home/app-data/.config/FlashBoard/FFB.auth # as her
 sudo  usermod -aG dialout app-data
 sudo  usermod -aG uucp app-data
 
+uucp:x:10:app,app-data
+dialout:x:20:pi,app,app-data
+audio:x:29:pi,pulse,app,app-data
+video:x:44:pi,app,app-data
+users:x:100:pi,app,app-data
+input:x:105:pi,app,app-data
+netdev:x:109:pi,app,app-data
+spi:x:999:pi,app,app-data
+i2c:x:998:pi,app,app-data
+gpio:x:997:pi,app,app-data
+app:x:1004:
+app-data:x:1005:
+
+
 usermod -s //usr/sbin/nologin app-data
