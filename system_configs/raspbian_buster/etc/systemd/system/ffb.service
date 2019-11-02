@@ -3,11 +3,11 @@ Description=Start FFB
 After=rotate.service
 
 [Service]
-User=app
-Group=app
+User=app-data
+Group=app-data
 Environment="DISPLAY=:0"
 Environment="LANG=cs_CZ.UTF-8"
-ExecStart=/bin/bash /home/app/ffb.sh
+ExecStart=/bin/bash /home/app-data/ffb.sh
 Restart=always
 RestartSec=3
 

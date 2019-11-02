@@ -3,11 +3,11 @@ Description=Start VLC
 After=rotate.service
 
 [Service]
-User=app
-Group=app
+User=app-data
+Group=app-data
 Environment="DISPLAY=:0"
 Environment="LANG=cs_CZ.UTF-8"
-ExecStart=vlc /home/app/MUSIC
+ExecStart=vlc /home/app-data/MUSIC
 Restart=always
 RestartSec=3
 

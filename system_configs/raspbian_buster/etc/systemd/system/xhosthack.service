@@ -1,15 +1,16 @@
 [Unit]
-Description=Start FBB
+Description=enable app data
 After=rotate.service
 
 [Service]
-User=app-data
-Group=app-data
+User=app
+Group=app
 Environment="DISPLAY=:0"
 Environment="LANG=cs_CZ.UTF-8"
-ExecStart=bash /home/app-data/fbb.sh
+ExecStart=xhost +SI:localuser:app-data:root:app
 Restart=always
 RestartSec=3
 
 [Install]
 WantedBy=graphical.target
+

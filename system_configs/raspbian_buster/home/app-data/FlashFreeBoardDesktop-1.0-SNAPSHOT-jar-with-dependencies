@@ -1,0 +1,58 @@
+  sudo apt install  vim
+  sudo apt install  avahi
+  sudo apt install avahi-utils
+  apt-get install xorg
+  sudo apt-get install xorg
+  sudo apt-get install fluxbox onboard
+  sudo mv /usr/bin/xterm  /usr/bin/xterm-backup #as xterm is in default menu
+
+  sudo apt install  dconf #onbaords depndence
+      sudo apt-get install matchbox-keyboard # good one
+      sudo apt-get install espeak
+      sudo apt-get install pulseaudio
+      sudo apt-get install alza
+      sudo apt-get install alsa-mixer #audio enablment
+sudo apt install sox # to enable fallback if application, run as systemd service fails to play directly form jdk
+# maybe also ad duser to audio and other groups?
+
+  sudo apt install openjdk-8-jdk
+  sudo apt  install xinput #rotation depndence
+  sudo apt install espeak
+  sudo apt install florence #buggy
+  sudo apt install  dconf-gsettings-backend  #onboard depndence
+  sudo apt install  dconf-gsettings-backend #onboard depndence
+  sudo apt install  dconf-tools #onboard depndence
+  sudo apt install  dconf-editor #onboard depndence
+  sudo apt install  dbus-x11 #onboard depndence
+
+
+sudo  usermod -aG dialout app
+sudo  usermod -aG uucp app
+sudo su:  echo  -n pass | sha256sum  > /etc/FBB.auth
+
+.fluxbox/init: session.screen0.workspaces: 1
+/etc/lightdm/lightdm.conf: autologin-user=app
+in raspi-config add cs_CZ locale
+
+sudo vim /boot/cmdline.txt to add consoleblank=0  to prevent screen dimm
+
+usermod -s //usr/sbin/nologin app
+
+# add user to run the app - it is different user then the one logged into system
+useradd app-data
+mkdir /home/app-data
+chown  app-data:app-data /home/app-data
+
+# undo:
+#sudo  usermod -aG dialout app
+#sudo  usermod -aG uucp app
+#sudo su:  echo  -n pass | sha256sum  > /etc/FBB.auth
+deluser app dialout
+deluser app uucp
+rm /etc/FBB.auth
+# use
+echo  -n pass | sha256sum  > /home/app-data/.config/FlashBoard/FFB.auth # as here it do not need to be world readable
+sudo  usermod -aG dialout app-data
+sudo  usermod -aG uucp app-data
+
+usermod -s //usr/sbin/nologin app-data

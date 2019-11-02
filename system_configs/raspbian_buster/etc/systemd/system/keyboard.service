@@ -3,8 +3,8 @@ Description=Start virtual keyboards
 After=ffb.service
 
 [Service]
-User=app
-Group=app
+User=app-data
+Group=app-data
 Restart=always
 RestartSec=3
 Environment="DISPLAY=:0"
