@@ -34,5 +34,6 @@ sudo su:  echo  -n pass | sha256sum  > /etc/FBB.auth
 /etc/lightdm/lightdm.conf: autologin-user=app
 in raspi-config add cs_CZ locale
 
+sudo vim /boot/cmdline.txt to add consoleblank=0  to prevent screen dimm
 
 usermod -s //usr/sbin/nologin app
