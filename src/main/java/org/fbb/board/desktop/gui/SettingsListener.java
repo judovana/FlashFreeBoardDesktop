@@ -136,7 +136,7 @@ class SettingsListener implements ActionListener {
         int colRows = 13;
         int remRows = 9;
         int ampRows = 6;
-        int upRows = 5;
+        int upRows = 6;
         int maxRows = colRows;
         JPanel general = new JPanel(new GridLayout(maxRows, 2));
         general.setName(Translator.R("generalTab"));
@@ -617,7 +617,8 @@ class SettingsListener implements ActionListener {
         final JButton arduinoWork = new JButton("arduino");
         arduino.setEnabled(false);
         arduinoWork.setEnabled(false);
-
+        final JButton web = new JButton("web");
+        web.addActionListener(new MainWindow.ShowWebHelp());
         allowDowngrade.addActionListener(new ActionListener() {
 
             @Override
@@ -654,9 +655,12 @@ class SettingsListener implements ActionListener {
                                 File f = update.downloadArduino();
                                 System.out.println(f.getAbsolutePath());
                                 List<String> ard = java.nio.file.Files.readAllLines(f.toPath());
+                                StringBuilder sb = new StringBuilder();
                                 for (String string : ard) {
                                     System.out.println(string);
+                                    sb.append(string).append("\n");
                                 }
+                                new ArduinoWindow(f, sb.toString(), gs.getPortId()).setVisible(true);
                             } catch (Exception ex) {
                                 GuiLogHelper.guiLogger.loge(ex);
                                 JOptionPane.showMessageDialog(null, ex);
@@ -731,6 +735,7 @@ class SettingsListener implements ActionListener {
         update.add(allowReplace);
         update.add(arduino);
         update.add(arduinoWork);
+        update.add(web);        
         FUtils.align(genRows, maxRows, general);
         FUtils.align(conRows, maxRows, connection);
         FUtils.align(colRows, maxRows, colors);
