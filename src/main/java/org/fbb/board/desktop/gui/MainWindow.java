@@ -598,22 +598,7 @@ public class MainWindow {
         jp.add(sub2);
         JMenuItem logItem = new JMenuItem("Logs");
         JMenuItem web = new JMenuItem("web");
-        web.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                try {
-                    JDialog jd = new JDialog();
-                    jd.setModal(true);
-                    jd.setSize(ScreenFinder.getCurrentScreenSizeWithoutBounds().getSize());
-                    JEditorPane text = new JEditorPane(new URL("https://raw.githubusercontent.com/judovana/FlashFreeBoardDesktop/master/README.md"));
-                    jd.add(text);
-                    jd.setVisible(true);
-                } catch (Exception ex) {
-                    GuiLogHelper.guiLogger.loge(ex);
-                    JOptionPane.showMessageDialog(null, ex);
-                }
-            }
-        });
+        web.addActionListener(new ShowWebHelp());
         JMenuItem revokePermission = new JMenuItem(Translator.R("revokePP"));
         JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
         //with edit bolder his looks like redundant
@@ -1533,6 +1518,25 @@ public class MainWindow {
 
     static String addCtrLine(String string) {
         return "<html>" + string + "<br>" + Translator.R("tryCtrl");
+    }
+
+    public static class ShowWebHelp implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            try {
+                JDialog jd = new JDialog();
+                jd.setModal(true);
+                jd.setSize(ScreenFinder.getCurrentScreenSizeWithoutBounds().getSize());
+                JEditorPane text = new JEditorPane(new URL("https://raw.githubusercontent.com/judovana/FlashFreeBoardDesktop/master/README.md"));
+                jd.add(text);
+                jd.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                jd.setVisible(true);
+            } catch (Exception ex) {
+                GuiLogHelper.guiLogger.loge(ex);
+                JOptionPane.showMessageDialog(null, ex);
+            }
+        }
     }
 
 }
