@@ -13,9 +13,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -134,7 +136,7 @@ class SettingsListener implements ActionListener {
         int colRows = 13;
         int remRows = 9;
         int ampRows = 6;
-        int upRows = 4;
+        int upRows = 5;
         int maxRows = colRows;
         JPanel general = new JPanel(new GridLayout(maxRows, 2));
         general.setName(Translator.R("generalTab"));
@@ -611,6 +613,11 @@ class SettingsListener implements ActionListener {
         final JCheckBox allowDowngrade = new JCheckBox(Translator.R("AllowDown"), false);
         final JCheckBox allowReplace = new JCheckBox(Translator.R("AllowReplace"), false);
         allowReplace.setEnabled(false);
+        final JTextField arduino = new JTextField();
+        final JButton arduinoWork = new JButton("arduino");
+        arduino.setEnabled(false);
+        arduinoWork.setEnabled(false);
+
         allowDowngrade.addActionListener(new ActionListener() {
 
             @Override
@@ -630,19 +637,40 @@ class SettingsListener implements ActionListener {
                 final Updater.Update update = Updater.getUpdatePossibility(allowReplace.isSelected(), allowDowngrade.isSelected());
                 clean(doUpdate1);
                 clean(doUpdate2);
+                clean(arduinoWork);
                 if (update == null) {
                     doUpdate1.setEnabled(false);
                     doUpdate2.setEnabled(false);
+                    arduinoWork.setEnabled(false);
                     updateStatus1.setText(Translator.R("UpdateImpossible"));
+                    arduino.setText(Translator.R("UpdateImpossible"));
                     updateStatus2.setText(Translator.R("SeeLaogs"));
                 } else {
+                    arduinoWork.setEnabled(true);
+                    arduinoWork.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent ae) {
+                            try {
+                                File f = update.downloadArduino();
+                                System.out.println(f.getAbsolutePath());
+                                List<String> ard = java.nio.file.Files.readAllLines(f.toPath());
+                                for (String string : ard) {
+                                    System.out.println(string);
+                                }
+                            } catch (Exception ex) {
+                                GuiLogHelper.guiLogger.loge(ex);
+                                JOptionPane.showMessageDialog(null, ex);
+                            }
+                        }
+                    });
+                    arduino.setText(update.getRemoteArduino().toExternalForm());
                     doUpdate1.setEnabled(true);
                     doUpdate1.addActionListener(new ActionListener() {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             try {
-                                update.download();
+                                update.downloadJar();
                                 JOptionPane.showMessageDialog(null, Translator.R("Downloaded", " \n " + update.getDwnldTarget().getAbsolutePath()));
                             } catch (Exception ex) {
                                 GuiLogHelper.guiLogger.loge(ex);
@@ -657,7 +685,7 @@ class SettingsListener implements ActionListener {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 try {
-                                    update.download();
+                                    update.downloadJar();
                                     JOptionPane.showMessageDialog(null, Translator.R("Downloaded", " \n " + update.getDwnldTarget().getAbsolutePath()));
                                     if (update.getDwnldTarget().getAbsoluteFile().equals(update.getLocal().getAbsoluteFile())) {
                                         JOptionPane.showMessageDialog(null, Translator.R("Restart"));
@@ -679,7 +707,7 @@ class SettingsListener implements ActionListener {
                         });
                     }
                     updateStatus1.setText(Translator.R("CurrentVersion", update.getLocalVersion(), update.getLocal().getAbsolutePath()));
-                    updateStatus2.setText(Translator.R("RemoteVersion", update.getRemoteVersion(), update.getRemote().toExternalForm()));
+                    updateStatus2.setText(Translator.R("RemoteVersion", update.getRemoteVersion(), update.getRemoteJar().toExternalForm()));
                     updateStatus1.setCaretPosition(0);
                     updateStatus2.setCaretPosition(0);
                 }
@@ -701,6 +729,8 @@ class SettingsListener implements ActionListener {
         update.add(doUpdate2);
         update.add(allowDowngrade);
         update.add(allowReplace);
+        update.add(arduino);
+        update.add(arduinoWork);
         FUtils.align(genRows, maxRows, general);
         FUtils.align(conRows, maxRows, connection);
         FUtils.align(colRows, maxRows, colors);

@@ -13,6 +13,9 @@ import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.fbb.board.internals.GuiLogHelper;
@@ -43,8 +46,8 @@ public class Updater {
         return new File(System.getProperty("java.io.tmpdir"), FILE_NAME);
     }
 
-    private static String readFromUrl(URL u) throws IOException {
-        String r = "";
+    private static List<String> readFromUrl(URL u) throws IOException {
+        List<String> r = new ArrayList<>();
         try (BufferedReader in = new BufferedReader(new InputStreamReader(u.openStream(), StandardCharsets.UTF_8))) {
             while (true) {
                 String s = in.readLine();
@@ -55,19 +58,22 @@ public class Updater {
                 if (s.startsWith("#")) {
                     continue;
                 }
-                r = r + "" + s;
+                r.add(s);
             }
         }
         return r;
     }
 
-    private static void cache(String items) throws IOException {
+    private static void cache(List<String> items) throws IOException {
         save(getCacheFile(), items);
     }
 
-    private static void save(File f, String s) throws IOException {
+    private static void save(File f, List<String> s) throws IOException {
         try (BufferedWriter in = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8))) {
-            in.write(s);
+            for (String string : s) {
+                in.write(string);
+                in.newLine();
+            }
         }
 
     }
@@ -93,20 +99,35 @@ public class Updater {
 
     private static class RemoteUrlWithStatus {
 
-        private final URL r;
+        private final List<URL> r;
         private final LoadedUrlState w;
 
-        private RemoteUrlWithStatus(String r, LoadedUrlState w) throws MalformedURLException {
-            this.r = new URL(r);
+        private RemoteUrlWithStatus(List<String> rr, LoadedUrlState w) throws MalformedURLException {
+            r = new ArrayList<>(rr.size());
+            for (String string : rr) {
+                this.r.add(new URL(string));
+            }
             this.w = w;
         }
 
-        public String getResult() {
-            return r.toExternalForm();
+        public List<String> getResults() {
+            List<String> rr = new ArrayList<>(r.size());
+            for (URL url : r) {
+                rr.add(url.toExternalForm());
+            }
+            return Collections.unmodifiableList(rr);
         }
 
-        public URL getUrl() {
-            return r;
+        public List<URL> getUrls() {
+            return Collections.unmodifiableList(r);
+        }
+
+        public URL getUrlJar() {
+            return getUrls().get(0);
+        }
+        
+        public URL getUrlArduino() {
+            return getUrls().get(1);
         }
 
         public LoadedUrlState getSource() {
@@ -115,13 +136,18 @@ public class Updater {
 
         @Override
         public String toString() {
-            return w + ": " + r;
+            StringBuilder sb = new StringBuilder();
+            sb.append(w).append(": ");
+            for (URL url : r) {
+                sb.append(url.toString()).append(" ");
+            }
+            return sb.toString();
         }
 
     }
 
     private static RemoteUrlWithStatus obtain() throws MalformedURLException {
-        String r;
+        List<String> r;
         //network
         try {
             r = readFromUrl(getExURL());
@@ -160,7 +186,10 @@ public class Updater {
             GuiLogHelper.guiLogger.loge(ex);
         }
         GuiLogHelper.guiLogger.loge("All ways failed");
-        return new RemoteUrlWithStatus("http://nohting.found/error", LoadedUrlState.FATALTY);
+        List<String> bl = new ArrayList<>(2);
+        bl.add("http://nohting.found/error1");
+        bl.add("http://nohting.found/error2");
+        return new RemoteUrlWithStatus(bl, LoadedUrlState.FATALTY);
     }
 
     private static String checkForCurrent() {
@@ -191,21 +220,27 @@ public class Updater {
         if (s == null) {
             return null;
         }
-        return new Update(null, new File(s));
+        return new Update(null, null, new File(s));
     }
 
     public static class Update {
 
         private final URL from;
+        private final URL arduino;
         private final File to;
 
-        public Update(URL from, File to) {
+        public Update(URL ard, URL from, File to) {
+            this.arduino = ard;
             this.from = from;
             this.to = to;
         }
 
-        public URL getRemote() {
+        public URL getRemoteJar() {
             return from;
+        }
+        
+          public URL getRemoteArduino() {
+            return arduino;
         }
 
         public File getLocal() {
@@ -244,9 +279,15 @@ public class Updater {
             return Double.valueOf(getLocalVersionString());
         }
 
-        public void download() throws IOException {
+        public void downloadJar() throws IOException {
             File target = getDwnldTarget();
-            downloadUsingNIO(getRemote(), target);
+            downloadUsingNIO(getRemoteJar(), target);
+        }
+        
+        public File downloadArduino() throws IOException {
+            File target = File.createTempFile(getRemoteArduino().getFile(), ".ino");
+            downloadUsingNIO(getRemoteArduino(), target);
+            return target;
         }
 
         public File getDwnldTarget() {
@@ -263,13 +304,14 @@ public class Updater {
                 String current = checkForCurrent();
                 if (current != null) {
                     File fold = new File(current);
-                    String nwName = new File(r.getUrl().getFile()).getName();
+                    String nwName = new File(r.getUrlJar().getFile()).getName();
                     GuiLogHelper.guiLogger.logo("From: " + fold.getName() + "(" + fold.getAbsolutePath() + ")");
-                    GuiLogHelper.guiLogger.logo("To  : " + nwName + " (" + r.getUrl().toExternalForm() + ")");
+                    GuiLogHelper.guiLogger.logo("To  : " + nwName + " (" + r.getUrlJar().toExternalForm() + ")");
+                    GuiLogHelper.guiLogger.logo("ard : " + r.getUrlArduino().toExternalForm());
                     if (fold.getName().equals(nwName) && !replaceAllowed) {
                         return null;
                     }
-                    Update u = new Update(r.getUrl(), fold.getAbsoluteFile());
+                    Update u = new Update(r.getUrlArduino(), r.getUrlJar(), fold.getAbsoluteFile());
                     if (u.getRemoteVersion() <= u.getLocalVersion() && !downgradeAllowed) {
                         GuiLogHelper.guiLogger.logo(u.getRemoteVersion() + " <= " + u.getLocalVersion() + " : likely no update at all");
                         return null;
