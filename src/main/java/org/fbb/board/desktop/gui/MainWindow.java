@@ -39,6 +39,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -596,6 +597,23 @@ public class MainWindow {
         JMenu sub2 = new JMenu(Translator.R("Special"));
         jp.add(sub2);
         JMenuItem logItem = new JMenuItem("Logs");
+        JMenuItem web = new JMenuItem("web");
+        web.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                try {
+                    JDialog jd = new JDialog();
+                    jd.setModal(true);
+                    jd.setSize(ScreenFinder.getCurrentScreenSizeWithoutBounds().getSize());
+                    JEditorPane text = new JEditorPane(new URL("https://raw.githubusercontent.com/judovana/FlashFreeBoardDesktop/master/README.md"));
+                    jd.add(text);
+                    jd.setVisible(true);
+                } catch (Exception ex) {
+                    GuiLogHelper.guiLogger.loge(ex);
+                    JOptionPane.showMessageDialog(null, ex);
+                }
+            }
+        });
         JMenuItem revokePermission = new JMenuItem(Translator.R("revokePP"));
         JMenuItem editBoulder = new JMenuItem(Translator.R("MEditBoulder"));
         //with edit bolder his looks like redundant
@@ -606,6 +624,7 @@ public class MainWindow {
         sub2.add(saveBoulder);
         sub2.add(revokePermission);
         sub2.add(logItem);
+        sub2.add(web);
         sub2.add(reset);
         JMenuItem tips = new JMenuItem("Tips");
         jp.add(tips);
