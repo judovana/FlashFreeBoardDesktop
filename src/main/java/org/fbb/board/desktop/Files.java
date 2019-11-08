@@ -199,7 +199,10 @@ public class Files {
     }
 
     public static File getArduinoFile(URL remote) {
-        cacheDir.mkdirs();
-        return new File(cacheDir, new File(remote.getFile()).getName());
+        String fileName = new File(remote.getFile()).getName();
+        String dirName = fileName.replace(".ino", "");
+        File dir = new File(cacheDir, dirName);
+        dir.mkdirs();
+        return new File(dir, fileName);
     }
 }
