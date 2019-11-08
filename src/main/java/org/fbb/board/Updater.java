@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.fbb.board.desktop.Files;
 import org.fbb.board.internals.GuiLogHelper;
 
 /**
@@ -285,7 +286,7 @@ public class Updater {
         }
         
         public File downloadArduino() throws IOException {
-            File target = File.createTempFile(getRemoteArduino().getFile(), ".ino");
+            File target = Files.getArduinoFile(getRemoteArduino());
             downloadUsingNIO(getRemoteArduino(), target);
             return target;
         }

@@ -7,6 +7,7 @@ package org.fbb.board.desktop;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +24,7 @@ public class Files {
     private static final File homeDir = new File(System.getProperty("user.home"));
     public static final File remotePass = new File(homeDir + "/.ffbRemoteCokie");
     public static final File configDir = new File(homeDir + "/.config/FlashBoard");
+    public static final File cacheDir = new File(homeDir + "/.cache/FlashBoard");
     public static final File repo = new File(configDir + "/repo");
     public static final File repoGit = new File(repo + "/.git");
     public static final File wallsDir = new File(repo + "/walls");
@@ -53,13 +55,12 @@ public class Files {
     }
 
     public static File getSettings() {
-        if (!configDir.exists()){
+        if (!configDir.exists()) {
             configDir.mkdirs();
         }
         return settings;
     }
 
-    
     private static String sanitizeFileName(String filename, char substitute) {
 
         for (int i = 0; i < INVALID_NAME.size(); i++) {
@@ -195,5 +196,10 @@ public class Files {
         //some tols are recordig metadata - eg sha256summ writes by default sum - file, and without file, sum -
         String shash = new String(hash, java.nio.charset.Charset.forName("utf-8"));
         return shash.split("[^\\w']+")[0];
+    }
+
+    public static File getArduinoFile(URL remote) {
+        cacheDir.mkdirs();
+        return new File(cacheDir, new File(remote.getFile()).getName());
     }
 }

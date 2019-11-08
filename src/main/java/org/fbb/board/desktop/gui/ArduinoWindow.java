@@ -103,7 +103,11 @@ public class ArduinoWindow extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pane.setSelectedIndex(1);
-                new ProcessRun().work(readOnlyLog, createCommand(tf.getText(), f, (ConnectionID) port.getSelectedItem()));
+                new Thread() {
+                    public void run() {
+                        new ProcessRun().work(readOnlyLog, createCommand(tf.getText(), f, (ConnectionID) port.getSelectedItem()));
+                    }
+                }.start();
             }
         });
         tools.add(run);
@@ -120,7 +124,12 @@ public class ArduinoWindow extends JDialog {
         if (port == null) {
             s = s.replace("--port", "").replace("{2}", "");
         } else {
-            s = s.replace("{2}", port.getId());
+            //in wired work we work with connection directly, here we must translate manually
+            String pp = port.getId();
+            if (!pp.startsWith("/dev/")) {
+                pp = "/dev/" + pp;
+            }
+            s = s.replace("{2}", pp);
         }
         return s;
     }
