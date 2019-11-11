@@ -71,3 +71,5 @@ app-data:x:1005:
 
 
 usermod -s //usr/sbin/nologin app-data
+
+  sudo apt install  arduino # to get autoupdate for hw too
