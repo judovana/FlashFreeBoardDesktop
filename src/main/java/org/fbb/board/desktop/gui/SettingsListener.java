@@ -65,6 +65,7 @@ class SettingsListener implements ActionListener {
         textEncryptor.setPassword("IwasForcedToDoSo");
     }
 
+    private final String wall;
     private final GridPane gp;
     private final DB db;
     private final GlobalSettings gs;
@@ -111,13 +112,14 @@ class SettingsListener implements ActionListener {
         }
     };
 
-    public SettingsListener(GridPane gp, Authenticator auth, GlobalSettings gs, Puller puller, DB db, int selectedTab) {
+    public SettingsListener(GridPane gp, Authenticator auth, GlobalSettings gs, Puller puller, DB db, int selectedTab, String wall) {
         this.gp = gp;
         this.auth = auth;
         this.gs = gs;
         this.puller = puller;
         this.db = db;
         this.selectedTab = selectedTab;
+        this.wall=wall;
     }
 
     @Override
@@ -131,7 +133,7 @@ class SettingsListener implements ActionListener {
         }
         JDialog allSettingsWindow = new JDialog((JFrame) null, "FFB settings", true);
         JTabbedPane settingsTabs = new JTabbedPane();
-        int genRows = 6;
+        int genRows = 7;
         int conRows = 2;
         int colRows = 13;
         int remRows = 9;
@@ -212,6 +214,17 @@ class SettingsListener implements ActionListener {
         setRemoteSecuirty();
         general.add(remoteSecurityStatus);
         general.add(remoteSecurityButton);
+        JButton deleteBouldrs = new JButton(Translator.R("SelectListBoulders"));
+        if (wall == null){
+            deleteBouldrs.setEnabled(false);
+        }
+        general.add(deleteBouldrs);
+        deleteBouldrs.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                new BoulderFiltering(db, gs).selectListBouderAsAdmin(wall);
+            }
+        });
         colors.add(new JLabel(Translator.R("testdelay")));
         JSpinner testDelay = new JSpinner(new SpinnerNumberModel(50, 1, 10000, 50));
         colors.add(testDelay);

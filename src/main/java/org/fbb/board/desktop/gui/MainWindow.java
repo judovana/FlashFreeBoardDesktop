@@ -125,7 +125,7 @@ public class MainWindow {
         }
     };
     private static final KeyEventDispatcher f1 = new KeyEventDispatcher() {
-        
+
         @Override
         public boolean dispatchKeyEvent(KeyEvent e) {
             if (e.getKeyCode() == KeyEvent.VK_F1 && e.getID() == KeyEvent.KEY_PRESSED) {
@@ -521,7 +521,7 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 tools2History.setVisible(!tools2History.isVisible());
-                if (!tools2History.isVisible()){
+                if (!tools2History.isVisible()) {
                     historyButtons.setText("ˇ");
                 } else {
                     historyButtons.setText("^");
@@ -586,8 +586,14 @@ public class MainWindow {
         jp.add(selectListBoulders);
         JMenuItem newBoulder = new JMenuItem(Translator.R("MNewBoulder"));
         jp.add(newBoulder);
+        JMenu subTrains = new JMenu(Translator.R("trainings"));
+        jp.add(subTrains);
         JMenuItem timered = new JMenuItem(Translator.R("timered"));
-        jp.add(timered);
+        subTrains.add(timered);
+        JMenuItem campus = new JMenuItem(Translator.R("campus"));
+        subTrains.add(campus);
+        JMenu subGames = new JMenu(Translator.R("games")); //clock, lines, catch the ball
+        jp.add(subGames);
         JMenu sub1 = new JMenu(Translator.R("Admin"));
         jp.add(sub1);
         JMenuItem management = new JMenuItem(Translator.R("management"));
@@ -604,7 +610,7 @@ public class MainWindow {
         //with edit bolder his looks like redundant
         JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
         saveBoulder.setEnabled(false);
-        JMenuItem reset = new JMenuItem("remote reset");   
+        JMenuItem reset = new JMenuItem("remote reset");
         sub2.add(editBoulder);
         sub2.add(saveBoulder);
         sub2.add(revokePermission);
@@ -755,7 +761,7 @@ public class MainWindow {
         timered.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final JDialog timeredWindow = new JDialog((JFrame)null, Translator.R("timered"));
+                final JDialog timeredWindow = new JDialog((JFrame) null, Translator.R("timered"));
                 final TimeredTraining[] trainig = new TimeredTraining[1];
                 timeredWindow.setModal(true);
                 timeredWindow.setLayout(new GridLayout(10, 2));
@@ -1017,16 +1023,16 @@ public class MainWindow {
                                     nextRandomGenerated.getActionListeners()[0],
                                     new ActionListener() {
 
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            gp.getGrid().clean();
-                                            gp.repaintAndSend(gs);
-                                        }
-                                    },
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    gp.getGrid().clean();
+                                    gp.repaintAndSend(gs);
+                                }
+                            },
                                     Arrays.asList(new TrainingWithBackends[]{
-                                        new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
-                                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
-                                                0, null, null)}),
+                                new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
+                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
+                                0, null, null)}),
                                     counterClock, (TextToSpeech.TextId) reader.getSelectedItem()
                             );
                             new Thread(trainig[0]).start();
@@ -1152,7 +1158,7 @@ public class MainWindow {
                 timeredWindow.setVisible(true);
             }
         });
-        management.addActionListener(new SettingsListener(gp, Authenticator.auth, gs, puller, db, 0));
+        management.addActionListener(new SettingsListener(gp, Authenticator.auth, gs, puller, db, 0, preloaded.givenId));
         logItem.addActionListener(new ActionListener() {
 
             @Override
@@ -1446,8 +1452,7 @@ public class MainWindow {
         }
     }
 
-     
-       private static class QuickFilterLIstener implements ActionListener {
+    private static class QuickFilterLIstener implements ActionListener {
 
         private final Grade from;
         private final Grade to;
@@ -1504,8 +1509,8 @@ public class MainWindow {
             }
         }
     }
-       
-     private static void setNameTextAndGrade(JLabel n, Boulder b) {
+
+    private static void setNameTextAndGrade(JLabel n, Boulder b) {
         n.setText(b.getGradeAndName());
         n.setToolTipText(b.getStandardTooltip());
         if (n.getFontMetrics(n.getFont()).getStringBounds(n.getText(), n.getGraphics()).getWidth() > n.getWidth()) {

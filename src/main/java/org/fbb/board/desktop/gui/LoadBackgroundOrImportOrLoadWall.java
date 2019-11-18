@@ -91,7 +91,7 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
         } else {
             settings = new JButton(Translator.R("BinitialInit"));
         }
-        settings.addActionListener(new SettingsListener(null, auth, gs, puller, db, 3));
+        settings.addActionListener(new SettingsListener(null, auth, gs, puller, db, 3, null));
         select = new JButton(Translator.R("Bselect"));
         select.addActionListener((ActionEvent e) -> {
             JFileChooser jf;

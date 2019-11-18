@@ -96,7 +96,18 @@ public class BoulderFiltering {
 
     BoulderListAndIndex selectListBouder(String wallId) {
         try {
-            return selectListBouderImpl(wallId);
+            return selectListBouderImpl(wallId, false);
+        } catch (Exception ex) {
+            GuiLogHelper.guiLogger.loge(ex);
+            JOptionPane.showMessageDialog(null, ex);
+            return null;
+        }
+    }
+    
+    
+    BoulderListAndIndex selectListBouderAsAdmin(String wallId) {
+        try {
+            return selectListBouderImpl(wallId, true);
         } catch (Exception ex) {
             GuiLogHelper.guiLogger.loge(ex);
             JOptionPane.showMessageDialog(null, ex);
@@ -104,7 +115,7 @@ public class BoulderFiltering {
         }
     }
 
-    private BoulderListAndIndex selectListBouderImpl(String wallID) throws IOException {
+    private BoulderListAndIndex selectListBouderImpl(String wallID, final boolean allowDelete) throws IOException {
         final int[] result = new int[]{0};
         final int ALL = 1;
         final int SEL = 2;
@@ -323,6 +334,11 @@ public class BoulderFiltering {
             walls.setVisible(false);
             random.setVisible(false);
         }
+        if (allowDelete) {
+            resultsPanel2.setVisible(true);
+            walls.setVisible(true);
+            random.setVisible(true);
+        }
         boulders.setCellRenderer(new BoulderListRenderer());
         lastApplied.addActionListener(new ActionListener() {
             @Override
@@ -366,7 +382,7 @@ public class BoulderFiltering {
                 if (boulders.getModel() == null || boulders.getModel().getSize() == 0) {
                     return;
                 }
-                if (Authenticator.auth.isPernament()) {
+                if (Authenticator.auth.isPernament() || allowDelete) {
                     int y = JOptionPane.showConfirmDialog(d, Translator.R("delConf", boulders.getModel().getSize()));
                     if (y != JOptionPane.YES_OPTION) {
                         return;
@@ -407,7 +423,7 @@ public class BoulderFiltering {
                 if (boulders.getSelectedValuesList() == null || boulders.getSelectedValuesList().isEmpty()) {
                     return;
                 }
-                if (Authenticator.auth.isPernament()) {
+                if (Authenticator.auth.isPernament() || allowDelete) {
                     int y = JOptionPane.showConfirmDialog(d, Translator.R("delConf", boulders.getSelectedValuesList().size()));
                     if (y != JOptionPane.YES_OPTION) {
                         return;
