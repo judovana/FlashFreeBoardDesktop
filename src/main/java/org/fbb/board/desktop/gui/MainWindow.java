@@ -611,10 +611,12 @@ public class MainWindow {
         JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
         saveBoulder.setEnabled(false);
         JMenuItem reset = new JMenuItem("remote reset");
+        JMenuItem stats = new JMenuItem(Translator.R("stats"));
         sub2.add(editBoulder);
         sub2.add(saveBoulder);
         sub2.add(revokePermission);
         sub2.add(logItem);
+        sub2.add(stats);
         sub2.add(web);
         sub2.add(reset);
         JMenuItem tips = new JMenuItem("Tips");
@@ -711,6 +713,12 @@ public class MainWindow {
                 }
             }
 
+        });
+        stats.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                new StatsDialog(preloaded.givenId).setVisible(true);
+            }
         });
         saveBoulder.addActionListener(new ActionListener() {
             @Override

@@ -14,13 +14,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.fbb.board.Translator;
 
 /**
  *
  * @author jvanek
  */
-public class Grade {
+public class Grade implements Comparable<Grade> {
 
     private static String[] columns;
     private static final List<String[]> valuesPerGrade = new ArrayList<>(100);
@@ -124,7 +126,7 @@ public class Grade {
 
     @Override
     public boolean equals(Object obj) {
-        return Objects.equals(toNumber(), toNumber());
+        return Objects.equals(((Grade) obj).toNumber(), toNumber());
     }
 
     public static String getStandardTooltip(int i) {
@@ -152,4 +154,23 @@ public class Grade {
         return orig;
     }
 
+    @Override
+    public int compareTo(Grade t) {
+        return t.artificialValue - this.artificialValue;
+    }
+
+    public static class ToStringGradeWrapper extends Grade {
+
+        public ToStringGradeWrapper(int i) {
+            super(i);
+        }
+
+        Pattern p = Pattern.compile(".* ");
+
+        @Override
+        public String toString() {
+            return p.matcher(super.toString()).replaceAll("");
+        }
+
+    }
 }
