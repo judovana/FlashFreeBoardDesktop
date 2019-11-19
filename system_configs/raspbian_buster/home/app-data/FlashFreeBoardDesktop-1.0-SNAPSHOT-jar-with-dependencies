@@ -73,3 +73,9 @@ app-data:x:1005:
 usermod -s //usr/sbin/nologin app-data
 
   sudo apt install  arduino # to get autoupdate for hw too
+
+
+# tune onboard to not mess with system
+#keyboard->advanced->long press action == key repeat
+#keyboard->advanced->touch inmpu == single touch ##ps do not set this to none!!! wills top to work on touchscreen! How did they did it?
+
