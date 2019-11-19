@@ -6,7 +6,10 @@
 package org.fbb.board.desktop.gui;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import javax.swing.JDialog;
@@ -40,13 +43,12 @@ public class StatsDialog extends JDialog {
         JTabbedPane jdb = new JTabbedPane();
         JPanel byDificulty = new JPanel(new BorderLayout());
         JPanel byAutor = new JPanel(new BorderLayout());
-        byAutor.add(new JTextField(""));
+        byAutor.add(new JTextField(""), BorderLayout.NORTH);
         jdb.add(byDificulty);
         jdb.add(byAutor);
         jdb.setTitleAt(0, Translator.R("byDiff"));
         jdb.setTitleAt(1, Translator.R("byAuthor"));
         this.add(jdb);
-
         DefaultCategoryDataset cdataD = new DefaultCategoryDataset();
         int i = -1;
         for (String s : Grade.currentGrades()) {
@@ -56,35 +58,66 @@ public class StatsDialog extends JDialog {
                 cdataD.addValue((Number) lv.getSize(), "diff", new Grade.ToStringGradeWrapper(i));
             }
         }
-
         JFreeChart diffs = ChartFactory.createBarChart(wall, "difficulty", "count", cdataD);
         diffs.getLegend(0).setVisible(false);
         ChartPanel chp1 = new ChartPanel(diffs);
+        chp1.setMinimumDrawHeight(100);
+        chp1.setMinimumDrawWidth(100);
+        chp1.setMaximumDrawHeight(10000);
+        chp1.setMaximumDrawWidth(10000);
         byDificulty.add(chp1);
 
         DefaultCategoryDataset cdataA = new DefaultCategoryDataset();
-
         ListWithFilter lv = new ListWithFilter();
         Set<String> authors = new HashSet<>();
         Vector<Boulder> v = lv.getHistory();
         for (Boulder boulder : v) {
             authors.add(boulder.getAuthor().toLowerCase().trim());
         }
+        List<AuthorAndCount> sortAuthors = new ArrayList<>();
         for (String author : authors) {
+            //if (isNotContained()){
+            //on jtextfield, skip...
+            //}
             i = 0;
             for (Boulder boulder : v) {
-                if (boulder.getName().toLowerCase().trim().equals(author)) {
+                if (boulder.getAuthor().toLowerCase().trim().equals(author)) {
                     i++;
                 }
             }
             if (lv.getSize() > 0) {
-                cdataA.addValue(i, "authors", author);
+                sortAuthors.add(new AuthorAndCount(author, i));
             }
         }
+        Collections.sort(sortAuthors);
+        for (int j = 0; j < Math.min(sortAuthors.size(), 20); j++) {
+            AuthorAndCount get = sortAuthors.get(j);
+            cdataA.addValue(get.i, "authors", get.a);
+        }
         JFreeChart auhs = ChartFactory.createBarChart(wall, "author", "count", cdataA);
-        diffs.getLegend(0).setVisible(false);
+        auhs.getLegend(0).setVisible(false);
         ChartPanel chp2 = new ChartPanel(auhs);
+        chp2.setMinimumDrawHeight(100);
+        chp2.setMinimumDrawWidth(100);
+        chp2.setMaximumDrawHeight(10000);
+        chp2.setMaximumDrawWidth(10000);
         byAutor.add(chp2);
+    }
+
+    private static class AuthorAndCount implements Comparable<AuthorAndCount> {
+
+        private final String a;
+        private final int i;
+
+        public AuthorAndCount(String a, int i) {
+            this.a = a;
+            this.i = i;
+        }
+
+        @Override
+        public int compareTo(AuthorAndCount t) {
+            return t.i - this.i;
+        }
     }
 
 }
