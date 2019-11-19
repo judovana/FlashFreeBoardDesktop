@@ -6,6 +6,10 @@
 package org.fbb.board.desktop.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.PopupMenu;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,9 +21,11 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import org.fbb.board.Translator;
+import org.fbb.board.desktop.ScreenFinder;
+import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.ListWithFilter;
+import org.fbb.board.internals.db.DB;
 import org.fbb.board.internals.grades.Grade;
 import org.fbb.board.internals.grid.Boulder;
 import org.jfree.chart.ChartFactory;
@@ -33,12 +39,40 @@ import org.jfree.data.category.DefaultCategoryDataset;
  */
 public class StatsDialog extends JDialog {
 
-    public StatsDialog(String wall) {
+    public StatsDialog(final String wall, final DB db, final GlobalSettings gs) {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setModal(true);
-        this.setSize(500, 300);
+
+        this.setSize(ScreenFinder.getCurrentScreenSizeWithoutBounds().getSize());
         this.setLocationRelativeTo(null);
-        this.add(new JButton("filter"), BorderLayout.SOUTH);
+        JButton filterButton = new JButton("filter");
+        this.add(filterButton, BorderLayout.SOUTH);
+        this.add(createStats(wall, new ListWithFilter(wall).getHistory()));
+        filterButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                BoulderFiltering.BoulderListAndIndex listAndothers = new BoulderFiltering(db, gs).selectListBouder(wall);
+                Component[] c = StatsDialog.this.getContentPane().getComponents();
+                for (Component cc : c) {
+                    if (cc instanceof JTabbedPane) {
+                        StatsDialog.this.remove(cc);
+                    }
+                }
+                if (listAndothers != null && listAndothers.list != null) {
+                    if (listAndothers.list.size() > 0) {
+                        StatsDialog.this.add(createStats(listAndothers.list.get(0).getWall(), listAndothers.list));
+                    } else {
+                        StatsDialog.this.add(createStats(wall, listAndothers.list));
+                    }
+                }
+                StatsDialog.this.validate();
+
+            }
+        });
+    }
+
+    private JTabbedPane createStats(final String wall, List<Boulder> boulderList) {
         JTabbedPane jdb = new JTabbedPane();
         JPanel byDificulty = new JPanel(new BorderLayout());
         JPanel byAutor = new JPanel(new BorderLayout());
@@ -51,12 +85,17 @@ public class StatsDialog extends JDialog {
         int i = -1;
         for (String s : Grade.currentGrades()) {
             i++;
-            ListWithFilter lv = new ListWithFilter(new Grade(i), new Grade(i), wall);
-            if (lv.getSize() > 0) {
-                cdataD.addValue((Number) lv.getSize(), "diff", new Grade.ToStringGradeWrapper(i));
+            int c = 0;
+            for (Boulder b : boulderList) {
+                if (b.getGrade().equals(new Grade(i))) {
+                    c++;
+                }
+            }
+            if (c > 0) {
+                cdataD.addValue((Number) c, "diff", new Grade.ToStringGradeWrapper(i));
             }
         }
-        JFreeChart diffs = ChartFactory.createBarChart(wall, "difficulty", "count", cdataD);
+        JFreeChart diffs = ChartFactory.createBarChart(wall + " - " + boulderList.size() + " problems", "difficulty", "count", cdataD);
         diffs.getLegend(0).setVisible(false);
         ChartPanel chp1 = new ChartPanel(diffs);
         chp1.setMinimumDrawHeight(100);
@@ -66,10 +105,8 @@ public class StatsDialog extends JDialog {
         byDificulty.add(chp1);
 
         DefaultCategoryDataset cdataA = new DefaultCategoryDataset();
-        ListWithFilter lv = new ListWithFilter(wall);
         Set<String> authors = new HashSet<>();
-        Vector<Boulder> v = lv.getHistory();
-        for (Boulder boulder : v) {
+        for (Boulder boulder : boulderList) {
             authors.add(boulder.getAuthor().toLowerCase().trim());
         }
         List<AuthorAndCount> sortAuthors = new ArrayList<>();
@@ -78,12 +115,12 @@ public class StatsDialog extends JDialog {
             //on jtextfield, skip...
             //}
             i = 0;
-            for (Boulder boulder : v) {
+            for (Boulder boulder : boulderList) {
                 if (boulder.getAuthor().toLowerCase().trim().equals(author)) {
                     i++;
                 }
             }
-            if (lv.getSize() > 0) {
+            if (boulderList.size() > 0) {
                 sortAuthors.add(new AuthorAndCount(author, i));
             }
         }
@@ -92,7 +129,7 @@ public class StatsDialog extends JDialog {
             AuthorAndCount get = sortAuthors.get(j);
             cdataA.addValue(get.i, "authors", get.a);
         }
-        JFreeChart auhs = ChartFactory.createBarChart(wall, "author", "count", cdataA);
+        JFreeChart auhs = ChartFactory.createBarChart(wall + " - " + boulderList.size() + " problems", "author", "count", cdataA);
         auhs.getLegend(0).setVisible(false);
         ChartPanel chp2 = new ChartPanel(auhs);
         chp2.setMinimumDrawHeight(100);
@@ -100,6 +137,7 @@ public class StatsDialog extends JDialog {
         chp2.setMaximumDrawHeight(10000);
         chp2.setMaximumDrawWidth(10000);
         byAutor.add(chp2);
+        return jdb;
     }
 
     private static class AuthorAndCount implements Comparable<AuthorAndCount> {

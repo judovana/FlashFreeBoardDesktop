@@ -717,7 +717,7 @@ public class MainWindow {
         stats.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                new StatsDialog(preloaded.givenId).setVisible(true);
+                new StatsDialog(preloaded.givenId, db, gs).setVisible(true);
             }
         });
         saveBoulder.addActionListener(new ActionListener() {
