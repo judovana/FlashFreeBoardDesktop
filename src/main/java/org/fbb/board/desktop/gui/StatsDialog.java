@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -24,9 +25,6 @@ import org.fbb.board.internals.grid.Boulder;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.LegendItemCollection;
-import org.jfree.chart.LegendItemSource;
-import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 /**
@@ -40,10 +38,10 @@ public class StatsDialog extends JDialog {
         this.setModal(true);
         this.setSize(500, 300);
         this.setLocationRelativeTo(null);
+        this.add(new JButton("filter"), BorderLayout.SOUTH);
         JTabbedPane jdb = new JTabbedPane();
         JPanel byDificulty = new JPanel(new BorderLayout());
         JPanel byAutor = new JPanel(new BorderLayout());
-        byAutor.add(new JTextField(""), BorderLayout.NORTH);
         jdb.add(byDificulty);
         jdb.add(byAutor);
         jdb.setTitleAt(0, Translator.R("byDiff"));
@@ -68,7 +66,7 @@ public class StatsDialog extends JDialog {
         byDificulty.add(chp1);
 
         DefaultCategoryDataset cdataA = new DefaultCategoryDataset();
-        ListWithFilter lv = new ListWithFilter();
+        ListWithFilter lv = new ListWithFilter(wall);
         Set<String> authors = new HashSet<>();
         Vector<Boulder> v = lv.getHistory();
         for (Boulder boulder : v) {
