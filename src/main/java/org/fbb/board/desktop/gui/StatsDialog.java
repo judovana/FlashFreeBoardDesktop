@@ -7,7 +7,6 @@ package org.fbb.board.desktop.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -45,7 +43,7 @@ public class StatsDialog extends JDialog {
 
         this.setSize(ScreenFinder.getCurrentScreenSizeWithoutBounds().getSize());
         this.setLocationRelativeTo(null);
-        JButton filterButton = new JButton("filter");
+        JButton filterButton = new JButton(Translator.R("SSfilter"));
         this.add(filterButton, BorderLayout.SOUTH);
         this.add(createStats(wall, new ListWithFilter(wall).getHistory()));
         filterButton.addActionListener(new ActionListener() {
@@ -95,7 +93,7 @@ public class StatsDialog extends JDialog {
                 cdataD.addValue((Number) c, "diff", new Grade.ToStringGradeWrapper(i));
             }
         }
-        JFreeChart diffs = ChartFactory.createBarChart(wall + " - " + boulderList.size() + " problems", "difficulty", "count", cdataD);
+        JFreeChart diffs = ChartFactory.createBarChart(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSdifficulty"), Translator.R("SScount"), cdataD);
         diffs.getLegend(0).setVisible(false);
         ChartPanel chp1 = new ChartPanel(diffs);
         chp1.setMinimumDrawHeight(100);
@@ -129,7 +127,7 @@ public class StatsDialog extends JDialog {
             AuthorAndCount get = sortAuthors.get(j);
             cdataA.addValue(get.i, "authors", get.a);
         }
-        JFreeChart auhs = ChartFactory.createBarChart(wall + " - " + boulderList.size() + " problems", "author", "count", cdataA);
+        JFreeChart auhs = ChartFactory.createBarChart(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSauthor"), Translator.R("SScount"), cdataA);
         auhs.getLegend(0).setVisible(false);
         ChartPanel chp2 = new ChartPanel(auhs);
         chp2.setMinimumDrawHeight(100);
