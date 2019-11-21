@@ -632,6 +632,8 @@ class SettingsListener implements ActionListener {
         arduinoWork.setEnabled(false);
         final JButton web = new JButton("web");
         web.addActionListener(new MainWindow.ShowWebHelp());
+        final JButton otherAssets = new JButton(Translator.R("OAses"));
+        
         allowDowngrade.addActionListener(new ActionListener() {
 
             @Override
@@ -749,6 +751,7 @@ class SettingsListener implements ActionListener {
         update.add(arduino);
         update.add(arduinoWork);
         update.add(web);        
+        update.add(otherAssets);        
         FUtils.align(genRows, maxRows, general);
         FUtils.align(conRows, maxRows, connection);
         FUtils.align(colRows, maxRows, colors);
