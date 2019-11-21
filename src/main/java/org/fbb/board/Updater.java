@@ -126,9 +126,17 @@ public class Updater {
         public URL getUrlJar() {
             return getUrls().get(0);
         }
-        
+
         public URL getUrlArduino() {
             return getUrls().get(1);
+        }
+
+        public List<URL> getOtherAssets() {
+            if (getUrls().size() <= 2) {
+                return new ArrayList<>();
+            } else {
+                return getUrls().subList(2, getUrls().size());
+            }
         }
 
         public LoadedUrlState getSource() {
@@ -221,27 +229,33 @@ public class Updater {
         if (s == null) {
             return null;
         }
-        return new Update(null, null, new File(s));
+        return new Update(null, null, new File(s), new ArrayList<>());
     }
 
     public static class Update {
 
         private final URL from;
         private final URL arduino;
+        private final List<URL> otherAssets;
         private final File to;
 
-        public Update(URL ard, URL from, File to) {
+        public Update(URL ard, URL from, File to, List<URL> others) {
             this.arduino = ard;
             this.from = from;
             this.to = to;
+            this.otherAssets = others;
         }
 
         public URL getRemoteJar() {
             return from;
         }
-        
-          public URL getRemoteArduino() {
+
+        public URL getRemoteArduino() {
             return arduino;
+        }
+
+        public List<URL> getOtherAssets() {
+            return otherAssets;
         }
 
         public File getLocal() {
@@ -284,7 +298,7 @@ public class Updater {
             File target = getDwnldTarget();
             downloadUsingNIO(getRemoteJar(), target);
         }
-        
+
         public File downloadArduino() throws IOException {
             File target = Files.getArduinoFile(getRemoteArduino());
             downloadUsingNIO(getRemoteArduino(), target);
@@ -312,7 +326,7 @@ public class Updater {
                     if (fold.getName().equals(nwName) && !replaceAllowed) {
                         return null;
                     }
-                    Update u = new Update(r.getUrlArduino(), r.getUrlJar(), fold.getAbsoluteFile());
+                    Update u = new Update(r.getUrlArduino(), r.getUrlJar(), fold.getAbsoluteFile(), r.getOtherAssets());
                     if (u.getRemoteVersion() <= u.getLocalVersion() && !downgradeAllowed) {
                         GuiLogHelper.guiLogger.logo(u.getRemoteVersion() + " <= " + u.getLocalVersion() + " : likely no update at all");
                         return null;

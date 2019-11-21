@@ -119,7 +119,7 @@ class SettingsListener implements ActionListener {
         this.puller = puller;
         this.db = db;
         this.selectedTab = selectedTab;
-        this.wall=wall;
+        this.wall = wall;
     }
 
     @Override
@@ -215,7 +215,7 @@ class SettingsListener implements ActionListener {
         general.add(remoteSecurityStatus);
         general.add(remoteSecurityButton);
         JButton deleteBouldrs = new JButton(Translator.R("SelectListBoulders"));
-        if (wall == null){
+        if (wall == null) {
             deleteBouldrs.setEnabled(false);
         }
         general.add(deleteBouldrs);
@@ -633,7 +633,8 @@ class SettingsListener implements ActionListener {
         final JButton web = new JButton("web");
         web.addActionListener(new MainWindow.ShowWebHelp());
         final JButton otherAssets = new JButton(Translator.R("OAses"));
-        
+        otherAssets.setEnabled(false);
+
         allowDowngrade.addActionListener(new ActionListener() {
 
             @Override
@@ -654,14 +655,25 @@ class SettingsListener implements ActionListener {
                 clean(doUpdate1);
                 clean(doUpdate2);
                 clean(arduinoWork);
+                clean(otherAssets);
                 if (update == null) {
                     doUpdate1.setEnabled(false);
                     doUpdate2.setEnabled(false);
                     arduinoWork.setEnabled(false);
+                    otherAssets.setEnabled(false);
                     updateStatus1.setText(Translator.R("UpdateImpossible"));
                     arduino.setText(Translator.R("UpdateImpossible"));
                     updateStatus2.setText(Translator.R("SeeLaogs"));
                 } else {
+                    if (!update.getOtherAssets().isEmpty()) {
+                        otherAssets.setEnabled(true);
+                        otherAssets.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                new OtherAssetsDialog(update.getOtherAssets()).setVisible(true);
+                            }
+                        });
+                    }
                     arduinoWork.setEnabled(true);
                     arduinoWork.addActionListener(new ActionListener() {
                         @Override
@@ -750,8 +762,8 @@ class SettingsListener implements ActionListener {
         update.add(allowReplace);
         update.add(arduino);
         update.add(arduinoWork);
-        update.add(web);        
-        update.add(otherAssets);        
+        update.add(web);
+        update.add(otherAssets);
         FUtils.align(genRows, maxRows, general);
         FUtils.align(conRows, maxRows, connection);
         FUtils.align(colRows, maxRows, colors);
