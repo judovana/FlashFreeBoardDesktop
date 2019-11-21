@@ -766,6 +766,46 @@ public class MainWindow {
                 }
             }
         });
+        campus.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final JDialog campusWindow = new JDialog((JFrame) null, Translator.R("campus"));
+                campusWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                campusWindow.setModal(true);
+                campusWindow.setSize(400, 300);
+                campusWindow.setLocationRelativeTo((Component) e.getSource());
+                campusWindow.setLayout(new GridLayout(6, 2));
+                campusWindow.add(new JLabel(Translator.R("red line numbers")));
+                final JTextField redLines = new JTextField("");
+                campusWindow.add(redLines);
+                campusWindow.add(new JLabel(Translator.R("green line numbers")));
+                final JTextField greenLines = new JTextField("");
+                campusWindow.add(greenLines);
+                campusWindow.add(new JLabel(Translator.R("blue line numbers")));
+                final JTextField blueLines = new JTextField("" + (gp.getGrid().getHorLines() / 2));
+                campusWindow.add(blueLines);
+
+                campusWindow.add(new JLabel(Translator.R("red columns")));
+                final JTextField redColumns = new JTextField("");
+                campusWindow.add(redColumns);
+                campusWindow.add(new JLabel(Translator.R("green columns")));
+                final JTextField greenColumns = new JTextField("");
+                campusWindow.add(greenColumns);
+                campusWindow.add(new JLabel(Translator.R("blue columns")));
+                final JTextField blueColumns = new JTextField("" + (gp.getGrid().getVertLines() / 2));
+                campusWindow.add(blueColumns);
+                
+                try {
+                    //gp.getGrid().set(0, 0);
+                    Boulder b = gp.getGrid().createBoulderFromCurrent(File.createTempFile("fbb", "campus"), "campus", preloaded.givenId, Grade.RandomBoulder());
+                    gp.getGrid().setBouler(b);
+                } catch (Exception ex) {
+                    GuiLogHelper.guiLogger.loge(ex);
+                }
+                campusWindow.setVisible(true);
+
+            }
+        });
         timered.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
