@@ -327,6 +327,13 @@ public class Grid {
     public int getVertLines() {
         return vertLines.length;
     }
+    
+    public int getWidth(){
+        return getVertLines()-1;
+    }
+    public int getHeight(){
+        return getHorLines()-1;
+    }
 
     public void setHorLines(int i) {
         if (i < 2) {
@@ -394,6 +401,14 @@ public class Grid {
             }
         }
     }
+    
+        public void set(int x, int y, byte status) throws IndexOutOfBoundsException {
+            if (x>=getWidth() || y>=getHeight() || x<0 || y<0){
+                throw new IndexOutOfBoundsException(Translator.R("outOfBonds1", x, y, (getWidth() - 1), (getHeight() - 1)));
+            }
+                int i = x*(horLines.length-1)+y;
+                psStatus[i] = status;
+        }
 
     public void setShowGrid(boolean showGrid) {
         this.showGrid = showGrid;
