@@ -598,6 +598,8 @@ public class MainWindow {
         subGames.add(ball);
         JMenuItem box = new JMenuItem(Translator.R("box"));
         subGames.add(box);
+        JMenuItem clock = new JMenuItem(Translator.R("clock"));
+        subGames.add(clock);
         JMenu sub1 = new JMenu(Translator.R("Admin"));
         jp.add(sub1);
         JMenuItem management = new JMenuItem(Translator.R("management"));
