@@ -29,6 +29,7 @@ import org.fbb.board.Translator;
 import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.grid.Grid;
 import org.fbb.board.internals.grid.GridPane;
+import org.fbb.board.internals.training.BoulderCalc;
 
 /**
  *
@@ -70,6 +71,7 @@ class BallWindow extends JDialog implements Runnable {
         panel.add(maxJump);
         panel.add(new JLabel(Translator.R("snooze")));
         snooze = new JTextField("00:00");
+        snooze.getDocument().addDocumentListener(new Changer());
         panel.add(snooze);
         panel.add(new JLabel(Translator.R("size")));
         size = new JComboBox<>(new Integer[]{1, 2, 3});
@@ -99,6 +101,7 @@ class BallWindow extends JDialog implements Runnable {
     private Point vector;
     private int countDown;
     Random randomizer = new Random();
+    private long snoozeCounter;
 
     @Override
     public void run() {
@@ -106,6 +109,26 @@ class BallWindow extends JDialog implements Runnable {
         while (alive) {
             try {
                 Thread.sleep(getDelay());
+                snoozeCounter -= getDelay();
+                time.setText(BoulderCalc.code(snoozeCounter / 1000l));
+                if ((double) snoozeCounter / 1000d < (double) delay.getValue()
+                        && (double) snoozeCounter / 1000d > -(double) delay.getValue()
+                        && BoulderCalc.decode(snooze.getText()) > 0) {
+                    snoozeCounter = -60000;
+                    for (int x = 0; x < gp.getGrid().getWidth(); x++) {
+                        gp.getGrid().clean();
+                        CampusLikeDialog.drawColumn(x, 1, gp.getGrid());
+                        gp.repaintAndSendToKnown();
+                        Thread.sleep(100);
+                    }
+                    for (int x = gp.getGrid().getWidth() - 1; x >= 0; x--) {
+                        gp.getGrid().clean();
+                        CampusLikeDialog.drawColumn(x, 1, gp.getGrid());
+                        gp.repaintAndSendToKnown();
+                        Thread.sleep(100);
+                    }
+                }
+                time.repaint();
                 gp.getGrid().clean();
                 gp.getGrid().set(center.x, center.y, (byte) 3);
                 if (size.getSelectedIndex() > 0) {
@@ -134,7 +157,7 @@ class BallWindow extends JDialog implements Runnable {
                         setSilentlyCatched(center.x + 2, center.y - 1, (byte) 1);
                         setSilentlyCatched(center.x - 2, center.y + 1, (byte) 1);
                         setSilentlyCatched(center.x - 2, center.y - 1, (byte) 1);
-                        
+
                     }
                 }
 
@@ -245,7 +268,7 @@ class BallWindow extends JDialog implements Runnable {
         }
 
         private void work() {
-            //adjust  snoozer
+            BallWindow.this.snoozeCounter = (long) BoulderCalc.decode(snooze.getText()) * 1000l;
         }
 
     }

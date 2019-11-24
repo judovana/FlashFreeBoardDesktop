@@ -123,7 +123,7 @@ public class BoulderCalc {
         }
     }
 
-    public static  String code(int seconds) {
+    public static  String code(long seconds) {
         return (seconds / 60) + ":" + (seconds % 60);
 
     }
