@@ -42,7 +42,7 @@ class CampusLikeDialog extends JDialog {
         this.setModal(true);
         this.setSize(500, 400);
         this.setLocationRelativeTo(parent);
-        this.add(new JTextField(Translator.R("campusHelp",gp.getGrid().getHeight()/2 , gp.getGrid().getWidth()/2)), BorderLayout.SOUTH);
+        this.add(new JTextField(Translator.R("campusHelp", gp.getGrid().getHeight() - 1, gp.getGrid().getWidth() - 1)), BorderLayout.SOUTH);
         JPanel panel = new JPanel();
         this.add(panel);
         panel.setLayout(new GridLayout(6, 2));
@@ -72,6 +72,9 @@ class CampusLikeDialog extends JDialog {
         greenColumns.getDocument().addDocumentListener(ch);
         blueColumns.getDocument().addDocumentListener(ch);
         ch.work();
+        this.pack();
+        this.setSize(this.getWidth(), 400);
+        this.setLocationRelativeTo(parent);
     }
 
     private class Changer implements DocumentListener {
@@ -103,7 +106,7 @@ class CampusLikeDialog extends JDialog {
                 int totalc = countNonEmpty(rc) + countNonEmpty(gc) + countNonEmpty(bc);
 
                 if (totalc > gp.getGrid().getWidth() / 2 || totall > gp.getGrid().getHeight() / 2) {
-                    throw new RuntimeException(Translator.R("outOfBonds2",  (gp.getGrid().getWidth() / 2), (gp.getGrid().getHeight() / 2)));
+                    throw new RuntimeException(Translator.R("outOfBonds2", (gp.getGrid().getWidth() / 2), (gp.getGrid().getHeight() / 2)));
                 }
 
                 gp.getGrid().clean();
