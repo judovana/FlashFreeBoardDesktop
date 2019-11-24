@@ -27,6 +27,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.fbb.board.Translator;
 import org.fbb.board.internals.GuiLogHelper;
+import org.fbb.board.internals.grid.Grid;
 import org.fbb.board.internals.grid.GridPane;
 
 /**
@@ -106,7 +107,37 @@ class BallWindow extends JDialog implements Runnable {
             try {
                 Thread.sleep(getDelay());
                 gp.getGrid().clean();
-                gp.getGrid().set(center.x, center.y, (byte) 1);
+                gp.getGrid().set(center.x, center.y, (byte) 3);
+                if (size.getSelectedIndex() > 0) {
+                    setSilentlyCatched(center.x + 1, center.y, (byte) 2);
+                    setSilentlyCatched(center.x - 1, center.y, (byte) 2);
+                    setSilentlyCatched(center.x + 1, center.y + 1, (byte) 2);
+                    setSilentlyCatched(center.x + 1, center.y - 1, (byte) 2);
+                    setSilentlyCatched(center.x - 1, center.y + 1, (byte) 2);
+                    setSilentlyCatched(center.x - 1, center.y - 1, (byte) 2);
+                    setSilentlyCatched(center.x, center.y + 1, (byte) 2);
+                    setSilentlyCatched(center.x, center.y - 1, (byte) 2);
+                    if (size.getSelectedIndex() > 1) {
+                        setSilentlyCatched(center.x + 2, center.y, (byte) 1);
+                        setSilentlyCatched(center.x - 2, center.y, (byte) 1);
+                        setSilentlyCatched(center.x + 2, center.y + 2, (byte) 1);
+                        setSilentlyCatched(center.x + 2, center.y - 2, (byte) 1);
+                        setSilentlyCatched(center.x - 2, center.y + 2, (byte) 1);
+                        setSilentlyCatched(center.x - 2, center.y - 2, (byte) 1);
+                        setSilentlyCatched(center.x, center.y + 2, (byte) 1);
+                        setSilentlyCatched(center.x, center.y - 2, (byte) 1);
+                        setSilentlyCatched(center.x + 1, center.y + 2, (byte) 1);
+                        setSilentlyCatched(center.x + 1, center.y - 2, (byte) 1);
+                        setSilentlyCatched(center.x - 1, center.y + 2, (byte) 1);
+                        setSilentlyCatched(center.x - 1, center.y - 2, (byte) 1);
+                        setSilentlyCatched(center.x + 2, center.y + 1, (byte) 1);
+                        setSilentlyCatched(center.x + 2, center.y - 1, (byte) 1);
+                        setSilentlyCatched(center.x - 2, center.y + 1, (byte) 1);
+                        setSilentlyCatched(center.x - 2, center.y - 1, (byte) 1);
+                        
+                    }
+                }
+
                 gp.repaintAndSendToKnown();
                 countDown--;
                 if (countDown <= 0) {
@@ -124,6 +155,14 @@ class BallWindow extends JDialog implements Runnable {
                 GuiLogHelper.guiLogger.loge(ex);
                 JOptionPane.showMessageDialog(BallWindow.this, ex);
             }
+        }
+    }
+
+    public void setSilentlyCatched(int x, int y, byte color) {
+        try {
+            gp.getGrid().set(x, y, color);
+        } catch (IndexOutOfBoundsException e) {
+            // intentionally ignored
         }
     }
 
