@@ -594,6 +594,10 @@ public class MainWindow {
         subTrains.add(campus);
         JMenu subGames = new JMenu(Translator.R("games")); //clock, lines, catch the ball
         jp.add(subGames);
+        JMenuItem ball = new JMenuItem(Translator.R("ball"));
+        subGames.add(ball);
+        JMenuItem box = new JMenuItem(Translator.R("box"));
+        subGames.add(box);
         JMenu sub1 = new JMenu(Translator.R("Admin"));
         jp.add(sub1);
         JMenuItem management = new JMenuItem(Translator.R("management"));
@@ -771,6 +775,14 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 JDialog campusWindow = new CampusLikeDialog((Component) e.getSource(), gp);
                 campusWindow.setVisible(true);
+
+            }
+        });
+        ball.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JDialog ballWindow = new BallWindow((Component) e.getSource(), gp);
+                ballWindow.setVisible(true);
 
             }
         });
@@ -1039,16 +1051,16 @@ public class MainWindow {
                                     nextRandomGenerated.getActionListeners()[0],
                                     new ActionListener() {
 
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    gp.getGrid().clean();
-                                    gp.repaintAndSend(gs);
-                                }
-                            },
+                                        @Override
+                                        public void actionPerformed(ActionEvent e) {
+                                            gp.getGrid().clean();
+                                            gp.repaintAndSend(gs);
+                                        }
+                                    },
                                     Arrays.asList(new TrainingWithBackends[]{
-                                new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
-                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
-                                0, null, null)}),
+                                        new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
+                                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
+                                                0, null, null)}),
                                     counterClock, (TextToSpeech.TextId) reader.getSelectedItem()
                             );
                             new Thread(trainig[0]).start();
