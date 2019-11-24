@@ -111,26 +111,25 @@ class CampusLikeDialog extends JDialog {
                 }
 
                 gp.getGrid().clean();
-                drawColumn(rc, 3);
-                drawColumn(gc, 2);
-                drawColumn(bc, 1);
-                drawRow(rl, 3);
-                drawRow(gl, 2);
-                drawRow(bl, 1);
+                drawColumns(rc, 3);
+                drawColumns(gc, 2);
+                drawColumns(bc, 1);
+                drawRows(rl, 3);
+                drawRows(gl, 2);
+                drawRows(bl, 1);
                 gp.repaintAndSendToKnown();
             } catch (Exception ex) {
                 GuiLogHelper.guiLogger.loge(ex);
                 JOptionPane.showMessageDialog(CampusLikeDialog.this, ex);
             }
         }
-        
-        
-       public void drawColumn(String[] cc, int color) throws NumberFormatException, IndexOutOfBoundsException {
-           CampusLikeDialog.drawColumn(cc, color, gp.getGrid());
+
+        public void drawColumns(String[] cc, int color) throws NumberFormatException, IndexOutOfBoundsException {
+            CampusLikeDialog.drawColumns(cc, color, gp.getGrid());
         }
 
-        public void drawRow(String[] rr, int color) throws NumberFormatException, IndexOutOfBoundsException {
-            CampusLikeDialog.drawRow(rr, color, gp.getGrid());
+        public void drawRows(String[] rr, int color) throws NumberFormatException, IndexOutOfBoundsException {
+            CampusLikeDialog.drawRows(rr, color, gp.getGrid());
         }
 
         private int countNonEmpty(String[] s) {
@@ -144,25 +143,33 @@ class CampusLikeDialog extends JDialog {
         }
 
     }
-    
-       public static void drawColumn(String[] cc, int color, Grid gp) throws NumberFormatException, IndexOutOfBoundsException {
-            for (String c : cc) {
-                for (int i = 0; i < gp.getHeight(); i++) {
-                    if (!c.trim().isEmpty()) {
-                        gp.set(Integer.valueOf(c), i, (byte) color);
-                    }
-                }
-            }
-        }
 
-        public static void drawRow(String[] rr, int color, Grid gp) throws NumberFormatException, IndexOutOfBoundsException {
-            for (String c : rr) {
-                for (int i = 0; i < gp.getWidth(); i++) {
-                    if (!c.trim().isEmpty()) {
-                        gp.set(i, Integer.valueOf(c), (byte) color);
-                    }
-                }
+    public static void drawColumn(int x, int color, Grid gp) throws NumberFormatException, IndexOutOfBoundsException {
+        for (int i = 0; i < gp.getHeight(); i++) {
+            gp.set(x, i, (byte) color);
+        }
+    }
+
+    public static void drawColumns(String[] cc, int color, Grid gp) throws NumberFormatException, IndexOutOfBoundsException {
+        for (String c : cc) {
+            if (!c.trim().isEmpty()) {
+                drawColumn(Integer.valueOf(c), color, gp);
             }
         }
+    }
+
+    public static void drawRow(int y, int color, Grid gp) throws NumberFormatException, IndexOutOfBoundsException {
+        for (int i = 0; i < gp.getWidth(); i++) {
+            gp.set(i, y, (byte) color);
+        }
+    }
+
+    public static void drawRows(String[] rr, int color, Grid gp) throws NumberFormatException, IndexOutOfBoundsException {
+        for (String c : rr) {
+            if (!c.trim().isEmpty()) {
+                drawRow(Integer.valueOf(c), color, gp);
+            }
+        }
+    }
 
 }

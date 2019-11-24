@@ -786,6 +786,14 @@ public class MainWindow {
 
             }
         });
+        box.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JDialog boxws = new BoxesWindow((Component) e.getSource(), gp);
+                boxws.setVisible(true);
+
+            }
+        });
         timered.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
