@@ -16,7 +16,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.fbb.board.Translator;
@@ -31,6 +33,7 @@ class BallWindow extends JDialog implements Runnable {
 
     private final GridPane gp;
     final JTextField delay;
+    final JSpinner maxJump;
     final JTextField snooze;
     final JLabel time;
     final JComboBox<Integer> size;
@@ -46,10 +49,13 @@ class BallWindow extends JDialog implements Runnable {
         this.add(new JTextField(Translator.R("ballHelp")));
         JPanel panel = new JPanel();
         this.add(panel);
-        panel.setLayout(new GridLayout(4, 2));
+        panel.setLayout(new GridLayout(5, 2));
         panel.add(new JLabel(Translator.R("delay")));
         delay = new JTextField("0.5");
         panel.add(delay);
+        panel.add(new JLabel(Translator.R("maxJump")));
+        maxJump = new JSpinner(new SpinnerNumberModel(1, 1, 5, 1));
+        panel.add(maxJump);
         panel.add(new JLabel(Translator.R("snooze")));
         snooze = new JTextField("00:00");
         panel.add(snooze);
@@ -58,11 +64,12 @@ class BallWindow extends JDialog implements Runnable {
         panel.add(size);
         panel.add(new JLabel("      mm:ss :"));
         time = new JLabel("0:0");
+        time.setFont(time.getFont().deriveFont(time.getFont().getSize()*3f));
         panel.add(time);
         Changer ch = new Changer();
         ch.work();
         this.pack();
-        this.setSize(this.getWidth(), 300);
+        this.setSize(this.getWidth(), 350);
         this.setLocationRelativeTo(parent);
         this.addWindowListener(new WindowAdapter() {
 
