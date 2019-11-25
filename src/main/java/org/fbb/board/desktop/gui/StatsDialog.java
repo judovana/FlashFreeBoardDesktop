@@ -74,11 +74,43 @@ public class StatsDialog extends JDialog {
         JTabbedPane jdb = new JTabbedPane();
         JPanel byDificulty = new JPanel(new BorderLayout());
         JPanel byAutor = new JPanel(new BorderLayout());
+        JPanel byHolds = new JPanel(new BorderLayout());
+        JPanel byHoldsCount = new JPanel(new BorderLayout());
         jdb.add(byDificulty);
         jdb.add(byAutor);
+        jdb.add(byHolds);
+        jdb.add(byHoldsCount);
         jdb.setTitleAt(0, Translator.R("byDiff"));
         jdb.setTitleAt(1, Translator.R("byAuthor"));
+        jdb.setTitleAt(2, Translator.R("byHolds"));// charts (0 toppest)by row and stats per line; zoom all acrding to max!
+        jdb.setTitleAt(3, Translator.R("byHoldsCount"));
         this.add(jdb);
+
+        byDificulty.add(createDifficultyChartPannel(wall, boulderList));
+
+        byAutor.add(createAuthorChartPannel(wall, boulderList));
+
+        byHoldsCount.add(createLengthChartPannel(wall, boulderList));
+        return jdb;
+    }
+
+    private ChartPanel createLengthChartPannel(final String wall, List<Boulder> boulderList) {
+        DefaultCategoryDataset cdataD = new DefaultCategoryDataset();
+        for (Boulder b : boulderList) {
+            Integer i = b.getPathLength();
+            try {
+                Number n = cdataD.getValue("lenghts", i);
+                cdataD.setValue(n.intValue() + 1, "lenghts", i);
+            } catch (org.jfree.data.UnknownKeyException e) {
+                cdataD.setValue(1, "lenghts", i);
+            }
+
+        }
+
+        return createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("ssLength"), Translator.R("SScount"), cdataD);
+    }
+
+    private ChartPanel createDifficultyChartPannel(final String wall, List<Boulder> boulderList) {
         DefaultCategoryDataset cdataD = new DefaultCategoryDataset();
         int i = -1;
         for (String s : Grade.currentGrades()) {
@@ -93,15 +125,10 @@ public class StatsDialog extends JDialog {
                 cdataD.addValue((Number) c, "diff", new Grade.ToStringGradeWrapper(i));
             }
         }
-        JFreeChart diffs = ChartFactory.createBarChart(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSdifficulty"), Translator.R("SScount"), cdataD);
-        diffs.getLegend(0).setVisible(false);
-        ChartPanel chp1 = new ChartPanel(diffs);
-        chp1.setMinimumDrawHeight(100);
-        chp1.setMinimumDrawWidth(100);
-        chp1.setMaximumDrawHeight(10000);
-        chp1.setMaximumDrawWidth(10000);
-        byDificulty.add(chp1);
+        return createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSdifficulty"), Translator.R("SScount"), cdataD);
+    }
 
+    private ChartPanel createAuthorChartPannel(final String wall, List<Boulder> boulderList) {
         DefaultCategoryDataset cdataA = new DefaultCategoryDataset();
         Set<String> authors = new HashSet<>();
         for (Boulder boulder : boulderList) {
@@ -112,7 +139,7 @@ public class StatsDialog extends JDialog {
             //if (isNotContained()){
             //on jtextfield, skip...
             //}
-            i = 0;
+            int i = 0;
             for (Boulder boulder : boulderList) {
                 if (boulder.getAuthor().toLowerCase().trim().equals(author)) {
                     i++;
@@ -127,15 +154,18 @@ public class StatsDialog extends JDialog {
             AuthorAndCount get = sortAuthors.get(j);
             cdataA.addValue(get.i, "authors", get.a);
         }
-        JFreeChart auhs = ChartFactory.createBarChart(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSauthor"), Translator.R("SScount"), cdataA);
+        return createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSauthor"), Translator.R("SScount"), cdataA);
+    }
+
+    private ChartPanel createDefaultChartPannel(String title, String xLabel, String yLabel, DefaultCategoryDataset data) {
+        JFreeChart auhs = ChartFactory.createBarChart(title, xLabel, yLabel, data);
         auhs.getLegend(0).setVisible(false);
         ChartPanel chp2 = new ChartPanel(auhs);
         chp2.setMinimumDrawHeight(100);
         chp2.setMinimumDrawWidth(100);
         chp2.setMaximumDrawHeight(10000);
         chp2.setMaximumDrawWidth(10000);
-        byAutor.add(chp2);
-        return jdb;
+        return chp2;
     }
 
     private static class AuthorAndCount implements Comparable<AuthorAndCount> {
