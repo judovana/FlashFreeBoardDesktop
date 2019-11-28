@@ -27,7 +27,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.fbb.board.Translator;
 import org.fbb.board.internals.GuiLogHelper;
-import org.fbb.board.internals.grid.Grid;
 import org.fbb.board.internals.grid.GridPane;
 import org.fbb.board.internals.training.BoulderCalc;
 
@@ -114,7 +113,7 @@ class BallWindow extends JDialog implements Runnable {
                 if ((double) snoozeCounter / 1000d < (double) delay.getValue()
                         && (double) snoozeCounter / 1000d > -(double) delay.getValue()
                         && BoulderCalc.decode(snooze.getText()) > 0) {
-                    snoozeCounter = -60000;
+                    snoozeCounter = -2000;
                     for (int x = 0; x < gp.getGrid().getWidth(); x++) {
                         gp.getGrid().clean();
                         CampusLikeDialog.drawColumn(x, 1, gp.getGrid());
@@ -269,6 +268,7 @@ class BallWindow extends JDialog implements Runnable {
 
         private void work() {
             BallWindow.this.snoozeCounter = (long) BoulderCalc.decode(snooze.getText()) * 1000l;
+            BallWindow.this.reset();
         }
 
     }
