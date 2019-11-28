@@ -89,14 +89,17 @@ public class StatsDialog extends JDialog {
         JPanel byAutor = new JPanel(new BorderLayout());
         JPanel byHolds = new JPanel(new BorderLayout());
         JPanel byHoldsCount = new JPanel(new BorderLayout());
+        JPanel byAuthorAndDificulty = new JPanel(new BorderLayout());
         jdb.add(byDificulty);
         jdb.add(byAutor);
         jdb.add(byHolds);
         jdb.add(byHoldsCount);
+        jdb.add(byAuthorAndDificulty);        
         jdb.setTitleAt(0, Translator.R("byDiff"));
         jdb.setTitleAt(1, Translator.R("byAuthor"));
         jdb.setTitleAt(2, Translator.R("byHolds"));// charts (0 toppest)by row and stats per line; zoom all acrding to max!
         jdb.setTitleAt(3, Translator.R("byHoldsCount"));
+        jdb.setTitleAt(4, Translator.R("byAuthorAndDificulty"));
         this.add(jdb);
 
         byDificulty.add(createDifficultyChartPannel(wall, boulderList));
@@ -169,16 +172,16 @@ public class StatsDialog extends JDialog {
             cdata[i] = new DefaultCategoryDataset();
             int[] get = allRows.get(i);
             for (int j = 0; j < get.length; j++) {
-                cdata[i].addValue((Number) allRows.get(i)[j], "usge", j);
+                cdata[i].addValue((Number) allRows.get(i)[j], "usage", j);
             }
         }
         ChartPanel[] charts = new ChartPanel[cdata.length + 1];
         DefaultCategoryDataset tops = new DefaultCategoryDataset();
-        tops.addValue(noTops, "tops on edge", "tops on edge");
-        charts[0] = createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), "tops on edge", "tops on edge", tops);
+        tops.addValue(noTops,  Translator.R("toe"),  Translator.R("toe"));
+        charts[0] = createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("toe"), Translator.R("toe"), tops);
 
         for (int i = 0; i < cdata.length; i++) {
-            charts[i + 1] = createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), "hold number from left to right - line " + i + " from top", "number of usages", cdata[i]);
+            charts[i + 1] = createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()),Translator.R("holdId",i), Translator.R("holdUsages"), cdata[i]);
             charts[i + 1].getChart().getCategoryPlot().getRangeAxis(0).setRange(0, max);
         }
         return charts;
