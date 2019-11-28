@@ -145,6 +145,7 @@ public class BoulderFiltering {
                             wallCache.put(b.getWall(), prelaod);
                         }
                         GridPane gdp = new GridPane(ImageIO.read(new ByteArrayInputStream(prelaod.img)), prelaod.props, gs);
+                        gdp.disableClicking();
                         gdp.getGrid().setBouler(b);
                         boulderPreview.add(gdp);
                         boulderPreview.validate();
