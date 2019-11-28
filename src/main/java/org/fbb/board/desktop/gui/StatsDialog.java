@@ -7,25 +7,38 @@ package org.fbb.board.desktop.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.zip.ZipInputStream;
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import org.fbb.board.Translator;
+import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.ListWithFilter;
 import org.fbb.board.internals.db.DB;
 import org.fbb.board.internals.grades.Grade;
 import org.fbb.board.internals.grid.Boulder;
+import org.fbb.board.internals.grid.GridPane;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -91,7 +104,84 @@ public class StatsDialog extends JDialog {
         byAutor.add(createAuthorChartPannel(wall, boulderList));
 
         byHoldsCount.add(createLengthChartPannel(wall, boulderList));
+
+        try {
+            ChartPanel[] hCharts = createHoldsChartPannel(wall, boulderList);
+            JPanel p = new JPanel(new GridLayout(hCharts.length + 1, 0));
+            for (int i = 0; i < hCharts.length; i++) {
+                ChartPanel hChart = hCharts[i];
+                p.add(hChart);
+            }
+            JScrollPane scroll = new JScrollPane(p);
+            byHolds.add(scroll);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex);
+        }
         return jdb;
+    }
+
+    private ChartPanel[] createHoldsChartPannel(final String wall, List<Boulder> boulderList) throws IOException {
+        File f = Files.getWallFile(wall);
+        GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)), f.getName());
+        //BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
+        BufferedImage bi = null; //should be ok for headless processing, but maybe needed if pcture of hold is necessary
+        GridPane gp = new GridPane(bi, preloaded.props, null);
+
+        int w = gp.getGrid().getWidth();
+        int h = gp.getGrid().getHeight();
+        //cumulative array for full stats
+        List<int[]> allRows = new ArrayList<>(h);
+        for (int i = 0; i < h; i++) {
+            int[] row = new int[w];
+            for (int j = 0; j < row.length; j++) {
+                row[j] = 0;
+            }
+            allRows.add(row);
+        }
+        int noTops = 0;
+        int max = 0;
+        for (Boulder b : boulderList) {
+            gp.getGrid().setBouler(b);
+            //single boulder matrix
+            boolean topOnEdge = true;
+            List<int[]> rows = gp.getGrid().get();
+            for (int i = 0; i < rows.size(); i++) {
+                int[] get = rows.get(i);
+                for (int j = 0; j < get.length; j++) {
+                    if (get[j] > 0) {
+                        allRows.get(i)[j]++;
+                        if (allRows.get(i)[j]>max){
+                            max = allRows.get(i)[j];
+                        }
+                        if (get[j] == 3) {
+                            topOnEdge = false;
+                        }
+                    }
+                }
+            }
+            if (topOnEdge) {
+                noTops++;
+            }
+        }
+        DefaultCategoryDataset[] cdata = new DefaultCategoryDataset[allRows.size()];
+        for (int i = 0; i < allRows.size(); i++) {
+            cdata[i] = new DefaultCategoryDataset();
+            int[] get = allRows.get(i);
+            for (int j = 0; j < get.length; j++) {
+                cdata[i].addValue((Number) allRows.get(i)[j], "usge", j);
+            }
+        }
+        ChartPanel[] charts = new ChartPanel[cdata.length + 1];
+        DefaultCategoryDataset tops = new DefaultCategoryDataset();
+        tops.addValue(noTops, "tops on edge", "tops on edge");
+        charts[0] = createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), "tops on edge", "tops on edge", tops);
+
+        for (int i = 0; i < cdata.length; i++) {
+            charts[i + 1] = createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), "hold number from left to right - line " + i + " from top", "number of usages", cdata[i]);
+            charts[i + 1].getChart().getCategoryPlot().getRangeAxis(0).setRange(0, max);
+        }
+        return charts;
     }
 
     private ChartPanel createLengthChartPannel(final String wall, List<Boulder> boulderList) {

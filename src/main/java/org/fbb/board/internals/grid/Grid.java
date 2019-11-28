@@ -327,12 +327,13 @@ public class Grid {
     public int getVertLines() {
         return vertLines.length;
     }
-    
-    public int getWidth(){
-        return getVertLines()-1;
+
+    public int getWidth() {
+        return getVertLines() - 1;
     }
-    public int getHeight(){
-        return getHorLines()-1;
+
+    public int getHeight() {
+        return getHorLines() - 1;
     }
 
     public void setHorLines(int i) {
@@ -401,14 +402,32 @@ public class Grid {
             }
         }
     }
-    
-        public void set(int x, int y, byte status) throws IndexOutOfBoundsException {
-            if (x>=getWidth() || y>=getHeight() || x<0 || y<0){
-                throw new IndexOutOfBoundsException(Translator.R("outOfBonds1", x, y, (getWidth() - 1), (getHeight() - 1)));
-            }
-                int i = x*(horLines.length-1)+y;
-                psStatus[i] = status;
+
+    public void set(int x, int y, byte status) throws IndexOutOfBoundsException {
+        if (x >= getWidth() || y >= getHeight() || x < 0 || y < 0) {
+            throw new IndexOutOfBoundsException(Translator.R("outOfBonds1", x, y, (getWidth() - 1), (getHeight() - 1)));
         }
+        int i = x * (horLines.length - 1) + y;
+        psStatus[i] = status;
+    }
+
+    public List<int[]> get() {
+        //0,0 upper left
+        int w = getWidth();
+        int h = getHeight();
+        List<int[]> rows = new ArrayList<>(h);
+        for (int i = 0; i < h; i++) {
+            int[] row = new int[w];
+            rows.add(row);
+        }
+
+        for (int i = 0; i < w * h; i++) {
+            int xCoord = i / h;
+            int yCoord = i % h;
+            rows.get(yCoord)[xCoord] = psStatus[i];
+        }
+        return rows;
+    }
 
     public void setShowGrid(boolean showGrid) {
         this.showGrid = showGrid;
