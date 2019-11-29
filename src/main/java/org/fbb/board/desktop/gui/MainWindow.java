@@ -1,5 +1,10 @@
 package org.fbb.board.desktop.gui;
 
+import org.fbb.board.desktop.gui.dialogs.CampusLikeDialog;
+import org.fbb.board.desktop.gui.dialogs.BoxesWindow;
+import org.fbb.board.desktop.gui.dialogs.StatsDialog;
+import org.fbb.board.desktop.gui.dialogs.BallWindow;
+import org.fbb.board.desktop.gui.dialogs.LogView;
 import org.fbb.board.internals.training.BoulderCalc;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -638,13 +643,13 @@ public class MainWindow {
                     for (JToggleButton quickFilter : quickFilters) {
                         quickFilter.setSelected(false);
                     }
-                    list = new ListWithFilter(listAndothers.list);
+                    list = new ListWithFilter(listAndothers.getList());
                     if (!list.getHistory().isEmpty()) {
-                        if (listAndothers.selctedValue != null) {
-                            list.setIndex(listAndothers.selctedValue.getFile().getName());
+                        if (listAndothers.getSelctedValue() != null) {
+                            list.setIndex(listAndothers.getSelctedValue().getFile().getName());
                         } else {
-                            if (list.isInRange(listAndothers.seelctedIndex)) {
-                                list.setIndex(listAndothers.seelctedIndex);
+                            if (list.isInRange(listAndothers.getSeelctedIndex())) {
+                                list.setIndex(listAndothers.getSeelctedIndex());
                             } else {
                                 list.setIndex(list.getSize() - 1);
                             }
@@ -1061,16 +1066,16 @@ public class MainWindow {
                                     nextRandomGenerated.getActionListeners()[0],
                                     new ActionListener() {
 
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            gp.getGrid().clean();
-                                            gp.repaintAndSend(gs);
-                                        }
-                                    },
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    gp.getGrid().clean();
+                                    gp.repaintAndSend(gs);
+                                }
+                            },
                                     Arrays.asList(new TrainingWithBackends[]{
-                                        new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
-                                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
-                                                0, null, null)}),
+                                new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
+                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
+                                0, null, null)}),
                                     counterClock, (TextToSpeech.TextId) reader.getSelectedItem()
                             );
                             new Thread(trainig[0]).start();

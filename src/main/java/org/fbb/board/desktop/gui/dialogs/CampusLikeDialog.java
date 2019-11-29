@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fbb.board.desktop.gui;
+package org.fbb.board.desktop.gui.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -25,7 +25,7 @@ import org.fbb.board.internals.grid.GridPane;
  *
  * @author jvanek
  */
-class CampusLikeDialog extends JDialog {
+public class CampusLikeDialog extends JDialog {
 
     private final GridPane gp;
     final JTextField redLines;

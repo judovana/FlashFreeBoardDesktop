@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fbb.board.desktop.gui;
+package org.fbb.board.desktop.gui.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -18,12 +18,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
 import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import org.fbb.board.Translator;
+import org.fbb.board.desktop.gui.dialogs.parts.DefaultSnoozeAction;
+import org.fbb.board.desktop.gui.dialogs.parts.TimeAndSnooze;
 import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.grid.GridPane;
 
@@ -31,19 +29,17 @@ import org.fbb.board.internals.grid.GridPane;
  *
  * @author jvanek
  */
-class BoxesWindow extends JDialog implements Runnable {
+public class BoxesWindow extends JDialog implements Runnable {
 
     private final GridPane gp;
-    private final JTextField delay;
-    private final JTextField snooze;
-    private final JLabel time;
+    private final TimeAndSnooze tas;
+
+    private final JComboBox<Integer> size;
 
     private final JCheckBox up = new JCheckBox(Translator.R("uc"));
     private final JCheckBox bottom = new JCheckBox(Translator.R("bc"));
     private final JCheckBox left = new JCheckBox(Translator.R("lw"));
     private final JCheckBox right = new JCheckBox(Translator.R("rw"));
-
-    Thread runner = new Thread(this);
 
     public BoxesWindow(Component parent, GridPane gp) {
         this.gp = gp;
@@ -55,10 +51,11 @@ class BoxesWindow extends JDialog implements Runnable {
         this.add(new JTextField(Translator.R("boxHelp")), BorderLayout.SOUTH);
         JPanel panel = new JPanel();
         this.add(panel);
-        panel.setLayout(new GridLayout(5, 2));
-        panel.add(new JLabel(Translator.R("delay")));
-        delay = new JTextField("0.5");
-        panel.add(delay);
+        panel.setLayout(new GridLayout(6, 2));
+        panel.add(new JLabel(Translator.R("size")));
+        size = new JComboBox<>(new Integer[]{1, 2, 3});
+        size.setSelectedIndex(1);
+        panel.add(size);
         up.setSelected(false);
         bottom.setSelected(false);
         panel.add(up);
@@ -67,15 +64,12 @@ class BoxesWindow extends JDialog implements Runnable {
         right.setSelected(true);
         panel.add(left);
         panel.add(right);
-        panel.add(new JLabel(Translator.R("snooze")));
-        snooze = new JTextField("00:00");
-        panel.add(snooze);
-        panel.add(new JLabel("      mm:ss :"));
-        time = new JLabel("0:0");
-        time.setFont(time.getFont().deriveFont(time.getFont().getSize() * 3f));
-        panel.add(time);
-        Changer ch = new Changer();
-        ch.work();
+        tas = new TimeAndSnooze(panel, new DefaultSnoozeAction(gp), new Runnable() {
+            @Override
+            public void run() {
+                BoxesWindow.this.reset();
+            }
+        }, this);
         this.pack();
         this.setSize(this.getWidth(), 350);
         this.setLocationRelativeTo(parent);
@@ -83,52 +77,46 @@ class BoxesWindow extends JDialog implements Runnable {
 
             @Override
             public void windowClosed(WindowEvent e) {
-                alive = false;
+                tas.stop();
             }
 
         });
-        runner.start();
+        tas.start();
     }
-
-    private volatile boolean alive = true;
     private Random move = new Random();
 
     @Override
     public void run() {
-        while (alive) {
-            try {
-                Thread.sleep(1000);
-                gp.getGrid().clean();
-                CampusLikeDialog.drawColumn(move.nextInt(gp.getGrid().getWidth()), 1, gp.getGrid());
-                CampusLikeDialog.drawRow(move.nextInt(gp.getGrid().getHeight()), 1, gp.getGrid());
-                gp.repaintAndSendToKnown();
-            } catch (Exception ex) {
-                GuiLogHelper.guiLogger.loge(ex);
-                JOptionPane.showMessageDialog(BoxesWindow.this, ex);
+        try {
+            gp.getGrid().clean();
+            int c1 = move.nextInt(gp.getGrid().getWidth());
+            CampusLikeDialog.drawColumn(c1, 3, gp.getGrid());
+            int r1 = move.nextInt(gp.getGrid().getHeight());
+            CampusLikeDialog.drawRow(r1, 3, gp.getGrid());
+            if (size.getSelectedIndex() > 0) {
+                if (c1 > 1) {
+                    CampusLikeDialog.drawColumn(c1 - 1, 2, gp.getGrid());
+                }
+                if (r1 < gp.getGrid().getHeight() - 1) {
+                    CampusLikeDialog.drawRow(r1 + 1, 2, gp.getGrid());
+                }
+                if (size.getSelectedIndex() > 1) {
+                    if (c1 > 2) {
+                        CampusLikeDialog.drawColumn(c1 - 2, 1, gp.getGrid());
+                    }
+                    if (r1 < gp.getGrid().getHeight() - 2) {
+                        CampusLikeDialog.drawRow(r1 + 2, 1, gp.getGrid());
+                    }
+                }
             }
+            gp.repaintAndSendToKnown();
+        } catch (Exception ex) {
+            GuiLogHelper.guiLogger.loge(ex);
+            JOptionPane.showMessageDialog(BoxesWindow.this, ex);
         }
     }
 
-    private class Changer implements DocumentListener {
-
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            work();
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            work();
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            work();
-        }
-
-        private void work() {
-            //adjust delay and snoozer
-        }
+    private void reset() {
 
     }
 

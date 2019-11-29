@@ -80,11 +80,11 @@ public class BoulderFiltering {
         this.gs = gs;
     }
 
-    static class BoulderListAndIndex {
+    public static class BoulderListAndIndex {
 
-        final int seelctedIndex;
-        final Boulder selctedValue;
-        final List<Boulder> list;
+        private final int seelctedIndex;
+        private final Boulder selctedValue;
+        private final List<Boulder> list;
 
         public BoulderListAndIndex(int seelctedIndex, Boulder selctedValue, List<Boulder> list) {
             this.seelctedIndex = seelctedIndex;
@@ -92,9 +92,22 @@ public class BoulderFiltering {
             this.list = list;
         }
 
+        public List<Boulder> getList() {
+            return list;
+        }
+
+        public Boulder getSelctedValue() {
+            return selctedValue;
+        }
+
+        public int getSeelctedIndex() {
+            return seelctedIndex;
+        }
+        
+
     }
 
-    BoulderListAndIndex selectListBouder(String wallId) {
+    public BoulderListAndIndex selectListBouder(String wallId) {
         try {
             return selectListBouderImpl(wallId, false);
         } catch (Exception ex) {
@@ -103,8 +116,7 @@ public class BoulderFiltering {
             return null;
         }
     }
-    
-    
+
     BoulderListAndIndex selectListBouderAsAdmin(String wallId) {
         try {
             return selectListBouderImpl(wallId, true);

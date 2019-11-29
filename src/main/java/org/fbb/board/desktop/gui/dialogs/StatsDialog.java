@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fbb.board.desktop.gui;
+package org.fbb.board.desktop.gui.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -33,6 +33,7 @@ import javax.swing.JTabbedPane;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
+import org.fbb.board.desktop.gui.BoulderFiltering;
 import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.ListWithFilter;
 import org.fbb.board.internals.db.DB;
@@ -70,11 +71,11 @@ public class StatsDialog extends JDialog {
                         StatsDialog.this.remove(cc);
                     }
                 }
-                if (listAndothers != null && listAndothers.list != null) {
-                    if (listAndothers.list.size() > 0) {
-                        StatsDialog.this.add(createStats(listAndothers.list.get(0).getWall(), listAndothers.list));
+                if (listAndothers != null && listAndothers.getList() != null) {
+                    if (listAndothers.getList().size() > 0) {
+                        StatsDialog.this.add(createStats(listAndothers.getList().get(0).getWall(), listAndothers.getList()));
                     } else {
-                        StatsDialog.this.add(createStats(wall, listAndothers.list));
+                        StatsDialog.this.add(createStats(wall, listAndothers.getList()));
                     }
                 }
                 StatsDialog.this.validate();
@@ -94,7 +95,7 @@ public class StatsDialog extends JDialog {
         jdb.add(byAutor);
         jdb.add(byHolds);
         jdb.add(byHoldsCount);
-        jdb.add(byAuthorAndDificulty);        
+        jdb.add(byAuthorAndDificulty);
         jdb.setTitleAt(0, Translator.R("byDiff"));
         jdb.setTitleAt(1, Translator.R("byAuthor"));
         jdb.setTitleAt(2, Translator.R("byHolds"));// charts (0 toppest)by row and stats per line; zoom all acrding to max!
@@ -154,7 +155,7 @@ public class StatsDialog extends JDialog {
                 for (int j = 0; j < get.length; j++) {
                     if (get[j] > 0) {
                         allRows.get(i)[j]++;
-                        if (allRows.get(i)[j]>max){
+                        if (allRows.get(i)[j] > max) {
                             max = allRows.get(i)[j];
                         }
                         if (get[j] == 3) {
@@ -177,11 +178,11 @@ public class StatsDialog extends JDialog {
         }
         ChartPanel[] charts = new ChartPanel[cdata.length + 1];
         DefaultCategoryDataset tops = new DefaultCategoryDataset();
-        tops.addValue(noTops,  Translator.R("toe"),  Translator.R("toe"));
+        tops.addValue(noTops, Translator.R("toe"), Translator.R("toe"));
         charts[0] = createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("toe"), Translator.R("toe"), tops);
 
         for (int i = 0; i < cdata.length; i++) {
-            charts[i + 1] = createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()),Translator.R("holdId",i), Translator.R("holdUsages"), cdata[i]);
+            charts[i + 1] = createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("holdId", i), Translator.R("holdUsages"), cdata[i]);
             charts[i + 1].getChart().getCategoryPlot().getRangeAxis(0).setRange(0, max);
         }
         return charts;
