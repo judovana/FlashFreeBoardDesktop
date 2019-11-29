@@ -27,6 +27,7 @@ import org.fbb.board.Translator;
 import org.fbb.board.desktop.gui.dialogs.parts.DefaultSnoozeAction;
 import org.fbb.board.desktop.gui.dialogs.parts.TimeAndSnooze;
 import org.fbb.board.internals.GuiLogHelper;
+import org.fbb.board.internals.grid.Grid;
 import org.fbb.board.internals.grid.GridPane;
 
 /**
@@ -95,37 +96,7 @@ public class BallWindow extends JDialog implements Runnable {
     public void run() {
         try {
             gp.getGrid().clean();
-            gp.getGrid().set(center.x, center.y, (byte) 3);
-            if (size.getSelectedIndex() > 0) {
-                setSilentlyCatched(center.x + 1, center.y, (byte) 2);
-                setSilentlyCatched(center.x - 1, center.y, (byte) 2);
-                setSilentlyCatched(center.x + 1, center.y + 1, (byte) 2);
-                setSilentlyCatched(center.x + 1, center.y - 1, (byte) 2);
-                setSilentlyCatched(center.x - 1, center.y + 1, (byte) 2);
-                setSilentlyCatched(center.x - 1, center.y - 1, (byte) 2);
-                setSilentlyCatched(center.x, center.y + 1, (byte) 2);
-                setSilentlyCatched(center.x, center.y - 1, (byte) 2);
-                if (size.getSelectedIndex() > 1) {
-                    setSilentlyCatched(center.x + 2, center.y, (byte) 1);
-                    setSilentlyCatched(center.x - 2, center.y, (byte) 1);
-                    setSilentlyCatched(center.x + 2, center.y + 2, (byte) 1);
-                    setSilentlyCatched(center.x + 2, center.y - 2, (byte) 1);
-                    setSilentlyCatched(center.x - 2, center.y + 2, (byte) 1);
-                    setSilentlyCatched(center.x - 2, center.y - 2, (byte) 1);
-                    setSilentlyCatched(center.x, center.y + 2, (byte) 1);
-                    setSilentlyCatched(center.x, center.y - 2, (byte) 1);
-                    setSilentlyCatched(center.x + 1, center.y + 2, (byte) 1);
-                    setSilentlyCatched(center.x + 1, center.y - 2, (byte) 1);
-                    setSilentlyCatched(center.x - 1, center.y + 2, (byte) 1);
-                    setSilentlyCatched(center.x - 1, center.y - 2, (byte) 1);
-                    setSilentlyCatched(center.x + 2, center.y + 1, (byte) 1);
-                    setSilentlyCatched(center.x + 2, center.y - 1, (byte) 1);
-                    setSilentlyCatched(center.x - 2, center.y + 1, (byte) 1);
-                    setSilentlyCatched(center.x - 2, center.y - 1, (byte) 1);
-
-                }
-            }
-
+            drawBall(gp.getGrid(), size.getSelectedIndex(), center, (byte) 3, (byte) 2, (byte) 1);
             gp.repaintAndSendToKnown();
             countDown--;
             if (countDown <= 0) {
@@ -145,9 +116,9 @@ public class BallWindow extends JDialog implements Runnable {
         }
     }
 
-    public void setSilentlyCatched(int x, int y, byte color) {
+    public static void setSilentlyCatched(Grid g, int x, int y, byte color) {
         try {
-            gp.getGrid().set(x, y, color);
+            g.set(x, y, color);
         } catch (IndexOutOfBoundsException e) {
             // intentionally ignored
         }
@@ -208,6 +179,39 @@ public class BallWindow extends JDialog implements Runnable {
         center = new Point(gp.getGrid().getWidth() / 2, gp.getGrid().getHeight() / 2);
         vector = new Point(0, -1);
         countDown = countDown = randomizer.nextInt(Math.min(gp.getGrid().getWidth() / 2, gp.getGrid().getHeight() / 2) + 1);
+    }
+
+    public static void drawBall(Grid g, int size, Point center, byte c1, byte c2, byte c3) {
+        g.set(center.x, center.y, c1);
+        if (size > 0) {
+            setSilentlyCatched(g, center.x + 1, center.y, c2);
+            setSilentlyCatched(g, center.x - 1, center.y, c2);
+            setSilentlyCatched(g, center.x + 1, center.y + 1, c2);
+            setSilentlyCatched(g, center.x + 1, center.y - 1, c2);
+            setSilentlyCatched(g, center.x - 1, center.y + 1, c2);
+            setSilentlyCatched(g, center.x - 1, center.y - 1, c2);
+            setSilentlyCatched(g, center.x, center.y + 1, c2);
+            setSilentlyCatched(g, center.x, center.y - 1, c2);
+            if (size > 1) {
+                setSilentlyCatched(g, center.x + 2, center.y, c3);
+                setSilentlyCatched(g, center.x - 2, center.y, c3);
+                setSilentlyCatched(g, center.x + 2, center.y + 2, c3);
+                setSilentlyCatched(g, center.x + 2, center.y - 2, c3);
+                setSilentlyCatched(g, center.x - 2, center.y + 2, c3);
+                setSilentlyCatched(g, center.x - 2, center.y - 2, c3);
+                setSilentlyCatched(g, center.x, center.y + 2, c3);
+                setSilentlyCatched(g, center.x, center.y - 2, c3);
+                setSilentlyCatched(g, center.x + 1, center.y + 2, c3);
+                setSilentlyCatched(g, center.x + 1, center.y - 2, c3);
+                setSilentlyCatched(g, center.x - 1, center.y + 2, c3);
+                setSilentlyCatched(g, center.x - 1, center.y - 2, c3);
+                setSilentlyCatched(g, center.x + 2, center.y + 1, c3);
+                setSilentlyCatched(g, center.x + 2, center.y - 1, c3);
+                setSilentlyCatched(g, center.x - 2, center.y + 1, c3);
+                setSilentlyCatched(g, center.x - 2, center.y - 1, c3);
+
+            }
+        }
     }
 
 }

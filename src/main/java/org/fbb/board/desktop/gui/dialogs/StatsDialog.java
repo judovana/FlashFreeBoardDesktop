@@ -11,10 +11,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -248,6 +245,7 @@ public class StatsDialog extends JDialog {
             AuthorAndCount get = sortAuthors.get(j);
             cdataA.addValue(get.i, "authors", get.a);
         }
+        //continue with other authors in other charts1
         return createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSauthor"), Translator.R("SScount"), cdataA);
     }
 

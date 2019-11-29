@@ -68,6 +68,7 @@ import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
 import org.fbb.board.desktop.TextToSpeech;
 import org.fbb.board.desktop.TrainingSaveLoadDialog;
+import org.fbb.board.desktop.gui.dialogs.ClockWindow;
 import org.fbb.board.internals.grid.Boulder;
 import org.fbb.board.internals.db.DB;
 import org.fbb.board.internals.Filter;
@@ -790,6 +791,14 @@ public class MainWindow {
             public void actionPerformed(ActionEvent e) {
                 JDialog ballWindow = new BallWindow((Component) e.getSource(), gp);
                 ballWindow.setVisible(true);
+
+            }
+        });
+        clock.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JDialog clockWindow = new ClockWindow((Component) e.getSource(), gp);
+                clockWindow.setVisible(true);
 
             }
         });
