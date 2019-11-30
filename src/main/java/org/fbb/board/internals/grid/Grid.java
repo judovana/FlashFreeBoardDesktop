@@ -943,4 +943,14 @@ public class Grid {
     private int getUnifiedStyle() {
         return Math.abs(getHoldStyle() % HoldMarkerProvider.COUNT_OF_STYLES);
     }
+
+    public void set(List<int[]> l, byte b) {
+        for (int[] p : l) {
+            try {
+                this.set(p[0], p[1], b);
+            } catch (IndexOutOfBoundsException ex) {
+                break;
+            }
+        }
+    }
 }

@@ -66,7 +66,7 @@ public class ClockWindow extends JDialog implements Runnable {
         clockwise = new JCheckBox(Translator.R("clockwise"), true);
         panel.add(clockwise);
         panel.add(new JLabel(Translator.R("axes")));
-        axes = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5, 6, 7});
+        axes = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5, 6});
         axes.setSelectedIndex(0);
         panel.add(axes);
         tas = new TimeAndSnooze(panel, new DefaultSnoozeAction(gp), new Runnable() {
@@ -89,19 +89,27 @@ public class ClockWindow extends JDialog implements Runnable {
         tas.start();
     }
     private Random move = new Random();
+    int degrees = 0;
+    int jump = 15;
 
     @Override
     public void run() {
         try {
             gp.getGrid().clean();
             Point center = new Point(gp.getGrid().getWidth() / 2, gp.getGrid().getHeight() / 2);
-            Point dest = new Point(move.nextInt(gp.getGrid().getWidth()), move.nextInt(gp.getGrid().getHeight()));
+            int r = Math.max(gp.getGrid().getWidth() / 2, gp.getGrid().getHeight() / 2);
+            int astep = 360 / (axes.getSelectedIndex() + 1);
             BallWindow.drawBall(gp.getGrid(), size_middle.getSelectedIndex(), center, (byte) 3, (byte) 2, (byte) 1);
-            //by width, create three lines
-            List<int[]> l = Utils.bresenhamLine(center.x, center.y, dest.x, dest.y);
-            for (int[] p : l) {
-                gp.getGrid().set(p[0], p[1], (byte)3);
-            }
+            for (int i = 0; i <= axes.getSelectedIndex(); i++) {
+                Double a = Math.toRadians(degrees + (i * astep));
+                int x = (int) ((double) r * Math.cos(a) - r * Math.sin(a));
+                int y = (int) ((double) r * Math.sin(a) + r * Math.cos(a));
+                Point dest = new Point(x + center.x, y + center.y);
+                //by width, create three lines
+                //List<int[]> l2 = Utils.bresenhamLine(center.x + 1, center.y + 1, dest.x + 1, dest.y + 1);
+                //gp.getGrid().set(l2, (byte) 2);
+                List<int[]> l1 = Utils.bresenhamLine(center.x, center.y, dest.x, dest.y);
+                gp.getGrid().set(l1, (byte) 3);
 //            if (size_line.getSelectedIndex() > 0) {
 //                CampusLikeDialog.drawColumn(c1 - 1, 2, gp.getGrid());
 //                CampusLikeDialog.drawRow(r1 + 1, 2, gp.getGrid());
@@ -110,7 +118,13 @@ public class ClockWindow extends JDialog implements Runnable {
 //                    CampusLikeDialog.drawRow(r1 + 2, 1, gp.getGrid());
 //                }
 //            }
-            gp.repaintAndSendToKnown();
+                gp.repaintAndSendToKnown();
+            }
+            if (clockwise.isSelected()) {
+                degrees = degrees + jump;
+            } else {
+                degrees = degrees - jump;
+            }
         } catch (Exception ex) {
             GuiLogHelper.guiLogger.loge(ex);
             JOptionPane.showMessageDialog(ClockWindow.this, ex);
