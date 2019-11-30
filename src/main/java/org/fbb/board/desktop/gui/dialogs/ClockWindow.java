@@ -106,18 +106,35 @@ public class ClockWindow extends JDialog implements Runnable {
                 int y = (int) ((double) r * Math.sin(a) + r * Math.cos(a));
                 Point dest = new Point(x + center.x, y + center.y);
                 //by width, create three lines
-                //List<int[]> l2 = Utils.bresenhamLine(center.x + 1, center.y + 1, dest.x + 1, dest.y + 1);
-                //gp.getGrid().set(l2, (byte) 2);
+                //moved in corect way to suggest direction
+                int ymove = 0;
+                int xmove = 0;
+                if (x <= 0 && y <= 0) {
+                    ymove = 1;
+                }
+                if (x >= 0 && y <= 0) {
+                    xmove = -1;
+                }
+                if (x <= 0 && y >= 0) {
+                    xmove = 1;
+                }
+                if (x >= 0 && y >= 0) {
+                    ymove = -1;
+                }
+                if (!clockwise.isSelected()) {
+                    xmove *= -1;
+                    ymove *= -1;
+                }
+                if (size_line.getSelectedIndex() > 1) {
+                    List<int[]> l3 = Utils.bresenhamLine(center.x + 2 * xmove, center.y + 2 * ymove, dest.x + 2 * xmove, dest.y + 2 * ymove);
+                    gp.getGrid().set(l3, (byte) 1);
+                }
+                if (size_line.getSelectedIndex() > 0) {
+                    List<int[]> l2 = Utils.bresenhamLine(center.x + xmove, center.y + ymove, dest.x + xmove, dest.y + ymove);
+                    gp.getGrid().set(l2, (byte) 2);
+                }
                 List<int[]> l1 = Utils.bresenhamLine(center.x, center.y, dest.x, dest.y);
                 gp.getGrid().set(l1, (byte) 3);
-//            if (size_line.getSelectedIndex() > 0) {
-//                CampusLikeDialog.drawColumn(c1 - 1, 2, gp.getGrid());
-//                CampusLikeDialog.drawRow(r1 + 1, 2, gp.getGrid());
-//                if (size_line.getSelectedIndex() > 1) {
-//                    CampusLikeDialog.drawColumn(c1 - 2, 1, gp.getGrid());
-//                    CampusLikeDialog.drawRow(r1 + 2, 1, gp.getGrid());
-//                }
-//            }
                 gp.repaintAndSendToKnown();
             }
             if (clockwise.isSelected()) {
@@ -132,6 +149,7 @@ public class ClockWindow extends JDialog implements Runnable {
     }
 
     private void reset() {
+        degrees = 0;
 
     }
 
