@@ -11,6 +11,7 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import javax.swing.JCheckBox;
@@ -125,15 +126,26 @@ public class ClockWindow extends JDialog implements Runnable {
                     xmove *= -1;
                     ymove *= -1;
                 }
+                List<int[]> l1 = Utils.bresenhamLine(center.x, center.y, dest.x, dest.y);
+                //I keep drawing the line in two way, to get some more pixels in the most ignored ides.. not much sucess
                 if (size_line.getSelectedIndex() > 1) {
                     List<int[]> l3 = Utils.bresenhamLine(center.x + 2 * xmove, center.y + 2 * ymove, dest.x + 2 * xmove, dest.y + 2 * ymove);
+                    gp.getGrid().set(l3, (byte) 1);
+                    l3 = new ArrayList<int[]>(l1.size());
+                    for (int[] is : l1) {
+                        l3.add(new int[]{is[0] + 2 * xmove, is[1] + 2 * ymove});
+                    }
                     gp.getGrid().set(l3, (byte) 1);
                 }
                 if (size_line.getSelectedIndex() > 0) {
                     List<int[]> l2 = Utils.bresenhamLine(center.x + xmove, center.y + ymove, dest.x + xmove, dest.y + ymove);
                     gp.getGrid().set(l2, (byte) 2);
+                    l2 = new ArrayList<int[]>(l1.size());
+                    for (int[] is : l1) {
+                        l2.add(new int[]{is[0] + xmove, is[1] + ymove});
+                    }
+                    gp.getGrid().set(l2, (byte) 2);
                 }
-                List<int[]> l1 = Utils.bresenhamLine(center.x, center.y, dest.x, dest.y);
                 gp.getGrid().set(l1, (byte) 3);
                 gp.repaintAndSendToKnown();
             }
