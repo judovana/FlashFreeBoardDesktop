@@ -89,24 +89,15 @@ public class BoxesWindow extends JDialog implements Runnable {
     public void run() {
         try {
             gp.getGrid().clean();
-            int c1 = move.nextInt(gp.getGrid().getWidth());
-            CampusLikeDialog.drawColumn(c1, 3, gp.getGrid());
-            int r1 = move.nextInt(gp.getGrid().getHeight());
-            CampusLikeDialog.drawRow(r1, 3, gp.getGrid());
+            int c1 = move.nextInt(gp.getGrid().getWidth() / 2);
+            int c2 = move.nextInt(gp.getGrid().getWidth() / 2 + gp.getGrid().getWidth() / 2);
+            int r1 = move.nextInt(gp.getGrid().getHeight() / 2);
+            int r2 = move.nextInt(gp.getGrid().getHeight() / 2 + gp.getGrid().getHeight() / 2);
+            drawSIngleGrid(c1, c2, r1, r2, 0, (byte) 3);
             if (size.getSelectedIndex() > 0) {
-                if (c1 > 1) {
-                    CampusLikeDialog.drawColumn(c1 - 1, 2, gp.getGrid());
-                }
-                if (r1 < gp.getGrid().getHeight() - 1) {
-                    CampusLikeDialog.drawRow(r1 + 1, 2, gp.getGrid());
-                }
+                drawSIngleGrid(c1, c2, r1, r2, 1, (byte) 2);
                 if (size.getSelectedIndex() > 1) {
-                    if (c1 > 2) {
-                        CampusLikeDialog.drawColumn(c1 - 2, 1, gp.getGrid());
-                    }
-                    if (r1 < gp.getGrid().getHeight() - 2) {
-                        CampusLikeDialog.drawRow(r1 + 2, 1, gp.getGrid());
-                    }
+                    drawSIngleGrid(c1, c2, r1, r2, 2, (byte) 1);
                 }
             }
             gp.repaintAndSendToKnown();
@@ -117,6 +108,30 @@ public class BoxesWindow extends JDialog implements Runnable {
     }
 
     private void reset() {
+
+    }
+
+    private void drawSIngleGrid(int c1, int c2, int r1, int r2, int i, byte c) {
+        if (left.isSelected()) {
+            if (c1 - i >= 0) {
+                CampusLikeDialog.drawColumn(c1 - i, c, gp.getGrid());
+            }
+        }
+        if (up.isSelected()) {
+            if (r1 - i >= 0) {
+                CampusLikeDialog.drawRow(r1 - i, c, gp.getGrid());
+            }
+        }
+        if (right.isSelected()) {
+            if (c2 + i < gp.getGrid().getWidth()) {
+                CampusLikeDialog.drawColumn(c2 + i, c, gp.getGrid());
+            }
+        }
+        if (bottom.isSelected()) {
+            if (r2 + i < gp.getGrid().getHeight()) {
+                CampusLikeDialog.drawRow(r2 + i, c, gp.getGrid());
+            }
+        }
 
     }
 
