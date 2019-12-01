@@ -81,18 +81,43 @@ public class BoxesWindow extends JDialog implements Runnable {
             }
 
         });
+        reset();
         tas.start();
     }
-    private Random move = new Random();
+    private final Random move = new Random();
+
+    int c1, c2, r1, r2;
+    int t = 0;
+    int v1, v2, v3, v4;
 
     @Override
     public void run() {
         try {
+            if (t <= 0) {
+                t = move.nextInt(Math.min(getGridWidth(), getgridHeight()) / 2)*2+1;
+                v1 = move.nextInt(2) - 1;
+                v2 = move.nextInt(2) - 1;
+                v3 = move.nextInt(2) - 1;
+                v4 = move.nextInt(2) - 1;
+            }
+            t--;
+            c1 = c1 + v1;
+            c2 = c2 + v2;
+            r1 = r1 + v3;
+            r2 = r2 + v4;
+            int[] limited1 = limit(c1, 0, getGridWidth() / 2, v1);
+            int[] limited2 = limit(c2, getGridWidth() / 2, getGridWidth(), v2);
+            int[] limited3 = limit(r1, 0, getgridHeight() / 2, v3);
+            int[] limited4 = limit(r2, getgridHeight() / 2, getgridHeight(), v4);
+            c1 = limited1[0];
+            v1 = limited1[1];
+            c2 = limited2[0];
+            v2 = limited2[1];
+            r1 = limited3[0];
+            v3 = limited3[1];
+            r2 = limited4[0];
+            v4 = limited4[1];
             gp.getGrid().clean();
-            int c1 = move.nextInt(gp.getGrid().getWidth() / 2);
-            int c2 = move.nextInt(gp.getGrid().getWidth() / 2 + gp.getGrid().getWidth() / 2);
-            int r1 = move.nextInt(gp.getGrid().getHeight() / 2);
-            int r2 = move.nextInt(gp.getGrid().getHeight() / 2 + gp.getGrid().getHeight() / 2);
             drawSIngleGrid(c1, c2, r1, r2, 0, (byte) 3);
             if (size.getSelectedIndex() > 0) {
                 drawSIngleGrid(c1, c2, r1, r2, 1, (byte) 2);
@@ -107,8 +132,20 @@ public class BoxesWindow extends JDialog implements Runnable {
         }
     }
 
-    private void reset() {
+    private int getGridWidth() {
+        return gp.getGrid().getWidth();
+    }
 
+    private void reset() {
+        c1 = (getGridWidth() / 4);
+        c2 = ((getGridWidth() * 3) / 4);
+        r1 = (getgridHeight() / 4);
+        r2 = ((getgridHeight() * 3) / 4);
+
+    }
+
+    private int getgridHeight() {
+        return gp.getGrid().getHeight();
     }
 
     private void drawSIngleGrid(int c1, int c2, int r1, int r2, int i, byte c) {
@@ -123,16 +160,27 @@ public class BoxesWindow extends JDialog implements Runnable {
             }
         }
         if (right.isSelected()) {
-            if (c2 + i < gp.getGrid().getWidth()) {
+            if (c2 + i < getGridWidth()) {
                 CampusLikeDialog.drawColumn(c2 + i, c, gp.getGrid());
             }
         }
         if (bottom.isSelected()) {
-            if (r2 + i < gp.getGrid().getHeight()) {
+            if (r2 + i < getgridHeight()) {
                 CampusLikeDialog.drawRow(r2 + i, c, gp.getGrid());
             }
         }
 
+    }
+
+    private int[] limit(final int c, final int minInc, final int maxEx, final int v) {
+        int[] r = new int[]{c, v};
+        if (c < minInc) {
+            r = new int[]{minInc, v * -1};
+        }
+        if (c >= maxEx) {
+            r = new int[]{maxEx - 1, v * -1};
+        }
+        return r;
     }
 
 }
