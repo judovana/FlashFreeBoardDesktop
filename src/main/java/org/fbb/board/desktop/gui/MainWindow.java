@@ -771,8 +771,8 @@ public class MainWindow {
                 try {
                     db.pullCatched(new ExceptionHandler.LoggingEater());
                     createSelectOrImportWall(Files.getWallFile(preloaded.givenId).toURI().toURL().toExternalForm(), createWallWindow);
-                    db.addAll();
-                } catch (IOException | GitAPIException ex) {
+                    //db.addAll();?!?!?! FIXME?
+                } catch (Exception ex) {
                     GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(null, ex);
                 }
