@@ -15,10 +15,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.zip.ZipInputStream;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -81,6 +87,17 @@ public class StatsDialog extends JDialog {
         });
     }
 
+    private JScrollPane wrapPanelsToScroll(List<ChartPanel> hCharts) {
+        JPanel p = new JPanel(new GridLayout(hCharts.size(), 0));
+        for (int i = 0; i < hCharts.size(); i++) {
+            ChartPanel hChart = hCharts.get(i);
+            p.add(hChart);
+        }
+        JScrollPane scroll = new JScrollPane(p);
+        return scroll;
+
+    }
+
     private JTabbedPane createStats(final String wall, List<Boulder> boulderList) {
         JTabbedPane jdb = new JTabbedPane();
         JPanel byDificulty = new JPanel(new BorderLayout());
@@ -100,21 +117,15 @@ public class StatsDialog extends JDialog {
         jdb.setTitleAt(4, Translator.R("byAuthorAndDificulty"));
         this.add(jdb);
 
-        byDificulty.add(createDifficultyChartPannel(wall, boulderList));
+        byDificulty.add(wrapPanelsToScroll(createDifficultyChartPannel(wall, boulderList)));
 
-        byAutor.add(createAuthorChartPannel(wall, boulderList));
+        byAutor.add(wrapPanelsToScroll(createAuthorChartPannel(wall, boulderList)));
 
-        byHoldsCount.add(createLengthChartPannel(wall, boulderList));
+        byHoldsCount.add(wrapPanelsToScroll(createLengthChartPannel(wall, boulderList)));
 
         try {
             ChartPanel[] hCharts = createHoldsChartPannel(wall, boulderList);
-            JPanel p = new JPanel(new GridLayout(hCharts.length + 1, 0));
-            for (int i = 0; i < hCharts.length; i++) {
-                ChartPanel hChart = hCharts[i];
-                p.add(hChart);
-            }
-            JScrollPane scroll = new JScrollPane(p);
-            byHolds.add(scroll);
+            byHolds.add(wrapPanelsToScroll(Arrays.asList(hCharts)));
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, ex);
@@ -185,25 +196,45 @@ public class StatsDialog extends JDialog {
         return charts;
     }
 
-    private ChartPanel createLengthChartPannel(final String wall, List<Boulder> boulderList) {
-        DefaultCategoryDataset cdataD = new DefaultCategoryDataset();
+    private List<ChartPanel> createLengthChartPannel(final String wall, List<Boulder> boulderList) {
+        Map<Integer, LengthAndCount> data = new TreeMap<>();
+        int max = 0;
         for (Boulder b : boulderList) {
-            Integer i = b.getPathLength();
-            try {
-                Number n = cdataD.getValue("lenghts", i);
-                cdataD.setValue(n.intValue() + 1, "lenghts", i);
-            } catch (org.jfree.data.UnknownKeyException e) {
-                cdataD.setValue(1, "lenghts", i);
+            Integer l = b.getPathLength();
+            LengthAndCount v = data.get(l);
+            if (v == null) {
+                data.put(l, new LengthAndCount(l, 1));
+                if (1 > max) {
+                    max = 1;
+                }
+            } else {
+                v.i++;
+                if (v.i > max) {
+                    max = v.i;
+                }
             }
-
+        }
+        List<ChartPanel> r = new ArrayList<>();
+        List<LengthAndCount> vals = new ArrayList<>(data.values());
+        for (int a = 0; a < vals.size(); a += 10) {
+            DefaultCategoryDataset cdataA = new DefaultCategoryDataset();
+            for (int j = a; j < Math.min(vals.size(), a + 10); j++) {
+                LengthAndCount get = vals.get(j);
+                cdataA.addValue((Number) get.i, "lenghts", get.l);
+            }
+            r.add(createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("ssLength"), Translator.R("SScount"), cdataA));
+            r.get(r.size() - 1).getChart().getCategoryPlot().getRangeAxis(0).setRange(0, max);
         }
 
-        return createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("ssLength"), Translator.R("SScount"), cdataD);
+        return r;
     }
 
-    private ChartPanel createDifficultyChartPannel(final String wall, List<Boulder> boulderList) {
+    private List<ChartPanel> createDifficultyChartPannel(final String wall, List<Boulder> boulderList) {
+        List<ChartPanel> r = new ArrayList<>();
         DefaultCategoryDataset cdataD = new DefaultCategoryDataset();
         int i = -1;
+        int one = 0;
+        int max = 0;
         for (String s : Grade.currentGrades()) {
             i++;
             int c = 0;
@@ -212,15 +243,27 @@ public class StatsDialog extends JDialog {
                     c++;
                 }
             }
+            if (c > max) {
+                max = c;
+            }
             if (c > 0) {
+                one++;
                 cdataD.addValue((Number) c, "diff", new Grade.ToStringGradeWrapper(i));
+                if (one % 10 == 0 || i == Grade.currentGrades().size()-1) {
+                    one = 0;
+                    r.add(createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSdifficulty"), Translator.R("SScount"), cdataD));
+                    cdataD = new DefaultCategoryDataset();
+                }
             }
         }
-        return createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSdifficulty"), Translator.R("SScount"), cdataD);
+
+        for (ChartPanel chartPanel : r) {
+            chartPanel.getChart().getCategoryPlot().getRangeAxis(0).setRange(0, max);
+        }
+        return r;
     }
 
-    private ChartPanel createAuthorChartPannel(final String wall, List<Boulder> boulderList) {
-        DefaultCategoryDataset cdataA = new DefaultCategoryDataset();
+    private List<ChartPanel> createAuthorChartPannel(final String wall, List<Boulder> boulderList) {
         Set<String> authors = new HashSet<>();
         for (Boulder boulder : boulderList) {
             authors.add(boulder.getAuthor().toLowerCase().trim());
@@ -241,12 +284,17 @@ public class StatsDialog extends JDialog {
             }
         }
         Collections.sort(sortAuthors);
-        for (int j = 0; j < Math.min(sortAuthors.size(), 20); j++) {
-            AuthorAndCount get = sortAuthors.get(j);
-            cdataA.addValue(get.i, "authors", get.a);
+        List<ChartPanel> r = new ArrayList<>();
+        for (int a = 0; a < sortAuthors.size(); a += 10) {
+            DefaultCategoryDataset cdataA = new DefaultCategoryDataset();
+            for (int j = a; j < Math.min(sortAuthors.size(), a + 10); j++) {
+                AuthorAndCount get = sortAuthors.get(j);
+                cdataA.addValue(get.i, "authors", get.a);
+            }
+            r.add(createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSauthor"), Translator.R("SScount"), cdataA));
+            r.get(r.size() - 1).getChart().getCategoryPlot().getRangeAxis(0).setRange(0, sortAuthors.get(0).i);
         }
-        //continue with other authors in other charts1
-        return createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSauthor"), Translator.R("SScount"), cdataA);
+        return r;
     }
 
     private ChartPanel createDefaultChartPannel(String title, String xLabel, String yLabel, DefaultCategoryDataset data) {
@@ -273,6 +321,22 @@ public class StatsDialog extends JDialog {
         @Override
         public int compareTo(AuthorAndCount t) {
             return t.i - this.i;
+        }
+    }
+
+    private static class LengthAndCount implements Comparable<LengthAndCount> {
+
+        private final int l;
+        private int i;
+
+        public LengthAndCount(int l, int i) {
+            this.l = l;
+            this.i = i;
+        }
+
+        @Override
+        public int compareTo(LengthAndCount t) {
+            return t.l - this.l;
         }
     }
 
