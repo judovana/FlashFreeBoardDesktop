@@ -670,7 +670,7 @@ class SettingsListener implements ActionListener {
                         otherAssets.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
-                                new OtherAssetsDialog(update.getOtherAssets()).setVisible(true);
+                                new OtherAssetsDialog(update.getOtherAssets(), OtherAssetsDialog.defaultpaths).setVisible(true);
                             }
                         });
                     }
