@@ -14,6 +14,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -26,7 +27,7 @@ import org.fbb.board.internals.GuiLogHelper;
  *
  * @author jvanek
  */
-public class LogView extends JFrame {
+public class LogView extends JDialog {
 
     private final DB db;
 
@@ -63,7 +64,11 @@ public class LogView extends JFrame {
     }
 
     public LogView(DB ddb) throws HeadlessException {
+        this(ddb, false);
+    }
+    public LogView(DB ddb, boolean modal) throws HeadlessException {
         this.db = ddb;
+        this.setModal(modal);
         this.setLayout(new BorderLayout());
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         JTextArea e = new JTextArea();

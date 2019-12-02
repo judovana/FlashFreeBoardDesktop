@@ -43,6 +43,7 @@ import org.fbb.board.Translator;
 import org.fbb.board.Updater;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
+import org.fbb.board.desktop.gui.dialogs.LogView;
 import org.fbb.board.internals.FUtils;
 import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.GuiLogHelper;
@@ -215,10 +216,18 @@ class SettingsListener implements ActionListener {
         general.add(remoteSecurityStatus);
         general.add(remoteSecurityButton);
         JButton deleteBouldrs = new JButton(Translator.R("SelectListBoulders"));
+        JButton logs = new JButton("logs");
         if (wall == null) {
             deleteBouldrs.setEnabled(false);
         }
         general.add(deleteBouldrs);
+        general.add(logs);
+        logs.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                   new LogView(db, true).setVisible(true);
+            }
+        });
         deleteBouldrs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
