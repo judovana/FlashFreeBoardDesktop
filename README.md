@@ -1,14 +1,15 @@
 # FlashFreeBoardDesktop
-Implementation of moonboard-like approach, on custom indoor climbing walls - PC client. See [video](http://www.facebook.com/1403584339870419/videos/562209057939918/)
+Implementation of moonboard-like approach, on custom indoor climbing walls - PC client. See [video](http://www.facebook.com/1403584339870419/videos/562209057939918/), from this [zip](https://github.com/FlashFreeBoard/FreeBoard/raw/Olomouc20191113/walls/Olomouc20191116.wall)
 
 This is fully moonbaord leds compatible client, however, due to no-limits on leds shining, I strongly recomends to set up own power - eg on each 100leds, you should have one [5v 10a source](https://www.mouser.com/ProductDetail/mean-well/rs-50-5/?qs=pqZ7J9Gt%2FmqSEKuHhGNBSg==&countrycode=CZ&currencycode=CZK).  See also http://www.eerkmans.nl/powering-lots-of-leds-from-arduino/ for some info.
 
 The tooling contains one [arduino](https://www.sparkfun.com/products/13975) to [control](https://github.com/judovana/arduino/tree/master/FreeBoard/WS2812blinks) the leds. Note that arduino with its 2kb of ram have limitations around 600 of leds. For bigger walls you need arduino mega.
 Second in chain is pc or raspery with mouse and screen or jsut touch screen. The links to older raspbery images are to be found in release.
+The tooling is now limited to max size of wall 255 x 255 holds (you can not even create 256 x 1, axes are limited individually)
 
 Communication between raspbery/pc and arduino is via USB cable (up to 100m) or through bluetooth, eg https://www.sparkfun.com/products/12580 , however the BT have some glitches, so cable is 100% recomended.
 
-Except HW, you have no limitations on wall you build. Any holds, any size. Just mak ea picture of it and import it as new wall, and start doing boulders on ot. The client of yours can be connected to any git repository to store boulders also on remote
+Except HW, you have no limitations on wall you build. Any holds, any size, any angle. Just mak a picture of it and import it as new wall, and start doing boulders on it. The client of yours can be connected to any git repository to store boulders also on remote
  - backup
  - remote maintance
  - several walls with same holds
