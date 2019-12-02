@@ -6,7 +6,7 @@ This is fully moonbaord leds compatible client, however, due to no-limits on led
 The tooling contains one [arduino](https://www.sparkfun.com/products/13975) to [control](https://github.com/judovana/arduino/tree/master/FreeBoard/WS2812blinks) the leds. Note that arduino with its 2kb of ram have limitations around 600 of leds. For bigger walls you need arduino mega.
 Second in chain is pc or raspery with mouse and screen or jsut touch screen. The links to older raspbery images are to be found in release.
 
-Communication between raspbery/pc and arduino is via USB cable (up to 100m) or through blkuetoth, eg https://www.sparkfun.com/products/12580 , however the BT have some glitches, so cable is 1005 recomended.
+Communication between raspbery/pc and arduino is via USB cable (up to 100m) or through bluetooth, eg https://www.sparkfun.com/products/12580 , however the BT have some glitches, so cable is 100% recomended.
 
 Except HW, you have no limitations on wall you build. Any holds, any size. Just mak ea picture of it and import it as new wall, and start doing boulders on ot. The client of yours can be connected to any git repository to store boulders also on remote
  - backup
