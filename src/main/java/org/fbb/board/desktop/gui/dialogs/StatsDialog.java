@@ -16,16 +16,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.ZipInputStream;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -33,7 +29,11 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
@@ -55,31 +55,52 @@ import org.jfree.data.category.DefaultCategoryDataset;
  */
 public class StatsDialog extends JDialog {
 
+    private final JSpinner paging;
+    private List<Boulder> lastList;
+
     public StatsDialog(final String wall, final DB db, final GlobalSettings gs) {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setModal(true);
-
         this.setSize(ScreenFinder.getCurrentScreenSizeWithoutBounds().getSize());
         this.setLocationRelativeTo(null);
+        paging = new JSpinner(new SpinnerNumberModel(10, 1, 40, 1));
+        paging.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                Component[] c = StatsDialog.this.getContentPane().getComponents();
+                int selected = 0;
+                for (Component cc : c) {
+                    if (cc instanceof JTabbedPane) {
+                        StatsDialog.this.remove(cc);
+                        selected = ((JTabbedPane) cc).getSelectedIndex();
+                    }
+                }
+                createStats(wall, lastList, selected);
+                StatsDialog.this.validate();
+            }
+        });
+        this.add(paging, BorderLayout.NORTH);
         JButton filterButton = new JButton(Translator.R("SSfilter"));
         this.add(filterButton, BorderLayout.SOUTH);
-        this.add(createStats(wall, new ListWithFilter(wall).getHistory()));
+        this.add(createStats(wall, new ListWithFilter(wall).getHistory(), 0));
         filterButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 BoulderFiltering.BoulderListAndIndex listAndothers = new BoulderFiltering(db, gs).selectListBouder(wall);
                 Component[] c = StatsDialog.this.getContentPane().getComponents();
+                int selected = 0;
                 for (Component cc : c) {
                     if (cc instanceof JTabbedPane) {
                         StatsDialog.this.remove(cc);
+                        selected = ((JTabbedPane) cc).getSelectedIndex();
                     }
                 }
                 if (listAndothers != null && listAndothers.getList() != null) {
                     if (listAndothers.getList().size() > 0) {
-                        StatsDialog.this.add(createStats(listAndothers.getList().get(0).getWall(), listAndothers.getList()));
+                        StatsDialog.this.add(createStats(listAndothers.getList().get(0).getWall(), listAndothers.getList(), selected));
                     } else {
-                        StatsDialog.this.add(createStats(wall, listAndothers.getList()));
+                        StatsDialog.this.add(createStats(wall, listAndothers.getList(), selected));
                     }
                 }
                 StatsDialog.this.validate();
@@ -102,7 +123,8 @@ public class StatsDialog extends JDialog {
 
     }
 
-    private JTabbedPane createStats(final String wall, List<Boulder> boulderList) {
+    private JTabbedPane createStats(final String wall, List<Boulder> boulderList, int selected) {
+        this.lastList = boulderList;
         JTabbedPane jdb = new JTabbedPane();
         JPanel byDificulty = new JPanel(new BorderLayout());
         JPanel byAutor = new JPanel(new BorderLayout());
@@ -136,6 +158,7 @@ public class StatsDialog extends JDialog {
         }
 
         byAuthorAndDificulty.add(wrapPanelsToScroll(createAuthorsAndDiffs(wall, boulderList)));
+        jdb.setSelectedIndex(selected);
         return jdb;
     }
 
@@ -222,9 +245,9 @@ public class StatsDialog extends JDialog {
         }
         List<ChartPanel> r = new ArrayList<>();
         List<LengthAndCount> vals = new ArrayList<>(data.values());
-        for (int a = 0; a < vals.size(); a += 10) {
+        for (int a = 0; a < vals.size(); a += getPaging()) {
             DefaultCategoryDataset cdataA = new DefaultCategoryDataset();
-            for (int j = a; j < Math.min(vals.size(), a + 10); j++) {
+            for (int j = a; j < Math.min(vals.size(), a + getPaging()); j++) {
                 LengthAndCount get = vals.get(j);
                 cdataA.addValue((Number) get.i, "lenghts", get.l);
             }
@@ -255,7 +278,7 @@ public class StatsDialog extends JDialog {
             if (c > 0) {
                 one++;
                 cdataD.addValue((Number) c, "diff", new Grade.ToStringGradeWrapper(i));
-                if (one % 10 == 0 || i == Grade.currentGrades().size() - 1) {
+                if (one % getPaging() == 0 || i == Grade.currentGrades().size() - 1) {
                     one = 0;
                     r.add(createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSdifficulty"), Translator.R("SScount"), cdataD));
                     cdataD = new DefaultCategoryDataset();
@@ -293,9 +316,9 @@ public class StatsDialog extends JDialog {
         }
         Collections.sort(sortAuthors);
         List<ChartPanel> r = new ArrayList<>();
-        for (int a = 0; a < sortAuthors.size(); a += 10) {
+        for (int a = 0; a < sortAuthors.size(); a += getPaging()) {
             DefaultCategoryDataset cdataA = new DefaultCategoryDataset();
-            for (int j = a; j < Math.min(sortAuthors.size(), a + 10); j++) {
+            for (int j = a; j < Math.min(sortAuthors.size(), a + getPaging()); j++) {
                 AuthorAndCount get = sortAuthors.get(j);
                 cdataA.addValue(get.i, "authors", get.a);
             }
@@ -419,6 +442,10 @@ public class StatsDialog extends JDialog {
             return o.key - key;
         }
 
+    }
+
+    private int getPaging() {
+        return (int) paging.getValue();
     }
 
 }
