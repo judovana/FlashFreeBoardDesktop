@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.ZipInputStream;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -87,10 +88,13 @@ public class StatsDialog extends JDialog {
         });
     }
 
-    private JScrollPane wrapPanelsToScroll(List<ChartPanel> hCharts) {
+    private JScrollPane wrapPanelsToScroll(List<? extends Component> hCharts) {
+        if (hCharts.isEmpty()) {
+            return new JScrollPane();
+        }
         JPanel p = new JPanel(new GridLayout(hCharts.size(), 0));
         for (int i = 0; i < hCharts.size(); i++) {
-            ChartPanel hChart = hCharts.get(i);
+            Component hChart = hCharts.get(i);
             p.add(hChart);
         }
         JScrollPane scroll = new JScrollPane(p);
@@ -130,6 +134,8 @@ public class StatsDialog extends JDialog {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, ex);
         }
+
+        byAuthorAndDificulty.add(wrapPanelsToScroll(createAuthorsAndDiffs(wall, boulderList)));
         return jdb;
     }
 
@@ -249,10 +255,15 @@ public class StatsDialog extends JDialog {
             if (c > 0) {
                 one++;
                 cdataD.addValue((Number) c, "diff", new Grade.ToStringGradeWrapper(i));
-                if (one % 10 == 0 || i == Grade.currentGrades().size()-1) {
+                if (one % 10 == 0 || i == Grade.currentGrades().size() - 1) {
                     one = 0;
                     r.add(createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSdifficulty"), Translator.R("SScount"), cdataD));
                     cdataD = new DefaultCategoryDataset();
+                }
+            } else {
+                if (i == Grade.currentGrades().size() - 1) {
+                    one = 0;
+                    r.add(createDefaultChartPannel(Translator.R("SStitle", wall, boulderList.size()), Translator.R("SSdifficulty"), Translator.R("SScount"), cdataD));
                 }
             }
         }
@@ -270,9 +281,6 @@ public class StatsDialog extends JDialog {
         }
         List<AuthorAndCount> sortAuthors = new ArrayList<>();
         for (String author : authors) {
-            //if (isNotContained()){
-            //on jtextfield, skip...
-            //}
             int i = 0;
             for (Boulder boulder : boulderList) {
                 if (boulder.getAuthor().toLowerCase().trim().equals(author)) {
@@ -298,14 +306,59 @@ public class StatsDialog extends JDialog {
     }
 
     private ChartPanel createDefaultChartPannel(String title, String xLabel, String yLabel, DefaultCategoryDataset data) {
+        return createDefaultChartPannel(title, xLabel, yLabel, data, 0);
+    }
+
+    private SortableChartPanel createDefaultChartPannel(String title, String xLabel, String yLabel, DefaultCategoryDataset data, int key) {
         JFreeChart auhs = ChartFactory.createBarChart(title, xLabel, yLabel, data);
         auhs.getLegend(0).setVisible(false);
-        ChartPanel chp2 = new ChartPanel(auhs);
+        SortableChartPanel chp2 = new SortableChartPanel(auhs, key);
         chp2.setMinimumDrawHeight(100);
         chp2.setMinimumDrawWidth(100);
         chp2.setMaximumDrawHeight(10000);
         chp2.setMaximumDrawWidth(10000);
         return chp2;
+    }
+
+    private List<SortableChartPanel> createAuthorsAndDiffs(String wall, List<Boulder> boulderList) {
+        Set<String> authors = new HashSet<>();
+        for (Boulder boulder : boulderList) {
+            authors.add(boulder.getAuthor().toLowerCase().trim());
+        }
+        List<SortableChartPanel> r = new ArrayList<>();
+
+        int max = 0;
+        for (String author : authors) {
+            DefaultCategoryDataset cdataD = new DefaultCategoryDataset();
+            int i = -1;
+            int cum = 0;
+            for (String s : Grade.currentGrades()) {
+                i++;
+                int c = 0;
+                for (Boulder b : boulderList) {
+                    if (b.getGrade().equals(new Grade(i)) && b.getAuthor().equalsIgnoreCase(author)) {
+                        c++;
+                        cum++;
+                    }
+                }
+                if (c > max) {
+                    max = c;
+                }
+                if (c > 0) {
+                    cdataD.addValue((Number) c, "diff", new Grade.ToStringGradeWrapper(i));
+                } else {
+                    //we want empty places and no garabage output
+                    cdataD.addValue((Number) c, "diff", new SilentGrade(i));
+                }
+            }
+            r.add(createDefaultChartPannel(author + " - " + cum, Translator.R("SSdifficulty"), Translator.R("SScount"), cdataD, cum));
+        }
+
+        for (ChartPanel chartPanel : r) {
+            chartPanel.getChart().getCategoryPlot().getRangeAxis(0).setRange(0, max);
+        }
+        Collections.sort(r);
+        return r;
     }
 
     private static class AuthorAndCount implements Comparable<AuthorAndCount> {
@@ -338,6 +391,34 @@ public class StatsDialog extends JDialog {
         public int compareTo(LengthAndCount t) {
             return t.l - this.l;
         }
+    }
+
+    private static class SilentGrade extends Grade {
+
+        public SilentGrade(int i) {
+            super(i);
+        }
+
+        @Override
+        public String toString() {
+            return "";
+        }
+    }
+
+    private class SortableChartPanel extends ChartPanel implements Comparable<SortableChartPanel> {
+
+        private final int key;
+
+        public SortableChartPanel(JFreeChart chart, int key) {
+            super(chart);
+            this.key = key;
+        }
+
+        @Override
+        public int compareTo(SortableChartPanel o) {
+            return o.key - key;
+        }
+
     }
 
 }
