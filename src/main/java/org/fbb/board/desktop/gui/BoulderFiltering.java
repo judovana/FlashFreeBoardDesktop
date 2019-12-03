@@ -103,7 +103,6 @@ public class BoulderFiltering {
         public int getSeelctedIndex() {
             return seelctedIndex;
         }
-        
 
     }
 
@@ -230,9 +229,11 @@ public class BoulderFiltering {
         tools0.add(walls);
         final JCheckBox random = new JCheckBox(Translator.R("random"), true);
         tools0.add(random, BorderLayout.EAST);
-        if (!Authenticator.auth.isPernament()) {
-            random.setEnabled(false);
-            walls.setEnabled(false);
+        random.setEnabled(false);
+        walls.setEnabled(false);
+        if (Authenticator.auth.isPernament() || allowDelete) {
+            random.setEnabled(true);
+            walls.setEnabled(true);
         }
         final JLabel dificultyLabel = new JLabel(Translator.R("DificultyInterval"));
         tools1.add(dificultyLabel);
