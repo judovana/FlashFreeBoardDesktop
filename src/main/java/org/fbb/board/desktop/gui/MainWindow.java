@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -484,7 +485,8 @@ public class MainWindow {
         final JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
         final JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
         final JButton nextRandom = new JButton(Translator.R("random2"));
-        JButton settings = new JButton(Translator.R("menu"));//settings - new boulder, new/edit wall..., edit boulder, save curren boulder as, start timered-training
+        JButton newBoulderButton = new JButton(Translator.R("MNewBoulder"));
+        JButton settings = new JButton(align("=", Translator.R("MNewBoulder")));
         JButton nextRandomGenerated = new JButton(Translator.R("generate"));
         final JButton historyButtons = new JButton("ˇ");
         final JButton nextInList = new JButton(">>");
@@ -590,8 +592,6 @@ public class MainWindow {
         });
         JMenuItem selectListBoulders = new JMenuItem(Translator.R("SelectListBoulders"));
         jp.add(selectListBoulders);
-        JMenuItem newBoulder = new JMenuItem(Translator.R("MNewBoulder"));
-        jp.add(newBoulder);
         JMenu subTrains = new JMenu(Translator.R("trainings"));
         jp.add(subTrains);
         JMenuItem timered = new JMenuItem(Translator.R("timered"));
@@ -673,7 +673,7 @@ public class MainWindow {
             }
 
         });
-        newBoulder.addActionListener(new ActionListener() {
+        newBoulderButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -1235,8 +1235,9 @@ public class MainWindow {
         });
         tips.addActionListener(showTips);
         JPanel subtools = new JPanel(new BorderLayout());
-        subtools.add(settings, BorderLayout.WEST);
+        subtools.add(newBoulderButton, BorderLayout.WEST);
         subtools.add(name);
+        subtools.add(settings, BorderLayout.EAST);
         tools.add(quickFilterPanel);
         tools.add(subtools);
         previous.addActionListener(new ActionListener() {
@@ -1398,7 +1399,7 @@ public class MainWindow {
         nextInList.setToolTipText(addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
         prevInList.setToolTipText(addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
         previous.setToolTipText(addCtrLine(Translator.R("PreviousBoulder")));
-        settings.setToolTipText(Translator.R("Settings"));
+        newBoulderButton.setToolTipText(Translator.R("Settings"));
         next.setToolTipText(addCtrLine(Translator.R("FwdBoulder")));
         createWallWindow.add(tools, BorderLayout.NORTH);
         createWallWindow.add(tools2wrapper, BorderLayout.SOUTH);
@@ -1502,6 +1503,13 @@ public class MainWindow {
             historyJump.add(i);
 
         }
+    }
+
+    private static String align(String orig, String target) {
+        while (orig.length() < target.length()*2 - 2) {
+            orig = " " + orig + " ";
+        }
+        return orig;
     }
 
     private static class QuickFilterLIstener implements ActionListener {
