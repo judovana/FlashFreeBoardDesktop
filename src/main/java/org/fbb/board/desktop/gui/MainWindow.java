@@ -316,6 +316,20 @@ public class MainWindow {
         JButton test = new JButton(Translator.R("Btest"));
         JButton clean = new JButton(Translator.R("Bclean"));
         JCheckBox grid = new JCheckBox(Translator.R("Bgrid"));
+        JCheckBox push = new JCheckBox("rewrite on exit");
+        push.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!push.isSelected()){
+                     int result = JOptionPane.showConfirmDialog(
+                                createWallWindow,
+                                "?????", "??????!!!!!????", JOptionPane.YES_NO_OPTION);
+                        if (result != JOptionPane.YES_OPTION) {
+                            push.setSelected(true);
+                        }
+                }
+            }
+        });
         grid.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -346,6 +360,7 @@ public class MainWindow {
         });
 
         grid.setSelected(true);
+        push.setSelected(true);
         createWallWindow.add(tools, BorderLayout.SOUTH);
         tools.add(name);
         tools2.add(sw);
@@ -353,6 +368,7 @@ public class MainWindow {
         tools3.add(reset);
         tools3.add(test);
         tools3.add(clean);
+        tools3.add(push);
         tools3.add(grid);
         tools.add(tools2);
         tools.add(tools3);
@@ -367,17 +383,28 @@ public class MainWindow {
                 }
                 File f = Files.getWallFile(n);
                 if (f.exists()) {
-                    int result = JOptionPane.showConfirmDialog(
-                            createWallWindow,
-                            Translator.R("Fexs", n), Translator.R("Fexs"), JOptionPane.YES_NO_OPTION);
-                    if (result != JOptionPane.YES_OPTION) {
-                        return;
+                    if (push.isSelected()) {
+                        int result = JOptionPane.showConfirmDialog(
+                                createWallWindow,
+                                Translator.R("Fexs", n), Translator.R("Fexs"), JOptionPane.YES_NO_OPTION);
+                        if (result != JOptionPane.YES_OPTION) {
+                            return;
+                        }
                     }
+                } else {
+                     if (!push.isSelected()) {
+                          int result = JOptionPane.showConfirmDialog(
+                                createWallWindow,
+                                Translator.R("noFexsNoRews", n), Translator.R("noFexsNoRews"), JOptionPane.OK_OPTION);
+                          return;
+                     }
                 }
                 f.getParentFile().mkdirs();
                 try {
-                    gp.save(f);
-                    db.add(new GuiExceptionHandler(), "(wall " + f.getName() + ")", f);
+                    if (push.isSelected()) {
+                        gp.save(f);
+                        db.add(new GuiExceptionHandler(), "(wall " + f.getName() + ")", f);
+                    }
                     Files.setLastBoard(n);
                     createWallWindow.dispose();
                     loadWallWithBoulder(n);
@@ -1506,7 +1533,7 @@ public class MainWindow {
     }
 
     private static String align(String orig, String target) {
-        while (orig.length() < target.length()*2 - 2) {
+        while (orig.length() < target.length() * 2 - 2) {
             orig = " " + orig + " ";
         }
         return orig;
