@@ -19,6 +19,8 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import static java.awt.event.InputEvent.CTRL_MASK;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -40,7 +42,6 @@ import java.util.List;
 import java.util.Vector;
 import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -63,7 +64,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
@@ -103,6 +103,7 @@ public class MainWindow {
     private static final JPopupMenu historyJump = new JPopupMenu();
     private static final DB db = new DB(gs);
     private static final Puller puller = Puller.create(gs.getPullerDelay() * 60, db);
+    private static final IconifierThread iconifier = new IconifierThread();
     private static final ActionListener showTips = new ActionListener() {
 
         @Override
@@ -320,13 +321,13 @@ public class MainWindow {
         push.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!push.isSelected()){
-                     int result = JOptionPane.showConfirmDialog(
-                                createWallWindow,
-                                "?????", "??????!!!!!????", JOptionPane.YES_NO_OPTION);
-                        if (result != JOptionPane.YES_OPTION) {
-                            push.setSelected(true);
-                        }
+                if (!push.isSelected()) {
+                    int result = JOptionPane.showConfirmDialog(
+                            createWallWindow,
+                            "?????", "??????!!!!!????", JOptionPane.YES_NO_OPTION);
+                    if (result != JOptionPane.YES_OPTION) {
+                        push.setSelected(true);
+                    }
                 }
             }
         });
@@ -392,12 +393,12 @@ public class MainWindow {
                         }
                     }
                 } else {
-                     if (!push.isSelected()) {
-                          int result = JOptionPane.showConfirmDialog(
+                    if (!push.isSelected()) {
+                        int result = JOptionPane.showConfirmDialog(
                                 createWallWindow,
                                 Translator.R("noFexsNoRews", n), Translator.R("noFexsNoRews"), JOptionPane.OK_OPTION);
-                          return;
-                     }
+                        return;
+                    }
                 }
                 f.getParentFile().mkdirs();
                 try {
@@ -492,7 +493,8 @@ public class MainWindow {
     private static void loadWallWithBoulder(GridPane.Preload preloaded, final Boulder possiblebOulder) throws IOException {
         final JToggleButton[] quickFilters = new JToggleButton[5];
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
-        final JFrame createWallWindow = new JFrame("Flash Free Board");
+        final JFrame createWallWindow = new JFrame("Flash Free BoardX");
+        iconifier.setTarget(createWallWindow);
         createWallWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bi, preloaded.props, gs);
         list = new ListWithFilter(preloaded.givenId);
@@ -1433,6 +1435,24 @@ public class MainWindow {
         createWallWindow.pack();
         gp.repaintAndSend(gs);
         createWallWindow.setSize((int) nw, (int) nh + tools.getHeight() + tools2wrapper.getHeight());
+        createWallWindow.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                if (!gs.isResizeAble()) {
+                    createWallWindow.setSize((int) nw, (int) nh + tools.getHeight() + tools2wrapper.getHeight());
+                    setIdealWindowLocation(createWallWindow);
+                }
+            }
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if (!gs.isResizeAble()) {
+                    createWallWindow.setSize((int) nw, (int) nh + tools.getHeight() + tools2wrapper.getHeight());
+                    setIdealWindowLocation(createWallWindow);
+                }
+            }
+
+        });
         tools2History.setVisible(false);
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -1537,6 +1557,40 @@ public class MainWindow {
             orig = " " + orig + " ";
         }
         return orig;
+    }
+
+    private static class IconifierThread extends Thread {
+
+        JFrame target;
+        private static final int WINDOW_COMFOR_ZONE = 5 * 60 * 1000;
+
+        public IconifierThread() {
+            super();
+            this.target = null;
+            this.setDaemon(true);
+            this.setName("iconifier");
+            this.start();
+        }
+
+        public void setTarget(JFrame target) {
+            this.target = target;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(WINDOW_COMFOR_ZONE);
+                    if (target != null && gs.isPopUpping()) {
+                        if (target.getState() == JFrame.ICONIFIED) {
+                            target.setState(JFrame.NORMAL);
+                        }
+                    }
+                } catch (InterruptedException ex) {
+                };
+            }
+        }
+
     }
 
     private static class QuickFilterLIstener implements ActionListener {

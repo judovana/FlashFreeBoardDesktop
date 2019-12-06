@@ -19,6 +19,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -134,7 +135,7 @@ class SettingsListener implements ActionListener {
         }
         JDialog allSettingsWindow = new JDialog((JFrame) null, "FFB settings", true);
         JTabbedPane settingsTabs = new JTabbedPane();
-        int genRows = 7;
+        int genRows = 8;
         int conRows = 2;
         int colRows = 13;
         int remRows = 9;
@@ -225,13 +226,29 @@ class SettingsListener implements ActionListener {
         logs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                   new LogView(db, true).setVisible(true);
+                new LogView(db, true).setVisible(true);
             }
         });
         deleteBouldrs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new BoulderFiltering(db, gs).selectListBouderAsAdmin(wall);
+            }
+        });
+        JCheckBox resizeable = new JCheckBox(Translator.R("resizeable"), gs.isResizeAble());
+        general.add(resizeable);
+        resizeable.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gs.setResizeAble(resizeable.isSelected(), true);
+            }
+        });
+        JCheckBox popupping = new JCheckBox(Translator.R("popupping"), gs.isPopUpping());
+        general.add(popupping);
+        popupping.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gs.setPopupping(popupping.isSelected(), true);
             }
         });
         colors.add(new JLabel(Translator.R("testdelay")));

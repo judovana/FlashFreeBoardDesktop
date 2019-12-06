@@ -213,6 +213,28 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         return hardcodedEdge;
     }
 
+    public boolean isResizeAble() {
+        return resizeAble;
+    }
+
+    public boolean isPopUpping() {
+        return popupping;
+    }
+
+    public void setPopupping(boolean popupping, boolean save) {
+        this.popupping = popupping;
+        if (save) {
+            save();
+        }
+    }
+
+    public void setResizeAble(boolean resizeAble, boolean save) {
+        this.resizeAble = resizeAble;
+        if (save) {
+            save();
+        }
+    }
+
     private class MessagesResender extends Thread {
 
         public MessagesResender() {
@@ -443,6 +465,8 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
             setRatio(Double.valueOf(p.getProperty("MAINFRAME_RATIO", "0.8")), false);
             setLocation(p.getProperty("MAINFRAME_LOCATION", "C"), false);
             setHardcodedEdge(Integer.valueOf(p.getProperty("HARDCODED_EDGE", "0")), false);
+            setResizeAble(Boolean.valueOf(p.getProperty("RESIZE_ABLE", "true")), false);
+            setPopupping(Boolean.valueOf(p.getProperty("POPUPPING", "false")), false);
         }
     }
 
@@ -472,6 +496,8 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         p.setProperty("MAINFRAME_RATIO", "" + getRatio());
         p.setProperty("MAINFRAME_LOCATION", "" + getLocation());
         p.setProperty("HARDCODED_EDGE", "" + getHardcodedEdge());
+        p.setProperty("RESIZE_ABLE", "" + isResizeAble());
+        p.setProperty("POPUPPING", "" + isPopUpping());
         try (OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(Files.getSettings()), Charset.forName("utf-8"))) {
             p.store(os, "FlashFreeBoard settings " + new Date() + " ;  TODO: MAINFRAME_RATIO, MAINFRAME_LOCATION HARDCODED_EDGE gui");
         };
@@ -536,6 +562,8 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
     private double mainframeRatio = 0.8;
     private int hardcodedEdge = 0;
     private String mainframeLocation = "C";  //T,B,L,R,C, TR, TL, BR, BL //me lazy, sorry:(
+    private boolean resizeAble = true;
+    private boolean popupping = false;
 
     public int getBrightness() {
         if (brightness <= 1) {
