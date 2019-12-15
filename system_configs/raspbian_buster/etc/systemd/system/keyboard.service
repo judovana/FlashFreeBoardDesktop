@@ -8,9 +8,13 @@ Group=app-data
 Restart=always
 RestartSec=3
 Environment="DISPLAY=:0"
+# see the onboard_reset.sh
+ExecStartPre=sleep 1
 #ExecStart=matchbox-keyboard
 # onboard is the only keyboard with ctrl in selections working
 # onboard must have docking enabled and  show floating icon when hideen
+# onboard must have long click set to key repeat (special chars were crashing the system)
+# onboard must have 
 ExecStart=onboard
 
 [Install]

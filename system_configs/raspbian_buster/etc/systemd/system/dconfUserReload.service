@@ -1,0 +1,13 @@
+[Unit]
+Description=reload onboard conf and the app every N secnds, to prevent misconfigurations
+After=ffb.service
+
+[Service]
+User=app-data
+Group=app-data
+Restart=always
+RestartSec=300
+ExecStart=bash /home/app-data/onboard_reset.sh
+
+[Install]
+WantedBy=graphical.target
