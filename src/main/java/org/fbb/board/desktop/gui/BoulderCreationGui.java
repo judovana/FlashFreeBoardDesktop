@@ -36,6 +36,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
+import org.fbb.board.desktop.gui.awtimpl.WinUtils;
 import org.fbb.board.desktop.tutorial.awt.HelpWindow;
 import org.fbb.board.internals.Filter;
 import org.fbb.board.internals.GlobalSettings;
@@ -65,10 +66,10 @@ public class BoulderCreationGui {
         new BoulderCreationGui(new GlobalSettings()).editBoulderImpl(preloaded, null);
     }
 
-    static class BoulderAndSaved {
+    public static class BoulderAndSaved {
 
-        final Boulder b;
-        final boolean saved;
+        public final Boulder b;
+        public final boolean saved;
 
         public BoulderAndSaved(Boulder b, boolean saved) {
             this.b = b;
@@ -77,7 +78,7 @@ public class BoulderCreationGui {
 
     }
 
-    BoulderAndSaved editBoulderImpl(final GridPane.Preload p, final Boulder orig) throws IOException, CloneNotSupportedException {
+    public BoulderAndSaved editBoulderImpl(final GridPane.Preload p, final Boulder orig) throws IOException, CloneNotSupportedException {
         //checkbox save? 
         //if not save, then what?
         //return  new BoulderAlways? - on Ok?
@@ -89,7 +90,7 @@ public class BoulderCreationGui {
         gp.getGrid().setShowGrid(true);
         operateBoulder.add(gp);
         gp.enableBoulderModificationOnly();
-        double ratio = MainWindow.getIdealWindowSizw(bi);
+        double ratio = WinUtils.getIdealWindowSizw(bi);
         double nw = ratio * (double) bi.getWidth();
         double nh = ratio * (double) bi.getHeight();
         if (orig != null) {
@@ -223,7 +224,7 @@ public class BoulderCreationGui {
         //checkExistence.changedUpdate(null);
         name.addFocusListener(checkName);
         author.addFocusListener(checkAutohr);
-        MainWindow.setIdealWindowLocation(operateBoulder);
+        WinUtils.setIdealWindowLocation(operateBoulder);
         DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit, operateBoulder, gp.getGrid(), name, grades, p.givenId, author, change);
         doneButton.addActionListener(done);
         doneButton.setEnabled(false);

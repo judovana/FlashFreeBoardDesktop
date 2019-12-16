@@ -19,7 +19,6 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -44,6 +43,7 @@ import org.fbb.board.Translator;
 import org.fbb.board.Updater;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.ScreenFinder;
+import org.fbb.board.desktop.gui.awtimpl.WinUtils;
 import org.fbb.board.desktop.gui.dialogs.LogView;
 import org.fbb.board.internals.FUtils;
 import org.fbb.board.internals.GlobalSettings;
@@ -59,7 +59,7 @@ import org.jasypt.util.text.StrongTextEncryptor;
  *
  * @author jvanek
  */
-class SettingsListener implements ActionListener {
+public class SettingsListener implements ActionListener {
 
     public static final StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
 
@@ -657,7 +657,7 @@ class SettingsListener implements ActionListener {
         arduino.setEnabled(false);
         arduinoWork.setEnabled(false);
         final JButton web = new JButton("web");
-        web.addActionListener(new MainWindow.ShowWebHelp());
+        web.addActionListener(new WinUtils.ShowWebHelp());
         final JButton otherAssets = new JButton(Translator.R("OAses"));
         otherAssets.setEnabled(false);
 
