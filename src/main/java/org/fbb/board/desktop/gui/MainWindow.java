@@ -1,5 +1,6 @@
 package org.fbb.board.desktop.gui;
 
+import org.fbb.board.desktop.gui.awtimpl.TipsListener;
 import org.fbb.board.desktop.gui.dialogs.CampusLikeDialog;
 import org.fbb.board.desktop.gui.dialogs.BoxesWindow;
 import org.fbb.board.desktop.gui.dialogs.StatsDialog;
@@ -104,40 +105,12 @@ public class MainWindow {
     private static final DB db = new DB(gs);
     private static final Puller puller = Puller.create(gs.getPullerDelay() * 60, db);
     private static final IconifierThread iconifier = new IconifierThread();
-    private static final ActionListener showTips = new ActionListener() {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JOptionPane.showMessageDialog(null, "<html>"
-                    + "<li>" + Translator.R("tip1")
-                    + "<ul>"
-                    + "<li>" + escape(Translator.R("tip2"))
-                    + "<li>" + escape(Translator.R("tip3"))
-                    + "</ul>"
-                    + "<ul>"
-                    + "<li>" + escape(Translator.R("tip4"))
-                    + "<li>" + escape(Translator.R("tip5"))
-                    + "<li>" + escape(Translator.R("tip6"))
-                    + "</ul>"
-                    + "<li>" + escape(Translator.R("tips7"))
-                    + "<ul>"
-                    + "<li>" + escape(Translator.R("tips8"))
-                    + "<li>" + escape(Translator.R("tips9"))
-                    + "<li>" + escape(Translator.R("tips10"))
-                    + "</ul>"
-            );
-        }
-
-        private String escape(String R) {
-            return R.replace("<", "&lt;").replace(">", "&gt;");
-        }
-    };
     private static final KeyEventDispatcher f1 = new KeyEventDispatcher() {
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent e) {
             if (e.getKeyCode() == KeyEvent.VK_F1 && e.getID() == KeyEvent.KEY_PRESSED) {
-                showTips.actionPerformed(null);
+                new TipsListener().actionPerformed(null);
                 return true;
             }
             return false;
@@ -1262,7 +1235,7 @@ public class MainWindow {
                 gs.reset();
             }
         });
-        tips.addActionListener(showTips);
+        tips.addActionListener(new TipsListener());
         JPanel subtools = new JPanel(new BorderLayout());
         subtools.add(newBoulderButton, BorderLayout.WEST);
         subtools.add(name);
@@ -1684,5 +1657,6 @@ public class MainWindow {
             }
         }
     }
+
 
 }
