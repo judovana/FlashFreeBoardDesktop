@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.fbb.board.Translator;
 import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.comm.ByteEater;
@@ -59,8 +60,13 @@ public class Grid {
      */
     private RelativePoint selected;
     private boolean showGrid = true;
-
+    //with ability to merge providers, the frid must sometimes pretend, ti belongs to another provider
+    private Grid fakeId;
+    public final int sortableId;
+    private static AtomicInteger counter = new AtomicInteger(0);
+    
     public Grid(Meassurable parent, byte[] load) {
+        sortableId = counter.addAndGet(1);
         ul = new RelativePoint(0, 0, parent, new Rectangle2D.Double(0, 0, 0.5, 0.5));
         ur = new RelativePoint(1, 0, parent, new Rectangle2D.Double(0.5, 0, 0.5, 0.5));
         bl = new RelativePoint(0, 1, parent, new Rectangle2D.Double(0, 0.5, 0.5, 0.5));
@@ -780,8 +786,15 @@ public class Grid {
         lastConsummer = consummer;
         int[] bb = getArrayURDR();
         //GuiLogHelper.guiLogger.logo(Arrays.toString(bb));
-        consummer.sendBytes(bb);
+        consummer.sendBytes(bb, getId());
 
+    }
+
+    public Grid getId() {
+        if (fakeId != null) {
+            return fakeId;
+        }
+        return this;
     }
 
     void resend() {
@@ -953,4 +966,10 @@ public class Grid {
             }
         }
     }
+
+    public void setFakeId(Grid fakeId) {
+        this.fakeId = fakeId;
+    }
+    
+    
 }

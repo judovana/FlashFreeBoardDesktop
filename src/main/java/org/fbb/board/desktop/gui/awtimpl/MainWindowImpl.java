@@ -73,6 +73,7 @@ import org.fbb.board.internals.training.Training;
 import org.fbb.board.internals.grades.Grade;
 import org.fbb.board.internals.db.GuiExceptionHandler;
 import org.fbb.board.internals.db.ExceptionHandler;
+import org.fbb.board.internals.grid.Grid;
 import org.fbb.board.internals.training.ListSetter;
 import org.fbb.board.internals.training.TrainingPlaylist;
 import org.fbb.board.internals.training.TrainingWithBackends;
@@ -89,7 +90,8 @@ public class MainWindowImpl extends JFrame {
     private final JPopupMenu listJump = new JPopupMenu();
     private final JPopupMenu historyJump = new JPopupMenu();
     private final IconifierThread iconifier = new IconifierThread();
-    GridPane gp;
+    private final GridPane gp;
+    private final GridPane.Preload init;
 
     private static GlobalSettings getGs() {
         return MainWindow.gs;
@@ -115,10 +117,19 @@ public class MainWindowImpl extends JFrame {
 
     private MainWindowImpl(String tit, GridPane.Preload preloaded, BufferedImage bi, final Boulder possiblebOulder) {
         super(tit);
+        this.init = preloaded;
         final JToggleButton[] quickFilters = new JToggleButton[5];
         iconifier.setTarget(this);
         list = new ListWithFilter(preloaded.givenId);
         gp = new GridPane(bi, preloaded.props, getGs());
+        this.addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+                MainWindow.gs.deregisterProvider(gp.getGrid());
+            }
+
+        });
         this.add(gp);
         gp.disableClicking();
         final Boulder b = (possiblebOulder == null) ? gp.getGrid().randomBoulder(preloaded.givenId) : possiblebOulder;
@@ -273,6 +284,7 @@ public class MainWindowImpl extends JFrame {
         //with edit bolder his looks like redundant
         JMenuItem saveBoulder = new JMenuItem(Translator.R("MSaveCurrenBoulder"));
         saveBoulder.setEnabled(false);
+        JMenuItem secondWindow = new JMenuItem(Translator.R("secondWindow"));
         JMenuItem reset = new JMenuItem("remote reset");
         JMenuItem stats = new JMenuItem(Translator.R("stats"));
         sub2.add(editBoulder);
@@ -281,6 +293,7 @@ public class MainWindowImpl extends JFrame {
         sub2.add(logItem);
         sub2.add(stats);
         sub2.add(web);
+        sub2.add(secondWindow);
         sub2.add(reset);
         JMenuItem tips = new JMenuItem("Tips");
         jp.add(tips);
@@ -329,7 +342,7 @@ public class MainWindowImpl extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 MainWindow.db.pullCatched(new ExceptionHandler.LoggingEater());
-                BoulderCreationGui.BoulderAndSaved bs = editBoulder(preloaded, null);
+                BoulderCreationGui.BoulderAndSaved bs = editBoulder(preloaded, null, gp.getGrid());
                 if (bs != null && bs.b != null) {
                     Boulder r = bs.b;
                     hm.addToBoulderHistory(r);
@@ -355,7 +368,7 @@ public class MainWindowImpl extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 MainWindow.db.pullCatched(new ExceptionHandler.LoggingEater());
-                BoulderCreationGui.BoulderAndSaved bs = editBoulder(preloaded, hm.getCurrentInHistory());
+                BoulderCreationGui.BoulderAndSaved bs = editBoulder(preloaded, hm.getCurrentInHistory(), gp.getGrid());
                 if (bs != null && bs.b != null) {
                     Boulder r = bs.b;
                     hm.addToBoulderHistory(r);
@@ -886,6 +899,19 @@ public class MainWindowImpl extends JFrame {
                 getGs().reset();
             }
         });
+        secondWindow.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    MainWindowImpl.loadWallWithBoulder(init, MainWindowImpl.this.hm.getCurrentInHistory());
+                } catch (Exception ex) {
+                    GuiLogHelper.guiLogger.loge(ex);
+                    JOptionPane.showMessageDialog(null, ex);
+
+                }
+            }
+        });
         tips.addActionListener(new TipsListener());
         JPanel subtools = new JPanel(new BorderLayout());
         subtools.add(newBoulderButton, BorderLayout.WEST);
@@ -1080,9 +1106,9 @@ public class MainWindowImpl extends JFrame {
         tools2History.setVisible(false);
     }
 
-    private static BoulderCreationGui.BoulderAndSaved editBoulder(GridPane.Preload p, Boulder b) {
+    private static BoulderCreationGui.BoulderAndSaved editBoulder(GridPane.Preload p, Boulder b, Grid fakeId) {
         try {
-            BoulderCreationGui.BoulderAndSaved r = new BoulderCreationGui(getGs()).editBoulderImpl(p, b);
+            BoulderCreationGui.BoulderAndSaved r = new BoulderCreationGui(getGs()).editBoulderImpl(p, b, fakeId);
             if (r.saved && r.b != null) {
                 MainWindow.db.add(new GuiExceptionHandler(), "(boulder " + r.b.getFile().getName() + ")", r.b.getFile());
             }

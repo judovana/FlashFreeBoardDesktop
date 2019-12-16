@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import org.fbb.board.desktop.Files;
@@ -15,6 +17,7 @@ import org.fbb.board.internals.comm.ConnectionID;
 import org.fbb.board.internals.comm.bt.BtOp;
 import org.fbb.board.internals.comm.ByteEater;
 import org.fbb.board.internals.comm.wired.PortWork;
+import org.fbb.board.internals.grid.Grid;
 import org.fbb.board.internals.grid.HoldMarkerProvider;
 
 /**
@@ -272,7 +275,7 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
             }
         }
 
-        public void repaintRemote(byte[][] l) {
+        private void repaintRemote(byte[][] l) {
             if (null == comm) {
                 GuiLogHelper.guiLogger.loge("Nothing mode");
             } else {
@@ -284,7 +287,7 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
                         new BtOp().writeToDevice(deviceId, l);
                         break;
                     default:
-                        GuiLogHelper.guiLogger.loge("Nothing mode");
+                        GuiLogHelper.guiLogger.loge("unknown mode");
                         break;
                 }
             }
@@ -309,9 +312,51 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         255, 255, 255, 255, 255, 255, 255, 255
     };
 
+    private final HashMap<Integer, int[]> providers = new HashMap<>();
+
+    private int[] mergeProviders() {
+        Collection<int[]> values = providers.values();
+        int max = 0;
+        for (int[] value : values) {
+            if (value.length > max) {
+                max = value.length;
+            }
+        }
+        int[] merged = new int[max];
+        for (int i = 0; i < merged.length; i++) {
+            merged[i] = 0;
+        }
+        for (int[] value : values) {
+            for (int i = 0; i < value.length; i++) {
+                merged[i] = merge(merged[i], value[i]);
+            }
+        }
+        return merged;
+    }
+
+    private int merge(int merged, int value) {
+        if (value > 0) {
+            if (merged == 0) {
+                return value;
+            } else {
+                return 100;
+            }
+        }
+        return merged;
+    }
+
     @Override
-    public void sendBytes(int[] b) {
+    public void sendBytes(int[] get, Grid id) {
+        providers.put(id.sortableId, get);
+        resendBytes(mergeProviders());
+    }
+
+    public void resendBytes(int[] b) {
         boolean compress = shouldCompress(b);
+        if (b.length == 0) {
+            //not sure, but maybe the sendig of nothig can break somethig later
+            return;
+        }
         if (!compress) {
             sendImpl(ALL_COLORS_HEADER, b, false);
         } else {
@@ -319,7 +364,13 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         }
     }
 
-    public void sendImpl(int[] header, int[] b, boolean compress) {
+    @Override
+    public void deregisterProvider(Grid id) {
+        providers.remove(id.sortableId);
+        resendBytes(mergeProviders());
+    }
+
+    private void sendImpl(int[] header, int[] b, boolean compress) {
         synchronized (lock) {
             byte[][] m;
             if (SEND_HEADER) {
@@ -643,6 +694,9 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
                 return new byte[]{(byte) (((double) brightness) * parts[0]), (byte) (((double) brightness) * parts[1]), (byte) (((double) brightness) * parts[2])};
             case (3):
                 return new byte[]{(byte) (((double) brightness) * parts[6]), (byte) (((double) brightness) * parts[7]), (byte) (((double) brightness) * parts[8])};
+            //crossing of holds is simple white
+            case (100):
+                return new byte[]{(byte) (((double) brightness) * 1d), (byte) (((double) brightness) * 1d), (byte) (((double) brightness) * 1d)};
         }
         return null;
     }

@@ -63,7 +63,7 @@ public class BoulderCreationGui {
         Grade.loadConversiontable();
         File f = new File("/home/jvanek/.config/FlashBoard/repo/walls/moon400test.wall");
         GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)), f.getName());
-        new BoulderCreationGui(new GlobalSettings()).editBoulderImpl(preloaded, null);
+        new BoulderCreationGui(new GlobalSettings()).editBoulderImpl(preloaded, null, null);
     }
 
     public static class BoulderAndSaved {
@@ -78,7 +78,7 @@ public class BoulderCreationGui {
 
     }
 
-    public BoulderAndSaved editBoulderImpl(final GridPane.Preload p, final Boulder orig) throws IOException, CloneNotSupportedException {
+    public BoulderAndSaved editBoulderImpl(final GridPane.Preload p, final Boulder orig, Grid fakeId) throws IOException, CloneNotSupportedException {
         //checkbox save? 
         //if not save, then what?
         //return  new BoulderAlways? - on Ok?
@@ -87,6 +87,7 @@ public class BoulderCreationGui {
         final JDialog operateBoulder = new JDialog((JFrame) null, Translator.R("createBoulder"), true);
         operateBoulder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bi, p.props, gs);
+        gp.getGrid().setFakeId(fakeId);
         gp.getGrid().setShowGrid(true);
         operateBoulder.add(gp);
         gp.enableBoulderModificationOnly();
