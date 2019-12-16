@@ -79,3 +79,8 @@ usermod -s //usr/sbin/nologin app-data
 #keyboard->advanced->long press action == key repeat
 #keyboard->advanced->touch inmpu == single touch ##ps do not set this to none!!! wills top to work on touchscreen! How did they did it?
 
+# making dconf read only led to reseting onboard aprox every three seconds :(
+# -r--r--r-- 1 jvanek mock 32906 Dec 16 16:57 ~/.config/dconf/user
+# dr-sr-sr-x. 2 jvanek mock 4096 Dec 16 16:57 ~/.config/dconf/
+
+so better to use the services, with timing aroun 10 minutes
