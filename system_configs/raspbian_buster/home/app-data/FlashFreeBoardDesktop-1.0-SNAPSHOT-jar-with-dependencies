@@ -83,4 +83,4 @@ usermod -s //usr/sbin/nologin app-data
 # -r--r--r-- 1 jvanek mock 32906 Dec 16 16:57 ~/.config/dconf/user
 # dr-sr-sr-x. 2 jvanek mock 4096 Dec 16 16:57 ~/.config/dconf/
 
-so better to use the services, with timing aroun 10 minutes
+so better to use the services, with timing aroun 10 minutes, or desktop icon
