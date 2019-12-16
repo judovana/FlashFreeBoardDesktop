@@ -741,16 +741,16 @@ public class MainWindowImpl extends JFrame {
                                     nextRandomGenerated.getActionListeners()[0],
                                     new ActionListener() {
 
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            gp.getGrid().clean();
-                                            gp.repaintAndSend(getGs());
-                                        }
-                                    },
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    gp.getGrid().clean();
+                                    gp.repaintAndSend(getGs());
+                                }
+                            },
                                     Arrays.asList(new TrainingWithBackends[]{
-                                        new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
-                                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
-                                                0, null, null)}),
+                                new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
+                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
+                                0, null, null)}),
                                     counterClock, (TextToSpeech.TextId) reader.getSelectedItem()
                             );
                             new Thread(trainig[0]).start();
@@ -904,6 +904,9 @@ public class MainWindowImpl extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    if (MainWindow.gs.getMaxOfRegisteredProviders() <= MainWindow.gs.getNumberOfRegisteredProviders()) {
+                        throw new Exception(Translator.R("maxParalelBoulders", MainWindow.gs.getMaxOfRegisteredProviders()));
+                    }
                     MainWindowImpl.loadWallWithBoulder(init, MainWindowImpl.this.hm.getCurrentInHistory());
                 } catch (Exception ex) {
                     GuiLogHelper.guiLogger.loge(ex);

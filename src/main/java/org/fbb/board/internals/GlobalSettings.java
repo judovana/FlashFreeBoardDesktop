@@ -312,6 +312,7 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         255, 255, 255, 255, 255, 255, 255, 255
     };
 
+    //by filling it by integers, it should be sorted map too
     private final HashMap<Integer, int[]> providers = new HashMap<>();
 
     private int[] mergeProviders() {
@@ -326,12 +327,24 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
         for (int i = 0; i < merged.length; i++) {
             merged[i] = 0;
         }
+        int c = 0;
         for (int[] value : values) {
             for (int i = 0; i < value.length; i++) {
-                merged[i] = merge(merged[i], value[i]);
-            }
+                merged[i] = merge(merged[i], shiftByWindow(c) * value[i]);
+            };
+            c++;
         }
         return merged;
+    }
+
+    private int shiftByWindow(int i) {
+        switch (i % getMaxOfRegisteredProviders()) {
+            case 0:
+                return 1;
+            case 1:
+                return 10;
+        }
+        throw new RuntimeException("modulo via getMaxOfRegisteredProviders went mead: " + (i % getMaxOfRegisteredProviders()));
     }
 
     private int merge(int merged, int value) {
@@ -343,6 +356,16 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
             }
         }
         return merged;
+    }
+
+    @Override
+    public int getNumberOfRegisteredProviders() {
+        return providers.size();
+    }
+
+    @Override
+    public int getMaxOfRegisteredProviders() {
+        return 2;
     }
 
     @Override
@@ -689,16 +712,40 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
             case (0):
                 return new byte[]{0, 0, 0};
             case (1):
-                return new byte[]{(byte) (((double) brightness) * parts[3]), (byte) (((double) brightness) * parts[4]), (byte) (((double) brightness) * parts[5])};
+                return brigh(new double[]{parts[3], parts[4],parts[5]});
             case (2):
-                return new byte[]{(byte) (((double) brightness) * parts[0]), (byte) (((double) brightness) * parts[1]), (byte) (((double) brightness) * parts[2])};
+                return brigh(new double[]{parts[0], parts[1], parts[2]});
             case (3):
-                return new byte[]{(byte) (((double) brightness) * parts[6]), (byte) (((double) brightness) * parts[7]), (byte) (((double) brightness) * parts[8])};
+                return brigh(new double[]{parts[6], parts[7],parts[8]});
+            case (10):
+                return brigh(invert(new double[]{parts[3], parts[4],parts[5]}));
+            case (20):
+                return brigh(invert(new double[]{parts[0], parts[1], parts[2]}));
+            case (30):
+                return brigh(invert(new double[]{parts[6], parts[7],parts[8]}));
             //crossing of holds is simple white
             case (100):
-                return new byte[]{(byte) (((double) brightness) * 1d), (byte) (((double) brightness) * 1d), (byte) (((double) brightness) * 1d)};
+                return brigh(new double[]{1d,1d,1d});
         }
         return null;
+    }
+
+    private byte[] brigh(double[] b) {
+        byte[] r = new byte[b.length];
+        for (int i = 0; i < b.length; i++) {
+            double d = b[i];
+            byte bb = (byte) (((double) brightness) * d);
+            r[i] = bb;
+        }
+        return r;
+    }
+    
+    private double[] invert(double[] b) {
+        for (int i = 0; i < b.length; i++) {
+            b[i]=1d-b[i];
+            
+        }
+        return b;
     }
 
     private double getRowSumm(int[] b, int first, int length, double singleSubLedAmpers) {

@@ -16,5 +16,7 @@ public interface ByteEater {
     public void sendBytes(int[] b, Grid id);
     public void deregisterProvider(Grid id);
     public void reset();
+    public int getNumberOfRegisteredProviders();
+    public int getMaxOfRegisteredProviders();
 
 }
