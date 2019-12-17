@@ -12,8 +12,7 @@ import java.util.List;
 import java.util.Random;
 import javax.swing.JLabel;
 import org.fbb.board.desktop.TextToSpeech;
-import org.fbb.board.desktop.gui.MainWindow;
-import org.fbb.board.internals.GlobalSettings;
+import org.fbb.board.desktop.gui.awtimpl.MainWindowImpl;
 import org.fbb.board.internals.GuiLogHelper;
 
 /**
@@ -31,6 +30,7 @@ public class TimeredTraining implements Runnable {
     private final List<TrainingWithBackends> ts;
     private int currentInList = 0;
     private final ActionListener clear;
+    private final MainWindowImpl parent;
 
     public void setJumpingAllowed(boolean jumpingAllowed) {
         ts.get(currentInList).allowJumps.setSelected(jumpingAllowed);
@@ -76,7 +76,8 @@ public class TimeredTraining implements Runnable {
         this.speak = speak;
     }
 
-    public TimeredTraining(ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, ActionListener clear, List<TrainingWithBackends> ts, JLabel output, TextToSpeech.TextId speak) {
+    public TimeredTraining(MainWindowImpl parent, ActionListener next, ActionListener prev, ActionListener nextRandom, ActionListener nextGenerateRandom, ActionListener clear, List<TrainingWithBackends> ts, JLabel output, TextToSpeech.TextId speak) {
+        this.parent = parent;
         this.next = next;
         this.prev = prev;
         this.nextRandom = nextRandom;
@@ -126,20 +127,20 @@ public class TimeredTraining implements Runnable {
                         }
                         if (!getRandomAllowed() || (getRandomAllowed() && !choice1)) {
                             if (getJumpingAllowed() && r.nextBoolean()) {
-                                int i = r.nextInt(MainWindow.list.getSize());
+                                int i = r.nextInt(parent.list.getSize());
                                 i = i--;
-                                MainWindow.list.setIndex(i);
+                                parent.list.setIndex(i);
                                 next.actionPerformed(new ActionEvent(this, 0, null));
                             } else {
-                                if (MainWindow.list.canFwd()) {
+                                if (parent.list.canFwd()) {
                                     next.actionPerformed(new ActionEvent(this, 0, null));
                                 } else {
-                                    MainWindow.list.setIndex(-1);
+                                    parent.list.setIndex(-1);
                                     next.actionPerformed(new ActionEvent(this, 0, null));
                                 }
                             }
                         }
-                        Boulder b = MainWindow.hm.getCurrentInHistory();
+                        Boulder b = parent.hm.getCurrentInHistory();
                         if (b.getGrade().isRandom()) {
                             TextToSpeech.tellImpl(b.getGrade().toString(), speak);
                         } else {

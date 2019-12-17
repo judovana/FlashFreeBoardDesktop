@@ -37,6 +37,12 @@ public class HistoryManager {
         return history.get(historyIndex);
     }
 
+    public int getHistoryIndex() {
+        return historyIndex;
+    }
+    
+    
+
     public void addToBoulderHistory(Boulder b) {
         if (history.isEmpty()) {
             history.add(b);

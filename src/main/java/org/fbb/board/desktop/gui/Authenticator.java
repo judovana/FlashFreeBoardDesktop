@@ -79,7 +79,7 @@ public class Authenticator {
         return false;
     }
 
-    void revoke() {
+    public void revoke() {
         pernament = false;
     }
 

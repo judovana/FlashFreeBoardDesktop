@@ -26,7 +26,7 @@ import org.fbb.board.internals.grades.Grade;
 public class ListWithFilter extends HistoryManager {
 
     private final Random r = new Random();
-    private final Filter lastFilter;
+    private Filter lastFilter;
 
     public ListWithFilter(List<Boulder> l) {
         this.lastFilter = null;
@@ -264,6 +264,12 @@ public class ListWithFilter extends HistoryManager {
         //may be null!
         return lastFilter;
     }
+
+    public void setLastFilter(Filter lastFilter) {
+        this.lastFilter = lastFilter;
+    }
+    
+    
 
     public Filter enumerate(String backupWall) {
         if (lastFilter == null || lastFilter.wall == null) {

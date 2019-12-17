@@ -5,13 +5,18 @@
  */
 package org.fbb.board.internals.comm;
 
+import org.fbb.board.internals.grid.Grid;
+
 /**
  *
  * @author jvanek
  */
 public interface ByteEater {
 
-    public void sendBytes(int[] b);
+    public void sendBytes(int[] b, Grid id);
+    public void deregisterProvider(Grid id);
     public void reset();
+    public int getNumberOfRegisteredProviders();
+    public int getMaxOfRegisteredProviders();
 
 }

@@ -21,6 +21,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
+import org.fbb.board.desktop.gui.awtimpl.WinUtils;
 import org.fbb.board.internals.GlobalSettings;
 import org.fbb.board.internals.GuiLogHelper;
 import org.fbb.board.internals.db.DB;
@@ -57,7 +58,7 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
         ok.addActionListener(l);
     }
 
-    LoadBackgroundOrImportOrLoadWall(String defaultPath, Authenticator auth, DB db, GlobalSettings gs, Puller puller) {
+    public LoadBackgroundOrImportOrLoadWall(String defaultPath, Authenticator auth, DB db, GlobalSettings gs, Puller puller) {
         this.auth = auth;
         this.db = db;
         this.gs = gs;
@@ -133,7 +134,7 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
                 break;
             case 1:
                 valid.setForeground(Color.green);
-                valid.setText(MainWindow.addCtrLine(Translator.R("ExistsFile")));
+                valid.setText(WinUtils.addCtrLine(Translator.R("ExistsFile")));
                 break;
             case 11:
                 valid.setForeground(Color.red);
@@ -141,11 +142,11 @@ public class LoadBackgroundOrImportOrLoadWall extends JPanel {
                 break;
             case 2:
                 valid.setForeground(Color.orange);
-                valid.setText(MainWindow.addCtrLine(Translator.R("NotExistsFile")));
+                valid.setText(WinUtils.addCtrLine(Translator.R("NotExistsFile")));
                 break;
             case 3:
                 valid.setForeground(Color.green);
-                valid.setText(MainWindow.addCtrLine(Translator.R("OkRemoteUrl")));
+                valid.setText(WinUtils.addCtrLine(Translator.R("OkRemoteUrl")));
                 break;
             default:
                 valid.setForeground(Color.red);
