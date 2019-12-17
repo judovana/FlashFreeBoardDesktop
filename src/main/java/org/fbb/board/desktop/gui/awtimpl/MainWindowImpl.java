@@ -93,17 +93,22 @@ public class MainWindowImpl extends JFrame {
     private final GridPane gp;
     private final GridPane.Preload init;
 
+    final JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
+    final JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
+    final JButton nextInList = new JButton(">>");
+    final JButton prevInList = new JButton("<<");
+
     private static GlobalSettings getGs() {
         return MainWindow.gs;
     }
 
-    public static void loadWallWithBoulder(String lastBoard) throws IOException {
+    public static MainWindowImpl loadWallWithBoulder(String lastBoard) throws IOException {
         File f = Files.getWallFile(lastBoard);
         GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)), f.getName());
-        loadWallWithBoulder(preloaded, null);
+        return loadWallWithBoulder(preloaded, null);
     }
 
-    public static void loadWallWithBoulder(GridPane.Preload preloaded, final Boulder possiblebOulder) throws IOException {
+    public static MainWindowImpl loadWallWithBoulder(GridPane.Preload preloaded, final Boulder possiblebOulder) throws IOException {
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(preloaded.img));
         final MainWindowImpl createWallWindow = new MainWindowImpl("Flash Free Board", preloaded, bi, possiblebOulder);
         SwingUtilities.invokeLater(new Runnable() {
@@ -113,6 +118,7 @@ public class MainWindowImpl extends JFrame {
                 createWallWindow.setVisible(true);
             }
         });
+        return createWallWindow;
     }
 
     private MainWindowImpl(String tit, GridPane.Preload preloaded, BufferedImage bi, final Boulder possiblebOulder) {
@@ -144,15 +150,11 @@ public class MainWindowImpl extends JFrame {
         double ratio = WinUtils.getIdealWindowSizw(bi);
         double nw = ratio * (double) bi.getWidth();
         double nh = ratio * (double) bi.getHeight();
-        final JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
-        final JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
         final JButton nextRandom = new JButton(Translator.R("random2"));
         JButton newBoulderButton = new JButton(Translator.R("MNewBoulder"));
         JButton settings = new JButton(align("=", Translator.R("MNewBoulder")));
         JButton nextRandomGenerated = new JButton(Translator.R("generate"));
         final JButton historyButtons = new JButton("ˇ");
-        final JButton nextInList = new JButton(">>");
-        final JButton prevInList = new JButton("<<");
         JLabel historyLabel1 = new JLabel(Translator.R("historyLabel"), SwingConstants.CENTER);
         JLabel historyLabel2 = new JLabel(Translator.R("historyLabel"), SwingConstants.CENTER);
         JLabel name = new JLabel();
@@ -741,16 +743,16 @@ public class MainWindowImpl extends JFrame {
                                     nextRandomGenerated.getActionListeners()[0],
                                     new ActionListener() {
 
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    gp.getGrid().clean();
-                                    gp.repaintAndSend(getGs());
-                                }
-                            },
+                                        @Override
+                                        public void actionPerformed(ActionEvent e) {
+                                            gp.getGrid().clean();
+                                            gp.repaintAndSend(getGs());
+                                        }
+                                    },
                                     Arrays.asList(new TrainingWithBackends[]{
-                                new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
-                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
-                                0, null, null)}),
+                                        new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
+                                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
+                                                0, null, null)}),
                                     counterClock, (TextToSpeech.TextId) reader.getSelectedItem()
                             );
                             new Thread(trainig[0]).start();
@@ -907,7 +909,8 @@ public class MainWindowImpl extends JFrame {
                     if (MainWindow.gs.getMaxOfRegisteredProviders() <= MainWindow.gs.getNumberOfRegisteredProviders()) {
                         throw new Exception(Translator.R("maxParalelBoulders", MainWindow.gs.getMaxOfRegisteredProviders()));
                     }
-                    MainWindowImpl.loadWallWithBoulder(init, MainWindowImpl.this.hm.getCurrentInHistory());
+                    MainWindowImpl m = MainWindowImpl.loadWallWithBoulder(init, MainWindowImpl.this.hm.getCurrentInHistory());
+                    m.copyHL(hm, list);
                 } catch (Exception ex) {
                     GuiLogHelper.guiLogger.loge(ex);
                     JOptionPane.showMessageDialog(null, ex);
@@ -1272,6 +1275,27 @@ public class MainWindowImpl extends JFrame {
             n.setHorizontalAlignment(SwingConstants.CENTER);
         }
 
+    }
+
+    private static void copy(HistoryManager from, HistoryManager to) {
+        to.clearHistory();
+        for (Boulder b : from.getHistory()) {
+            to.addToBoulderHistory(b);
+        }
+        to.setIndex(from.getHistoryIndex());
+
+    }
+
+    public void copyHL(HistoryManager hsrc, ListWithFilter lsrc) {
+        copy(hsrc, hm);
+        copy(lsrc, list);
+        list.setLastFilter(null);
+        next.setEnabled(hm.canFwd());
+        previous.setEnabled(hm.canBack());
+        nextInList.setEnabled(list.canFwd());
+        prevInList.setEnabled(list.canBack());
+        nextInList.setToolTipText(WinUtils.addCtrLine(Translator.R("NextInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
+        prevInList.setToolTipText(WinUtils.addCtrLine(Translator.R("PrewInRow") + (list.getIndex() + 1) + "/" + list.getSize()));
     }
 
 }
