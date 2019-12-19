@@ -271,12 +271,12 @@ public class MainWindowImpl extends JFrame {
         JMenuItem clock = new JMenuItem(Translator.R("clock"));
         subGames.add(clock);
         JMenu sub1 = new JMenu(Translator.R("Admin"));
-        jp.add(sub1);
         JMenuItem management = new JMenuItem(Translator.R("management"));
         sub1.add(management);
         JMenuItem newEditWall = new JMenuItem(Translator.R("MEditWall"));
         sub1.add(newEditWall);
         JMenu sub2 = new JMenu(Translator.R("Special"));
+        sub2.add(sub1);
         jp.add(sub2);
         JMenuItem logItem = new JMenuItem("Logs");
         JMenuItem web = new JMenuItem("web");
@@ -295,9 +295,9 @@ public class MainWindowImpl extends JFrame {
         sub2.add(logItem);
         sub2.add(stats);
         sub2.add(web);
-        sub2.add(secondWindow);
+        jp.add(secondWindow);
         sub2.add(reset);
-        JMenuItem tips = new JMenuItem("Tips");
+        JMenuItem tips = new JMenuItem(Translator.R("Tips"));
         jp.add(tips);
 
         selectListBoulders.addActionListener(new ActionListener() {
