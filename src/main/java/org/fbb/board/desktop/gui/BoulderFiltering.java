@@ -171,6 +171,7 @@ public class BoulderFiltering {
         JPanel resultsPanel1 = new JPanel(new GridLayout(1, 2));
         JPanel resultsPanel2 = new JPanel(new GridLayout(1, 2));
         JButton addAll = new JButton(Translator.R("BAddAll"));
+        addAll.setBackground(new Color(0, 200, 0, 50));
         addAll.setFont(addAll.getFont().deriveFont(Font.BOLD | Font.ITALIC));
         resultsPanel1.add(addAll);
         addAll.addActionListener(new ActionListener() {
@@ -337,6 +338,7 @@ public class BoulderFiltering {
         tools.add(tools5);
         tools.add(tools6);
         final JButton apply = new JButton("********* " + Translator.R("Apply").toUpperCase() + " *********");
+        apply.setBackground(new Color(200, 0, 0, 50));
         tools.add(apply);
         d.add(tools, BorderLayout.NORTH);
         JPanel resultsPanel = new JPanel(new GridLayout(2, 1));
