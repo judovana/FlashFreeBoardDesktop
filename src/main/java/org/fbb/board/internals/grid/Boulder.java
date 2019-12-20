@@ -160,6 +160,10 @@ public class Boulder implements Cloneable {
         return getGrade() + ": " + getName() + " - " + getAuthor();
     }
 
+    public String getAuthorGradeAndName() {
+        return "[" + getAuthor() + "] " + getGrade().shorten() + ": " + getName();
+    }
+
     public File getFile() {
         return file;
     }

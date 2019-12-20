@@ -1267,7 +1267,7 @@ public class MainWindowImpl extends JFrame {
     }
 
     private static void setNameTextAndGrade(JLabel n, Boulder b) {
-        n.setText(b.getGradeAndName());
+        n.setText(b.getAuthorGradeAndName());
         n.setToolTipText(b.getStandardTooltip());
         if (n.getFontMetrics(n.getFont()).getStringBounds(n.getText(), n.getGraphics()).getWidth() > n.getWidth()) {
             n.setHorizontalAlignment(SwingConstants.LEFT);

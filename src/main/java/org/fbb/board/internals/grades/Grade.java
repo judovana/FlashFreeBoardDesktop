@@ -145,6 +145,10 @@ public class Grade implements Comparable<Grade> {
         return get.replace('_', ' ');
     }
 
+    public String shorten() {
+        return this.toString().replaceAll("fb\\s*", "");
+    }
+
     private static Vector<String> nice(Vector<String> orig) {
         for (int i = 0; i < orig.size(); i++) {
             String get = orig.get(i);

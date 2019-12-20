@@ -144,7 +144,7 @@ public class TimeredTraining implements Runnable {
                         if (b.getGrade().isRandom()) {
                             TextToSpeech.tellImpl(b.getGrade().toString(), speak);
                         } else {
-                            TextToSpeech.tellImpl(b.getGradeAndNameAndAuthor(), speak);
+                            TextToSpeech.tellImpl(b.getAuthor()+" "+b.getGrade().shorten()+" "+b.getName(), speak);
                         }
                     }
                 }
