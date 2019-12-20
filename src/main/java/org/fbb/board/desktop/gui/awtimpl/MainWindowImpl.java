@@ -9,6 +9,7 @@ import org.fbb.board.internals.training.BoulderCalc;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dialog;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -305,7 +306,7 @@ public class MainWindowImpl extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 MainWindow.db.pullCatched(new ExceptionHandler.LoggingEater());
-                BoulderFiltering.BoulderListAndIndex listAndothers = new BoulderFiltering(MainWindow.db, getGs()).selectListBouder(preloaded.givenId);
+                BoulderFiltering.BoulderListAndIndex listAndothers = new BoulderFiltering(MainWindow.db, getGs()).selectListBouder(preloaded.givenId, MainWindowImpl.this);
                 if (listAndothers != null) {
                     for (JToggleButton quickFilter : quickFilters) {
                         quickFilter.setSelected(false);
@@ -344,7 +345,7 @@ public class MainWindowImpl extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 MainWindow.db.pullCatched(new ExceptionHandler.LoggingEater());
-                BoulderCreationGui.BoulderAndSaved bs = editBoulder(preloaded, null, gp.getGrid());
+                BoulderCreationGui.BoulderAndSaved bs = editBoulder(preloaded, null, gp.getGrid(), MainWindowImpl.this);
                 if (bs != null && bs.b != null) {
                     Boulder r = bs.b;
                     hm.addToBoulderHistory(r);
@@ -370,7 +371,7 @@ public class MainWindowImpl extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 MainWindow.db.pullCatched(new ExceptionHandler.LoggingEater());
-                BoulderCreationGui.BoulderAndSaved bs = editBoulder(preloaded, hm.getCurrentInHistory(), gp.getGrid());
+                BoulderCreationGui.BoulderAndSaved bs = editBoulder(preloaded, hm.getCurrentInHistory(), gp.getGrid(), MainWindowImpl.this);
                 if (bs != null && bs.b != null) {
                     Boulder r = bs.b;
                     hm.addToBoulderHistory(r);
@@ -447,7 +448,7 @@ public class MainWindowImpl extends JFrame {
         campus.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JDialog campusWindow = new CampusLikeDialog((Component) e.getSource(), gp);
+                JDialog campusWindow = new CampusLikeDialog(MainWindowImpl.this, gp);
                 campusWindow.setVisible(true);
 
             }
@@ -455,7 +456,7 @@ public class MainWindowImpl extends JFrame {
         ball.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JDialog ballWindow = new BallWindow((Component) e.getSource(), gp);
+                JDialog ballWindow = new BallWindow(MainWindowImpl.this, gp);
                 ballWindow.setVisible(true);
 
             }
@@ -463,7 +464,7 @@ public class MainWindowImpl extends JFrame {
         clock.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JDialog clockWindow = new ClockWindow((Component) e.getSource(), gp);
+                JDialog clockWindow = new ClockWindow(MainWindowImpl.this, gp);
                 clockWindow.setVisible(true);
 
             }
@@ -471,7 +472,7 @@ public class MainWindowImpl extends JFrame {
         box.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JDialog boxws = new BoxesWindow((Component) e.getSource(), gp);
+                JDialog boxws = new BoxesWindow(MainWindowImpl.this, gp);
                 boxws.setVisible(true);
 
             }
@@ -479,9 +480,9 @@ public class MainWindowImpl extends JFrame {
         timered.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final JDialog timeredWindow = new JDialog((JFrame) null, Translator.R("timered"));
+                final JDialog timeredWindow = new JDialog((JFrame) MainWindowImpl.this, Translator.R("timered"));
                 final TimeredTraining[] trainig = new TimeredTraining[1];
-                timeredWindow.setModal(true);
+                timeredWindow.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
                 timeredWindow.setLayout(new GridLayout(10, 2));
                 timeredWindow.add(new JLabel(Translator.R("tmeOfBoulder")));
                 final JTextField timeOfBoulder = new JTextField("00:20");
@@ -743,16 +744,16 @@ public class MainWindowImpl extends JFrame {
                                     nextRandomGenerated.getActionListeners()[0],
                                     new ActionListener() {
 
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            gp.getGrid().clean();
-                                            gp.repaintAndSend(getGs());
-                                        }
-                                    },
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    gp.getGrid().clean();
+                                    gp.repaintAndSend(getGs());
+                                }
+                            },
                                     Arrays.asList(new TrainingWithBackends[]{
-                                        new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
-                                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
-                                                0, null, null)}),
+                                new TrainingWithBackends(boulderCalc, allowRandom, allowRegular, allowJumps,
+                                new Training(allowRandom.isSelected(), allowRegular.isSelected(), allowJumps.isSelected(), timeOfBoulder.getText(), timeOfTraining.getText(), (Integer) (numBoulders.getValue()), null, null),
+                                0, null, null)}),
                                     counterClock, (TextToSpeech.TextId) reader.getSelectedItem()
                             );
                             new Thread(trainig[0]).start();
@@ -1112,9 +1113,10 @@ public class MainWindowImpl extends JFrame {
         tools2History.setVisible(false);
     }
 
-    private static BoulderCreationGui.BoulderAndSaved editBoulder(GridPane.Preload p, Boulder b, Grid fakeId) {
+    private static BoulderCreationGui.BoulderAndSaved editBoulder(final GridPane.Preload p, Boulder b, Grid fakeId, MainWindowImpl parent) {
         try {
-            BoulderCreationGui.BoulderAndSaved r = new BoulderCreationGui(getGs()).editBoulderImpl(p, b, fakeId);
+            parent.setVisible(false);
+            BoulderCreationGui.BoulderAndSaved r = new BoulderCreationGui(getGs()).editBoulderImpl(p, b, fakeId, parent);
             if (r.saved && r.b != null) {
                 MainWindow.db.add(new GuiExceptionHandler(), "(boulder " + r.b.getFile().getName() + ")", r.b.getFile());
             }
@@ -1123,6 +1125,8 @@ public class MainWindowImpl extends JFrame {
             GuiLogHelper.guiLogger.loge(ex);
             JOptionPane.showMessageDialog(null, ex);
             return null;
+        } finally {
+            parent.setVisible(true);
         }
     }
 

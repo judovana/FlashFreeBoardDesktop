@@ -7,7 +7,9 @@ package org.fbb.board.desktop.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dialog;
 import java.awt.GridLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -36,6 +38,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
+import org.fbb.board.desktop.gui.awtimpl.MainWindowImpl;
 import org.fbb.board.desktop.gui.awtimpl.WinUtils;
 import org.fbb.board.desktop.tutorial.awt.HelpWindow;
 import org.fbb.board.internals.Filter;
@@ -63,7 +66,7 @@ public class BoulderCreationGui {
         Grade.loadConversiontable();
         File f = new File("/home/jvanek/.config/FlashBoard/repo/walls/moon400test.wall");
         GridPane.Preload preloaded = GridPane.preload(new ZipInputStream(new FileInputStream(f)), f.getName());
-        new BoulderCreationGui(new GlobalSettings()).editBoulderImpl(preloaded, null, null);
+        new BoulderCreationGui(new GlobalSettings()).editBoulderImpl(preloaded, null, null, null);
     }
 
     public static class BoulderAndSaved {
@@ -78,13 +81,14 @@ public class BoulderCreationGui {
 
     }
 
-    public BoulderAndSaved editBoulderImpl(final GridPane.Preload p, final Boulder orig, Grid fakeId) throws IOException, CloneNotSupportedException {
+    public BoulderAndSaved editBoulderImpl(final GridPane.Preload p, final Boulder orig, Grid fakeId, MainWindowImpl parent) throws IOException, CloneNotSupportedException {
         //checkbox save? 
         //if not save, then what?
         //return  new BoulderAlways? - on Ok?
         final boolean[] change = new boolean[]{false, false, false};
         BufferedImage bi = ImageIO.read(new ByteArrayInputStream(p.img));
-        final JDialog operateBoulder = new JDialog((JFrame) null, Translator.R("createBoulder"), true);
+        final JDialog operateBoulder = new JDialog(parent, Translator.R("createBoulder"));
+        operateBoulder.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
         operateBoulder.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GridPane gp = new GridPane(bi, p.props, gs);
         gp.getGrid().setFakeId(fakeId);
@@ -229,6 +233,10 @@ public class BoulderCreationGui {
         DoneEditingBoulderListener done = new DoneEditingBoulderListener(orig, saveOnExit, operateBoulder, gp.getGrid(), name, grades, p.givenId, author, change);
         doneButton.addActionListener(done);
         doneButton.setEnabled(false);
+        if (parent != null) {
+            operateBoulder.setLocation(parent.getLocation());
+            operateBoulder.setSize(parent.getSize());
+        }
         operateBoulder.setVisible(true);
         return new BoulderAndSaved(done.getResult(), saveOnExit.isSelected());
 
@@ -255,14 +263,14 @@ public class BoulderCreationGui {
         private Boulder result;
         private final Boulder orig;
         private final JCheckBox saveOnExit;
-        private final JDialog parent;
+        private final Window parent;
         private final Grid grid;
         private final JTextField nwNameProvider;
         private final JTextField nwAuthorProvider;
         private final JComboBox<String> grades;
         private final boolean[] changed;
 
-        public DoneEditingBoulderListener(Boulder orig, JCheckBox saveOnExit, JDialog parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId, JTextField nwAuthorProvider, boolean[] changed) {
+        public DoneEditingBoulderListener(Boulder orig, JCheckBox saveOnExit, Window parent, Grid grid, JTextField nwNameProvider, JComboBox<String> grades, String wallId, JTextField nwAuthorProvider, boolean[] changed) {
             this.orig = orig;
             this.saveOnExit = saveOnExit;
             this.nwNameProvider = nwNameProvider;

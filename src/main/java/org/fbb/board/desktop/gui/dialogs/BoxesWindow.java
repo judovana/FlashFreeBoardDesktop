@@ -8,6 +8,7 @@ package org.fbb.board.desktop.gui.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Random;
@@ -41,11 +42,12 @@ public class BoxesWindow extends JDialog implements Runnable {
     private final JCheckBox left = new JCheckBox(Translator.R("lw"));
     private final JCheckBox right = new JCheckBox(Translator.R("rw"));
 
-    public BoxesWindow(Component parent, GridPane gp) {
+    public BoxesWindow(Window parent, GridPane gp) {
+        super(parent);
         this.gp = gp;
         this.setTitle(Translator.R("box"));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setModal(true);
+        this.setModalityType(ModalityType.DOCUMENT_MODAL);
         this.setSize(500, 400);
         this.setLocationRelativeTo(parent);
         this.add(new JTextField(Translator.R("boxHelp")), BorderLayout.SOUTH);

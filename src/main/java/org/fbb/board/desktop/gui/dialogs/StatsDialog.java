@@ -60,7 +60,7 @@ public class StatsDialog extends JDialog {
 
     public StatsDialog(final String wall, final DB db, final GlobalSettings gs) {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setModal(true);
+        this.setModalityType(ModalityType.DOCUMENT_MODAL);
         this.setSize(ScreenFinder.getCurrentScreenSizeWithoutBounds().getSize());
         this.setLocationRelativeTo(null);
         paging = new JSpinner(new SpinnerNumberModel(10, 1, 40, 1));
@@ -87,7 +87,7 @@ public class StatsDialog extends JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                BoulderFiltering.BoulderListAndIndex listAndothers = new BoulderFiltering(db, gs).selectListBouder(wall);
+                BoulderFiltering.BoulderListAndIndex listAndothers = new BoulderFiltering(db, gs).selectListBouder(wall, StatsDialog.this);
                 Component[] c = StatsDialog.this.getContentPane().getComponents();
                 int selected = 0;
                 for (Component cc : c) {

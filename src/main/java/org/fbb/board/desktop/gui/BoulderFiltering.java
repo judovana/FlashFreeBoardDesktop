@@ -11,9 +11,11 @@ import com.github.lgooddatepicker.components.TimePickerSettings;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -106,9 +108,9 @@ public class BoulderFiltering {
 
     }
 
-    public BoulderListAndIndex selectListBouder(String wallId) {
+    public BoulderListAndIndex selectListBouder(String wallId, Window parent) {
         try {
-            return selectListBouderImpl(wallId, false);
+            return selectListBouderImpl(wallId, false, parent);
         } catch (Exception ex) {
             GuiLogHelper.guiLogger.loge(ex);
             JOptionPane.showMessageDialog(null, ex);
@@ -116,9 +118,9 @@ public class BoulderFiltering {
         }
     }
 
-    BoulderListAndIndex selectListBouderAsAdmin(String wallId) {
+    BoulderListAndIndex selectListBouderAsAdmin(String wallId, Window parent) {
         try {
-            return selectListBouderImpl(wallId, true);
+            return selectListBouderImpl(wallId, true, parent);
         } catch (Exception ex) {
             GuiLogHelper.guiLogger.loge(ex);
             JOptionPane.showMessageDialog(null, ex);
@@ -126,12 +128,13 @@ public class BoulderFiltering {
         }
     }
 
-    private BoulderListAndIndex selectListBouderImpl(String wallID, final boolean allowDelete) throws IOException {
+    private BoulderListAndIndex selectListBouderImpl(String wallID, final boolean allowDelete, Window parent) throws IOException {
         final int[] result = new int[]{0};
         final int ALL = 1;
         final int SEL = 2;
         final Map<String, GridPane.Preload> wallCache = new HashMap();
-        JDialog d = new JDialog((JDialog) null, Translator.R("selectBoulderCaption"), true);
+        JDialog d = new JDialog(parent, Translator.R("selectBoulderCaption"));
+        d.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
         d.setSize(750, 600);
         d.setLocation(
                 (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - d.getWidth()) / 2,
@@ -473,6 +476,10 @@ public class BoulderFiltering {
 
             }
         });
+        if (parent != null) {
+            d.setLocation(parent.getLocation());
+            d.setSize(parent.getSize());
+        }
         d.setVisible(true);
         if (boulders.getModel().getSize() == 0) {
             d.dispose();

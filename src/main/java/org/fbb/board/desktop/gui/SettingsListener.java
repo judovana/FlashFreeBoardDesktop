@@ -232,7 +232,7 @@ public class SettingsListener implements ActionListener {
         deleteBouldrs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                new BoulderFiltering(db, gs).selectListBouderAsAdmin(wall);
+                new BoulderFiltering(db, gs).selectListBouderAsAdmin(wall, allSettingsWindow);
             }
         });
         JCheckBox resizeable = new JCheckBox(Translator.R("resizeable"), gs.isResizeAble());

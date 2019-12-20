@@ -8,6 +8,7 @@ package org.fbb.board.desktop.gui.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.Window;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -36,11 +37,12 @@ public class CampusLikeDialog extends JDialog {
     final JTextField greenColumns;
     final JTextField blueColumns;
 
-    public CampusLikeDialog(Component parent, GridPane gp) {
+    public CampusLikeDialog(Window parent, GridPane gp) {
+        super(parent);
         this.gp = gp;
         this.setTitle(Translator.R("campus"));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setModal(true);
+        this.setModalityType(ModalityType.DOCUMENT_MODAL);
         this.setSize(500, 400);
         this.setLocationRelativeTo(parent);
         this.add(new JTextField(Translator.R("campusHelp", gp.getGrid().getHeight() - 1, gp.getGrid().getWidth() - 1)), BorderLayout.SOUTH);

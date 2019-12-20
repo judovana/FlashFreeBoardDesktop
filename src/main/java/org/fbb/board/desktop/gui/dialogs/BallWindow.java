@@ -9,6 +9,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Random;
@@ -41,11 +42,12 @@ public class BallWindow extends JDialog implements Runnable {
     private final JComboBox<Integer> size;
     private final TimeAndSnooze tas;
 
-    public BallWindow(Component parent, GridPane gp) {
+    public BallWindow(Window parent, GridPane gp) {
+        super(parent);
         this.gp = gp;
         this.setTitle(Translator.R("ball"));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setModal(true);
+        this.setModalityType(ModalityType.DOCUMENT_MODAL);
         this.setSize(500, 400);
         this.setLocationRelativeTo(parent);
         this.add(new JTextField(Translator.R("ballHelp")), BorderLayout.SOUTH);

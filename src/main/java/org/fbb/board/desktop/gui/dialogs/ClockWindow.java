@@ -9,6 +9,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -43,11 +44,12 @@ public class ClockWindow extends JDialog implements Runnable {
     private final JComboBox<Integer> size_middle;
     private final JComboBox<Integer> axes;
 
-    public ClockWindow(Component parent, GridPane gp) {
+    public ClockWindow(Window parent, GridPane gp) {
+        super(parent);
         this.gp = gp;
         this.setTitle(Translator.R("clock"));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setModal(true);
+        this.setModalityType(ModalityType.DOCUMENT_MODAL);
         this.setSize(500, 400);
         this.setLocationRelativeTo(parent);
         this.add(new JTextField(Translator.R("clockHelp")), BorderLayout.SOUTH);
