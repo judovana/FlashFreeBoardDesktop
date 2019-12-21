@@ -8,6 +8,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.zip.ZipInputStream;
 import javax.swing.JOptionPane;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.fbb.board.Translator;
 import org.fbb.board.desktop.Files;
 import org.fbb.board.desktop.gui.awtimpl.CreateWindow;
@@ -28,9 +34,9 @@ import org.fbb.board.internals.grades.Grade;
 //filters - by grade, by date, by number of holds
 public class MainWindow {
 
-    public  static final GlobalSettings gs = new GlobalSettings();
-    public  static final DB db = new DB(gs);
-    public  static final Puller puller = Puller.create(gs.getPullerDelay() * 60, db);
+    public static final GlobalSettings gs = new GlobalSettings();
+    public static final DB db = new DB(gs);
+    public static final Puller puller = Puller.create(gs.getPullerDelay() * 60, db);
     private static final KeyEventDispatcher f1 = new KeyEventDispatcher() {
 
         @Override
@@ -43,7 +49,17 @@ public class MainWindow {
         }
     };
 
-    public static void main(String... s) {
+    public static void main(String... s) throws ParseException {
+        Option o = new Option("w", "windows", true, "How many windows to open if all is ok, this is not guarded by internal limitation");
+        Options ops = new Options();
+        ops.addOption(o);
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = parser.parse(ops, s);
+        int windows = 1;
+        if (cmd.hasOption("-w")) {
+            String sw = cmd.getOptionValue("w");
+            windows = Integer.valueOf(sw);
+        }
         try {
             KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(f1);
             Grid.colorProvider = gs;
@@ -73,7 +89,9 @@ public class MainWindow {
                     }
                 } else {
                     //if so, show last boulder on last wall
-                    MainWindowImpl.loadWallWithBoulder(preloaded, b);
+                    for (int i = 0; i < windows; i++) {
+                        MainWindowImpl.loadWallWithBoulder(preloaded, b);
+                    }
                 }
             } else if (Files.getLastBoulder() != null && Files.getLastBoard() == null) {
                 //warn, but load last boulder on its wall, if wall does noto exists, empty(?)
