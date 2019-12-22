@@ -1,12 +1,12 @@
 #!/bin/bash
 set -ex
 # have or dont have services all vars?
-HOME=/home/app-data/
+HOME=/home/app/
 orig="$HOME/onboard.default"
 current="$HOME/.config/dconf/user"
-sleep 4 #see keyboard.service RestartSec
 if [ -f $orig ] ; then
   killall onboard || true
+  sleep 1 #wait for dconf to save ; see keyboard.service RestartSec
   cp -v $orig $current
   exit 133
 else

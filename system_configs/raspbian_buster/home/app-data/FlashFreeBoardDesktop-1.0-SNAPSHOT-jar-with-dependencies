@@ -69,8 +69,11 @@ gpio:x:997:pi,app,app-data
 app:x:1004:
 app-data:x:1005:
 
-
-usermod -s //usr/sbin/nologin app-data
+# at the end...
+# usermod -s //usr/sbin/nologin app-data
+# usermod -s //usr/sbin/nologin app
+usermod -s /bin/bash app-data
+usermod -s /bin/bash app
 
   sudo apt install  arduino # to get autoupdate for hw too
 
@@ -84,3 +87,6 @@ usermod -s //usr/sbin/nologin app-data
 # dr-sr-sr-x. 2 jvanek mock 4096 Dec 16 16:57 ~/.config/dconf/
 
 so better to use the services, with timing aroun 10 minutes, or desktop icon
+
+usermod -s //usr/sbin/nologin app-data
+usermod -s //usr/sbin/nologin app
