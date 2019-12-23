@@ -5,6 +5,7 @@ import org.fbb.board.desktop.gui.dialogs.BoxesWindow;
 import org.fbb.board.desktop.gui.dialogs.StatsDialog;
 import org.fbb.board.desktop.gui.dialogs.BallWindow;
 import org.fbb.board.desktop.gui.dialogs.LogView;
+import org.fbb.board.desktop.gui.dialogs.parts.MenuScroller;
 import org.fbb.board.internals.training.BoulderCalc;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -124,6 +125,8 @@ public class MainWindowImpl extends JFrame {
 
     private MainWindowImpl(String tit, GridPane.Preload preloaded, BufferedImage bi, final Boulder possiblebOulder) {
         super(tit);
+        MenuScroller.setScrollerFor(listJump, 20);
+        MenuScroller.setScrollerFor(historyJump, 20);
         this.init = preloaded;
         final JToggleButton[] quickFilters = new JToggleButton[5];
         iconifier.setTarget(this);
@@ -1135,7 +1138,7 @@ public class MainWindowImpl extends JFrame {
         Vector<Boulder> v = list.getHistory();
         for (Boulder boulder : v) {
             JMenuItem i = new JMenuItem();
-            i.setText(boulder.getGradeAndName());
+            i.setText(boulder.getAuthorGradeAndName());
             i.setToolTipText("<html>" + boulder.getStandardTooltip());
             if (boulder.getGradeAndName().equals(name.getText())) {
                 i.setFont(i.getFont().deriveFont(Font.PLAIN));
@@ -1173,7 +1176,7 @@ public class MainWindowImpl extends JFrame {
         Vector<Boulder> v = hm.getHistory();
         for (Boulder boulder : v) {
             JMenuItem i = new JMenuItem();
-            i.setText(boulder.getGradeAndName());
+            i.setText(boulder.getAuthorGradeAndName());
             i.setToolTipText("<html>" + boulder.getStandardTooltip());
             if (boulder.getGradeAndName().equals(name.getText())) {
                 i.setFont(i.getFont().deriveFont(Font.PLAIN));
