@@ -6,6 +6,7 @@ import org.fbb.board.desktop.gui.dialogs.StatsDialog;
 import org.fbb.board.desktop.gui.dialogs.BallWindow;
 import org.fbb.board.desktop.gui.dialogs.LogView;
 import org.fbb.board.desktop.gui.dialogs.parts.MenuScroller;
+import org.fbb.board.desktop.gui.dialogs.SlowBoulder;
 import org.fbb.board.internals.training.BoulderCalc;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -91,12 +92,13 @@ public class MainWindowImpl extends JFrame {
     public ListWithFilter list;
     private final JPopupMenu listJump = new JPopupMenu();
     private final JPopupMenu historyJump = new JPopupMenu();
+    public final JLabel name;
     private final IconifierThread iconifier = new IconifierThread();
     private final GridPane gp;
     private final GridPane.Preload init;
 
-    final JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
-    final JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
+    public final JButton previous = new JButton("<"); //this needs to rember exact boulders. limit quueue! enable/disbale this button!
+    public final JButton next = new JButton(">"); //back in row // iimplement forward queueq?:(
     final JButton nextInList = new JButton(">>");
     final JButton prevInList = new JButton("<<");
 
@@ -161,7 +163,7 @@ public class MainWindowImpl extends JFrame {
         final JButton historyButtons = new JButton("ˇ");
         JLabel historyLabel1 = new JLabel(Translator.R("historyLabel"), SwingConstants.CENTER);
         JLabel historyLabel2 = new JLabel(Translator.R("historyLabel"), SwingConstants.CENTER);
-        JLabel name = new JLabel();
+        name = new JLabel();
         setNameTextAndGrade(name, b);
         JPopupMenu jp = new JPopupMenu();
         next.setEnabled(hm.canFwd());
@@ -266,6 +268,8 @@ public class MainWindowImpl extends JFrame {
         subTrains.add(timered);
         JMenuItem campus = new JMenuItem(Translator.R("campus"));
         subTrains.add(campus);
+        JMenuItem slowBoulder = new JMenuItem(Translator.R("slowBoulder"));
+        subTrains.add(slowBoulder);
         JMenu subGames = new JMenu(Translator.R("games")); //clock, lines, catch the ball
         jp.add(subGames);
         JMenuItem ball = new JMenuItem(Translator.R("ball"));
@@ -469,6 +473,14 @@ public class MainWindowImpl extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 JDialog clockWindow = new ClockWindow(MainWindowImpl.this, gp);
                 clockWindow.setVisible(true);
+
+            }
+        });
+        slowBoulder.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SlowBoulder slowBoulderDialog = new SlowBoulder(MainWindowImpl.this, gp);
+                slowBoulderDialog.setVisible(true);
 
             }
         });
@@ -1273,7 +1285,7 @@ public class MainWindowImpl extends JFrame {
         }
     }
 
-    private static void setNameTextAndGrade(JLabel n, Boulder b) {
+    public static void setNameTextAndGrade(JLabel n, Boulder b) {
         n.setText(b.getAuthorGradeAndName());
         n.setToolTipText(b.getStandardTooltip());
         if (n.getFontMetrics(n.getFont()).getStringBounds(n.getText(), n.getGraphics()).getWidth() > n.getWidth()) {

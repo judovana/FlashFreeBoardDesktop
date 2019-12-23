@@ -95,7 +95,7 @@ public class Boulder implements Cloneable {
         }
     }
 
-    void apply(int[] psStatus, int heigt) {
+    public void apply(int[] psStatus, int heigt) {
         String start = map.getProperty(START);
         String path = map.getProperty(PATH);
         String top = map.getProperty(TOP);
