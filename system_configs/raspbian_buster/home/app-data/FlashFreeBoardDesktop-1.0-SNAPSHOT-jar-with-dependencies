@@ -90,3 +90,11 @@ so better to use the services, with timing aroun 10 minutes, or desktop icon
 
 usermod -s //usr/sbin/nologin app-data
 usermod -s //usr/sbin/nologin app
+
+# apt install x11vnc
+# apt remove  x11vnc
+# su app
+# x11app
+# vncviewer  freeboard.local:0 SecurityTypes=None
+
+
