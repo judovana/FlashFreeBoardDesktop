@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar /home/app-data/FlashBalknaSwing*.jar iconifyWindow
+java -Xmx512m -jar /home/app-data/FlashBalknaSwing*.jar iconifyWindow

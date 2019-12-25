@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar /home/app-data/FlashFreeBoardDesktop-*-jar-with-dependencies.jar
+java -Xmx2g -jar /home/app-data/FlashFreeBoardDesktop-*-jar-with-dependencies.jar
