@@ -7,12 +7,10 @@
 <p>
 Je obrazovka černá? Pouze se šetří, dotkni se jí a měl by si vidět ovládání stěny
 </p>
-<div>
-<a style="display: block;" href="imgs/wholeCz.png"><img style="float: right; margin: 0px 0px 0px 0px;" src="imgs/wholeCz.png" height="80% "/></a>
-</div>
-<div>
+<table height=80%><tr height=100%>
+<td style="vertical-align:top" height=100% width="20%">
 <ul>
-  <li>Základní užití
+  <li>Základní užití</li>
     <ul>
       <li>rychlí filter</li>
       <li>hudba</li>
@@ -21,20 +19,25 @@ Je obrazovka černá? Pouze se šetří, dotkni se jí a měl by si vidět ovlá
         <li>historie</li>
         <li>přímé skoky</li>
     </ul>
-  </li>
     </ul>
-  </li>
-  <li>Pokročilé funkce
+  <li>Pokročilé funkce</li>
       <ul>
-        <li>sckrolování</li>
+        <li>skrolování</li>
         <li>vyvolání  ||| menu = </li>
         <li>vlastní filtr</li>
+        <ul>
+          <li>multiselekt</li>
+          <li>rychlé datum</li>
+          <li>historie filtrů</li>
+        <ul>
     </ul>
-  </li>
 </ul>
-</div>
-</div>
-<h3 style="clear: right;">Základní užití</h3>
+</td>
+<td style="vertical-align:top; horizontal-align:left">
+<a href="imgs/wholeCz.png"><img style="max-width:100%; max-height:100%" src="imgs/wholeCz.png"/></a>
+</td>
+</tr></table>
+<h3>Základní užití</h3>
 <p>
 Základní použití je přijít, pomocý <b>"rychlého filtru"</b> si zvolit svoji obtížnost a pomoci "předchozího/dalšího boulderu" tedy šipek  <b><<  a  >></b>si proklikávat bouldery. Autor,obtížnost a název jsou vždy vidět pod rychlím filtrem. Při kliku na název se vám zobrazí detajly, včetně <b>převodů obtížnosti</b>. Ale <b>Free board</b> toho umí mnohem více.
 </p>
@@ -48,7 +51,7 @@ Pokud jsou u monotoru repráčky, můžete si přinést vlastní flash disk (ob�
 <h4>Navigace</h4>
 <p>
 Jakmile si pomocý <b>"rychlého filtru"</b> 
-<img src="imgs/quick.png" width="50% "/>
+<img src="imgs/quick.png" width="99% "/>
 nastavíte obtížnost, zobrazí se nejnovější boulder dané obtížnosti a můžete zkoušet. Pomoci "předchozího/dalšího boulderu" tedy šipek  <b><<  a  >></b>si můžete proklikávat obsah filtrovaných problémů. Tlačítko <b>random/náhoda</b> skočí na náhodný boulder v aktuálním seznamu. Tlačítko <b>ˇ/^</b> otevře/schová lištu navigace v historii.
 </p>
 <img src="imgs/navFull.png" width="99% "/>
@@ -90,6 +93,46 @@ Přez dva kliky skrze menu ostatních funkcí a zvolení "vybrat/listovat boulde
 </p>
 <p>
  <img src="imgs/select.png" height="80% "/>
+</p>
+<p>
+Okno se vždy zobrazí o velikosti stěny a na pozici toho kdo jej vyvolal. To aby se lépe orientovalo v dvojokením módu pro dva lezce
+</p>
+<p>
+<h5>Listujeme podle všech parametrů boulderů</h5>
+<li> obtížnost</li>
+<li> délka</li>
+<li> datem výroby</li>
+<li> autorů (mezera odděluje několik autorů, úvozovky slučují mezery)</li>
+<li> názvů boulderů (mezera odděluje jednotlivá klíčová slova, úvozovky slučují mezery)</li>
+Vždy po nastavení parametrů je <b>třeba zmáčknout <span style="color: red">načervenalé</span> HLEDAT</b>
+ <img src="imgs/search.png" width="80% "/>
+ poté se objeví vyfiltrovaný seznam. Tím je možné dále kliklat, a vždy se zobrazí náhled problému. Je dokonce možné pomocí <b>ctrl</b> nebo <b>shift</b> vybýrat skupiny boulderů!
+</p>
+<p>
+ <img src="imgs/selectMulti.png" width="50% "/>
+</p>
+<p>
+Po tom co jste s filtrováním/výběrem spokojeni, je <b>třeba zmáčknout <span style="color: green">nazelenalé</span> Lézt filtrované bouldery</b>. Filtrování se zavře, a butete moci  lézt vybranou skupinu boulderů. Pokud jsi nějaký boulder i vybral (byl vidět v náhledu a jeho text svítil červeně), bude tento boulder vybrán. Pokud jse použili multiselect a chceš lízt pouze těch pár manuálně vybraných boulderů (nebo dokonce ten jeden jedinný, pracně nalezený, a nenechat se rušit jinými), je <b>třeba zmáčknout <span style="color: #505090">šedo-modrý</span> Lézt pouze vybrané bouldery</b>  <img src="imgs/addClimb.png" width="50% "/>
+</p>
+<h5>Rychlé datum</h5>
+<p>
+I když je volba datumu a času velmi přímočará
+ <img src="imgs/date.png" width="50% "/>
+Jsou pro vás nachystané ryhchlo výběry:
+<li> poslední den</li>
+<li> poslední týden</li>
+<li> poslední měsíc</li>
+<li> poslední třiměsíce</li>
+Nezxapomeňte, že i rychlo výběr pouze nastaví datum, a je třebah ottový filtr potvrdit <b>zmáčknoutím <span style="color: red">načervenalého</span> HLEDAT</b>
+ <img src="imgs/search.png" width="80% "/>
+</p>
+<h5>historie filtrů</h5>
+<p>
+Nastavení plnohodnotného filtru je dřina.  Proto si apliakce pamatuje poslední filtry: 
+<img src="imgs/search.png" width="80% "/>  <b>Poslední aplikovaný</b> - tedy kdy jste naposley klikli <span style="color: red">načervenalé</span> HLEDAT, a <b>poslední použitý</b>, tedy kdy jste stiskly tlačítko <span style="color: green">nazelenalé</span> Lézt filtrované bouldery nebo  <span style="color: #505090">šedo-modrý</span> Lézt pouze vybrané bouldery. Okno výběru boulderu je vždy nastartováno s maximálním možnm rozsahem. Toto se dá obnovit pomocí <b>nastavit na vše dané stěny</b>
+</p>
+<p>
+Pozor, historie filtrů se sdílí mezi okny paralelně lezoucích lezců! Ale zase přetrvá zavření aplikace.
 </p>
 </body>
 </html>
