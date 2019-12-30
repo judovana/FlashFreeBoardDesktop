@@ -113,6 +113,6 @@ to
  PrivateMounts=no
 
 
-
+# no X afer raspbian update? Set manually resolution via raspi-config
 usermod -s //usr/sbin/nologin app-data
 usermod -s //usr/sbin/nologin app
