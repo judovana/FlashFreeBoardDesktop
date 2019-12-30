@@ -512,7 +512,10 @@ public class MainWindowImpl extends JFrame {
                 final JSpinner numBoulders = new JSpinner(new SpinnerNumberModel(15, 1, 1000, 1));
                 timeredWindow.add(numBoulders);
                 final BoulderCalc boulderCalc = new BoulderCalc(timeOfBoulder, timeOfTraining, numBoulders);
-                final JCheckBox allowRandom = new JCheckBox(Translator.R("allowRandom"), true);
+                final JCheckBox allowRandom = new JCheckBox(Translator.R("allowRandom"), false);
+                if (list.getSize()<2){
+                    allowRandom.setSelected(true);
+                }
                 allowRandom.addActionListener(new ActionListener() {
 
                     @Override
