@@ -365,6 +365,9 @@ public class GlobalSettings implements ByteEater, HoldMarkerProvider {
 
     @Override
     public int getMaxOfRegisteredProviders() {
+        //this can be easily setup=able
+        //once done, the trick with inverted colors in  holdToColor
+        //must be reworked to support custom colors for each window
         return 2;
     }
 
