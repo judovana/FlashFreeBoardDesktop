@@ -138,7 +138,7 @@ public class SettingsListener implements ActionListener {
         int genRows = 8;
         int conRows = 2;
         int colRows = 13;
-        int remRows = 9;
+        int remRows = 10;
         int ampRows = 6;
         int upRows = 6;
         int maxRows = colRows;
@@ -442,6 +442,8 @@ public class SettingsListener implements ActionListener {
             gr.setEnabled(false);
             bl.setEnabled(false);
         }
+        remote.add(new JLabel(Translator.R("tokenInfo")));
+        remote.add(new JLabel("https://github.com/name/repo.git or https://token@github.com/name/repo.git"));
         remote.add(new JLabel(Translator.R("remoteUrl")));
         JTextField remoteUrl = new JTextField(gs.getUrl());
         remote.add(remoteUrl);

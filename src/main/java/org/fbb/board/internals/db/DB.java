@@ -131,40 +131,83 @@ public class DB {
             Git git = getDB();
             if (git != null) {
                 GuiLogHelper.guiLogger.logo("Push running");
-                git.push().setCredentialsProvider(new CredentialsProvider() {
-                    @Override
-                    public boolean isInteractive() {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean supports(CredentialItem... cis) {
-                        for (CredentialItem ci : cis) {
-                            if (ci instanceof CredentialItem.Password) {
-                                GitAuthenticator gi = new GitAuthenticator();
-                                char[] v = gi.authenticate(Translator.R("authenticateGit", gs.getRuser(), gs.getUrl(), gs.getBranch()));
-                                ((CredentialItem.Password) ci).setValue(v);
-                            } else if (ci instanceof CredentialItem.Username) {
-                                ((CredentialItem.Username) ci).setValue(gs.getRuser().trim());
-                            } else {
-                                System.err.println("Unsupported Credentialitem " + ci.getClass().getSimpleName());
-                            }
-                        }
-                        return true;
-                    }
-
-                    @Override
-                    public boolean get(URIish uriish, CredentialItem... cis) throws UnsupportedCredentialItem {
-                        System.out.println(cis);
-                        return true;
-                    }
-
-                }).call();
+                CredentialsProvider cp = getCredentialsProvider();
+                git.push().setCredentialsProvider(cp).call();
             }
             GuiLogHelper.guiLogger.logo("Push done");
         } else {
             GuiLogHelper.guiLogger.logo("Push cant");
         }
+    }
+
+    private CredentialsProvider getCredentialsProvider() {
+        if (gs.getUrl().contains("@") && getToken(gs.getUrl()).length() > 10) {
+            return new CredentialsProvider() {
+                @Override
+                public boolean isInteractive() {
+                    return false;
+                }
+
+                @Override
+                public boolean supports(CredentialItem... cis) {
+                    for (CredentialItem ci : cis) {
+                        if (ci instanceof CredentialItem.Password) {
+                            GitAuthenticator gi = new GitAuthenticator();
+                            char[] v = new char[0];
+                            ((CredentialItem.Password) ci).setValue(v);
+                        } else if (ci instanceof CredentialItem.Username) {
+                            ((CredentialItem.Username) ci).setValue(getToken(gs.getUrl()).trim());
+                        } else {
+                            System.err.println("Unsupported Credentialitem " + ci.getClass().getSimpleName());
+                        }
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean get(URIish uriish, CredentialItem... cis) throws UnsupportedCredentialItem {
+                    System.out.println(cis);
+                    return true;
+                }
+
+            };
+        } else {
+            return new CredentialsProvider() {
+                @Override
+                public boolean isInteractive() {
+                    return false;
+                }
+
+                @Override
+                public boolean supports(CredentialItem... cis) {
+                    for (CredentialItem ci : cis) {
+                        if (ci instanceof CredentialItem.Password) {
+                            GitAuthenticator gi = new GitAuthenticator();
+                            char[] v = gi.authenticate(Translator.R("authenticateGit", gs.getRuser(), gs.getUrl(), gs.getBranch()));
+                            ((CredentialItem.Password) ci).setValue(v);
+                        } else if (ci instanceof CredentialItem.Username) {
+                            ((CredentialItem.Username) ci).setValue(gs.getRuser().trim());
+                        } else {
+                            System.err.println("Unsupported Credentialitem " + ci.getClass().getSimpleName());
+                        }
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean get(URIish uriish, CredentialItem... cis) throws UnsupportedCredentialItem {
+                    System.out.println(cis);
+                    return true;
+                }
+
+            };
+        }
+    }
+
+    private String getToken(String url) {
+        String token = url.replaceAll("@.*", "");
+        token = token.replaceAll(".*://", "");
+        return token;
     }
 
     public boolean init(boolean force) throws IOException, GitAPIException {
