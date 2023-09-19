@@ -37,7 +37,7 @@
 package org.fbb.board.internals;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.File;
 import java.io.PrintStream;
 
 /**
@@ -118,8 +118,7 @@ public final class TeeOutputStream extends PrintStream {
     }
 
     public static String getLineSeparator() {
-        return java.security.AccessController.doPrivileged(
-                new sun.security.action.GetPropertyAction("line.separator"));
+        return File.separator;
     }
 
 }
