@@ -392,31 +392,49 @@ public class DB {
     private static class ProgressMonitorImpl implements ProgressMonitor {
 
         String s = "unknown";
+        private boolean duration = false;
 
         @Override
         public void start(int i) {
             System.out.println(s + "started");
+            if (duration) {
+                System.out.println(new Date());
+            }
         }
 
         @Override
         public void beginTask(String string, int i) {
             this.s = string;
+            if (duration) {
+                System.out.println(new Date());
+            }
         }
 
         @Override
         public void update(int i) {
             System.out.println(s + " updated");
+            if (duration) {
+                System.out.println(new Date());
+            }
         }
 
         @Override
         public void endTask() {
             System.out.println(s + " ended");
+            if (duration) {
+                System.out.println(new Date());
+            }
         }
 
         @Override
         public boolean isCancelled() {
             //System.out.println(s + " canceled");
             return false;
+        }
+
+        @Override
+        public void showDuration(boolean b) {
+            this.duration = b;
         }
     }
 
